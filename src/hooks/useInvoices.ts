@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import type { Invoice, InvoiceItem, InvoiceItemFormData, PaymentMode } from '@/types';
@@ -217,7 +218,7 @@ export function useInvoices() {
     },
   });
 
-  const getInvoiceWithItems = async (invoiceId: string) => {
+  const getInvoiceWithItems = useCallback(async (invoiceId: string) => {
     const { data: invoice, error: invError } = await supabase
       .from('invoices')
       .select(`
@@ -226,11 +227,12 @@ export function useInvoices() {
         items:invoice_items(*)
       `)
       .eq('id', invoiceId)
+      .order('sort_order', { referencedTable: 'invoice_items', ascending: true })
       .single();
     
     if (invError) throw invError;
     return invoice;
-  };
+  }, []);
 
   // Stats
   const totalRevenue = invoicesQuery.data

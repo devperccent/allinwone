@@ -320,48 +320,53 @@ export default function InvoiceEditor() {
 
   // Load existing invoice if editing
   useEffect(() => {
+    if (!id) return;
+    
+    let cancelled = false;
+    
     const loadInvoice = async () => {
-      if (id) {
-        try {
-          const fullInvoice = await getInvoiceWithItems(id);
-          if (fullInvoice) {
-            setCurrentInvoice({
-              ...fullInvoice,
-              status: fullInvoice.status as 'draft' | 'finalized' | 'paid' | 'cancelled',
-              payment_mode: fullInvoice.payment_mode as 'cash' | 'upi' | 'credit' | 'split' | null,
-            });
-            setInvoiceNumber(fullInvoice.invoice_number);
-            setDateIssued(fullInvoice.date_issued);
-            setDateDue(fullInvoice.date_due || '');
-            setNotes(fullInvoice.notes || '');
-            
-            // Set client
-            if (fullInvoice.client) {
-              setSelectedClient(fullInvoice.client);
-            }
-
-            // Set items from invoice
-            if (fullInvoice.items && fullInvoice.items.length > 0) {
-              setItems(fullInvoice.items.map((item: any) => ({
-                id: item.id,
-                product_id: item.product_id,
-                description: item.description,
-                qty: item.qty,
-                rate: Number(item.rate),
-                tax_rate: Number(item.tax_rate),
-                discount: Number(item.discount),
-              })));
-            }
-          }
-        } catch (error) {
-          console.error('Error loading invoice:', error);
+      try {
+        const fullInvoice = await getInvoiceWithItems(id);
+        if (cancelled || !fullInvoice) return;
+        
+        setCurrentInvoice({
+          ...fullInvoice,
+          status: fullInvoice.status as 'draft' | 'finalized' | 'paid' | 'cancelled',
+          payment_mode: fullInvoice.payment_mode as 'cash' | 'upi' | 'credit' | 'split' | null,
+        });
+        setInvoiceNumber(fullInvoice.invoice_number);
+        setDateIssued(fullInvoice.date_issued);
+        setDateDue(fullInvoice.date_due || '');
+        setNotes(fullInvoice.notes || '');
+        
+        // Set client
+        if (fullInvoice.client) {
+          setSelectedClient(fullInvoice.client);
         }
+
+        // Set items from invoice - sorted by sort_order
+        if (fullInvoice.items && fullInvoice.items.length > 0) {
+          const sortedItems = [...fullInvoice.items].sort((a: any, b: any) => a.sort_order - b.sort_order);
+          setItems(sortedItems.map((item: any) => ({
+            id: item.id,
+            product_id: item.product_id,
+            description: item.description,
+            qty: item.qty,
+            rate: Number(item.rate),
+            tax_rate: Number(item.tax_rate),
+            discount: Number(item.discount),
+          })));
+        }
+      } catch (error) {
+        console.error('Error loading invoice:', error);
       }
     };
     
-    if (id) {
-      loadInvoice();
-    }
+    loadInvoice();
+    
+    return () => {
+      cancelled = true;
+    };
   }, [id, getInvoiceWithItems]);
 
   // DnD sensors
