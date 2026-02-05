@@ -110,7 +110,7 @@ export function useInvoices() {
   });
 
   const updateInvoice = useMutation({
-    mutationFn: async ({ id, items, ...updates }: Partial<Invoice> & { id: string; items?: InvoiceItemFormData[] }) => {
+    mutationFn: async ({ id, formItems, ...updates }: Omit<Partial<Invoice>, 'items'> & { id: string; formItems?: InvoiceItemFormData[] }) => {
       // Update invoice
       const { data, error } = await supabase
         .from('invoices')
@@ -122,12 +122,12 @@ export function useInvoices() {
       if (error) throw error;
       
       // Update items if provided
-      if (items) {
+      if (formItems) {
         // Delete existing items
         await supabase.from('invoice_items').delete().eq('invoice_id', id);
         
         // Insert new items
-        const newItems = items
+        const newItems = formItems
           .filter(item => item.description && item.rate > 0)
           .map((item, index) => ({
             invoice_id: id,
@@ -241,15 +241,56 @@ export function useInvoices() {
     ?.filter(inv => inv.status === 'finalized')
     .reduce((sum, inv) => sum + Number(inv.grand_total), 0) || 0;
 
+  const generateId = () => 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+    const r = Math.random() * 16 | 0;
+    return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+  });
+
+  // Helper functions to call mutations properly
+  const createInvoiceAsync = async (data: { data: Omit<CreateInvoiceData, 'items'>; items: Omit<InvoiceItemFormData, 'id'>[] }) => {
+    const itemsWithId = data.items.map(item => ({ 
+      ...item, 
+      id: generateId(),
+    })) as InvoiceItemFormData[];
+    
+    return createInvoice.mutateAsync({
+      ...data.data,
+      items: itemsWithId,
+    });
+  };
+
+  const updateInvoiceAsync = async (data: { id: string; data: Partial<Invoice>; items?: Omit<InvoiceItemFormData, 'id'>[] }) => {
+    const itemsWithId = data.items?.map(item => ({ 
+      ...item, 
+      id: generateId(),
+    })) as InvoiceItemFormData[] | undefined;
+    
+    const { items: _items, ...restData } = data.data;
+    
+    return updateInvoice.mutateAsync({
+      id: data.id,
+      ...restData,
+      formItems: itemsWithId,
+    });
+  };
+
+  const finalizeInvoiceAsync = async (invoiceId: string) => {
+    return finalizeInvoice.mutateAsync(invoiceId);
+  };
+
   return {
     invoices: invoicesQuery.data || [],
     totalRevenue,
     pendingAmount,
     isLoading: invoicesQuery.isLoading,
     error: invoicesQuery.error,
-    createInvoice,
-    updateInvoice,
-    finalizeInvoice,
+    createInvoice: createInvoiceAsync,
+    updateInvoice: updateInvoiceAsync,
+    finalizeInvoice: finalizeInvoiceAsync,
+    finalizeInvoiceMutation: finalizeInvoice,
+    isCreating: createInvoice.isPending,
+    isUpdating: updateInvoice.isPending,
+    isFinalizing: finalizeInvoice.isPending,
     markAsPaid,
     deleteInvoice,
     getInvoiceWithItems,

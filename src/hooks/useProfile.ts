@@ -5,14 +5,16 @@ import type { Profile } from '@/types';
 import { useToast } from '@/hooks/use-toast';
 
 interface UpdateProfileData {
+  id: string;
   org_name?: string;
   email?: string;
-  phone?: string;
-  gstin?: string;
-  address?: string;
+  phone?: string | null;
+  gstin?: string | null;
+  address?: string | null;
   state_code?: string;
-  upi_vpa?: string;
+  upi_vpa?: string | null;
   invoice_prefix?: string;
+  next_invoice_number?: number;
 }
 
 export function useProfile() {
@@ -20,14 +22,12 @@ export function useProfile() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const updateProfile = useMutation({
-    mutationFn: async (updates: UpdateProfileData) => {
-      if (!profile?.id) throw new Error('No profile');
-      
+  const updateProfileMutation = useMutation({
+    mutationFn: async ({ id, ...updates }: UpdateProfileData) => {
       const { data, error } = await supabase
         .from('profiles')
         .update(updates)
-        .eq('id', profile.id)
+        .eq('id', id)
         .select()
         .single();
       
@@ -36,15 +36,19 @@ export function useProfile() {
     },
     onSuccess: async () => {
       await refreshProfile();
-      toast({ title: 'Profile updated', description: 'Your changes have been saved.' });
     },
     onError: (error: Error) => {
       toast({ title: 'Error', description: error.message, variant: 'destructive' });
     },
   });
 
+  const updateProfile = async (data: UpdateProfileData) => {
+    return updateProfileMutation.mutateAsync(data);
+  };
+
   return {
     profile,
     updateProfile,
+    isUpdating: updateProfileMutation.isPending,
   };
 }

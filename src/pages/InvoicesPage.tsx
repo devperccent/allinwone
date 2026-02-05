@@ -58,7 +58,7 @@ const statusConfig: Record<InvoiceStatus, { label: string; className: string }> 
 
 export default function InvoicesPage() {
   const { profile } = useAuth();
-  const { invoices, isLoading, finalizeInvoice, markAsPaid, deleteInvoice, getInvoiceWithItems } = useInvoices();
+  const { invoices, isLoading, finalizeInvoiceMutation, markAsPaid, deleteInvoice, getInvoiceWithItems } = useInvoices();
   const { generatePdf, isGenerating } = usePdfDownload();
   const { sendInvoiceEmail, isSending } = useSendInvoiceEmail();
   
@@ -268,8 +268,8 @@ export default function InvoicesPage() {
                         <DropdownMenuSeparator />
                         {invoice.status === 'draft' && (
                           <DropdownMenuItem 
-                            onClick={() => finalizeInvoice.mutate(invoice.id)}
-                            disabled={finalizeInvoice.isPending}
+                            onClick={() => finalizeInvoiceMutation.mutate(invoice.id)}
+                            disabled={finalizeInvoiceMutation.isPending}
                           >
                             <CheckCircle className="w-4 h-4 mr-2" />
                             Finalize & Send
