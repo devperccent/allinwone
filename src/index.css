@@ -1,96 +1,137 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
+/* Inw Design System - Professional Invoicing SaaS
+   Theme: Indigo (#4F46E5) with clean, data-dense aesthetic
+   Font: Plus Jakarta Sans
 */
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    /* Base */
+    --background: 0 0% 99%;
+    --foreground: 226 71% 8%;
 
+    /* Cards & Surfaces */
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
-
+    --card-foreground: 226 71% 8%;
+    
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover-foreground: 226 71% 8%;
 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    /* Indigo Primary */
+    --primary: 239 84% 67%;
+    --primary-foreground: 0 0% 100%;
+    
+    /* Subtle Secondary */
+    --secondary: 226 47% 96%;
+    --secondary-foreground: 226 71% 18%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    /* Muted Elements */
+    --muted: 226 20% 96%;
+    --muted-foreground: 226 20% 46%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    /* Accent - Lighter Indigo */
+    --accent: 239 84% 97%;
+    --accent-foreground: 239 84% 47%;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    /* Status Colors */
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    
+    --success: 142 76% 36%;
+    --success-foreground: 0 0% 100%;
+    
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 100%;
+    
+    --info: 199 89% 48%;
+    --info-foreground: 0 0% 100%;
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    /* Borders & Inputs */
+    --border: 226 20% 91%;
+    --input: 226 20% 91%;
+    --ring: 239 84% 67%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    --radius: 0.625rem;
 
-    --radius: 0.5rem;
+    /* Sidebar */
+    --sidebar-background: 226 47% 98%;
+    --sidebar-foreground: 226 40% 30%;
+    --sidebar-primary: 239 84% 67%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 239 84% 97%;
+    --sidebar-accent-foreground: 239 84% 47%;
+    --sidebar-border: 226 20% 92%;
+    --sidebar-ring: 239 84% 67%;
 
-    --sidebar-background: 0 0% 98%;
-
-    --sidebar-foreground: 240 5.3% 26.1%;
-
-    --sidebar-primary: 240 5.9% 10%;
-
-    --sidebar-primary-foreground: 0 0% 98%;
-
-    --sidebar-accent: 240 4.8% 95.9%;
-
-    --sidebar-accent-foreground: 240 5.9% 10%;
-
-    --sidebar-border: 220 13% 91%;
-
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    /* Custom Tokens */
+    --gradient-primary: linear-gradient(135deg, hsl(239 84% 67%), hsl(259 84% 67%));
+    --gradient-success: linear-gradient(135deg, hsl(142 76% 36%), hsl(162 76% 36%));
+    --gradient-surface: linear-gradient(180deg, hsl(0 0% 100%), hsl(226 47% 99%));
+    
+    --shadow-sm: 0 1px 2px 0 hsl(226 71% 8% / 0.03);
+    --shadow-md: 0 4px 6px -1px hsl(226 71% 8% / 0.05), 0 2px 4px -2px hsl(226 71% 8% / 0.03);
+    --shadow-lg: 0 10px 15px -3px hsl(226 71% 8% / 0.06), 0 4px 6px -4px hsl(226 71% 8% / 0.03);
+    --shadow-xl: 0 20px 25px -5px hsl(226 71% 8% / 0.08), 0 8px 10px -6px hsl(226 71% 8% / 0.04);
+    --shadow-glow: 0 0 20px hsl(239 84% 67% / 0.15);
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
+    --background: 226 71% 6%;
+    --foreground: 226 20% 96%;
 
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
+    --card: 226 50% 8%;
+    --card-foreground: 226 20% 96%;
 
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
+    --popover: 226 50% 8%;
+    --popover-foreground: 226 20% 96%;
 
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
+    --primary: 239 84% 67%;
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
+    --secondary: 226 40% 14%;
+    --secondary-foreground: 226 20% 90%;
 
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
+    --muted: 226 40% 14%;
+    --muted-foreground: 226 20% 55%;
 
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
+    --accent: 239 50% 20%;
+    --accent-foreground: 239 84% 80%;
 
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+    
+    --success: 142 76% 45%;
+    --success-foreground: 0 0% 100%;
+    
+    --warning: 38 92% 55%;
+    --warning-foreground: 0 0% 0%;
+    
+    --info: 199 89% 55%;
+    --info-foreground: 0 0% 100%;
 
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
+    --border: 226 40% 16%;
+    --input: 226 40% 16%;
+    --ring: 239 84% 67%;
+
+    --sidebar-background: 226 50% 7%;
+    --sidebar-foreground: 226 20% 80%;
+    --sidebar-primary: 239 84% 67%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --sidebar-accent: 239 50% 15%;
+    --sidebar-accent-foreground: 239 84% 80%;
+    --sidebar-border: 226 40% 14%;
+    --sidebar-ring: 239 84% 67%;
+
+    --shadow-sm: 0 1px 2px 0 hsl(0 0% 0% / 0.2);
+    --shadow-md: 0 4px 6px -1px hsl(0 0% 0% / 0.3), 0 2px 4px -2px hsl(0 0% 0% / 0.2);
+    --shadow-lg: 0 10px 15px -3px hsl(0 0% 0% / 0.35), 0 4px 6px -4px hsl(0 0% 0% / 0.2);
+    --shadow-xl: 0 20px 25px -5px hsl(0 0% 0% / 0.4), 0 8px 10px -6px hsl(0 0% 0% / 0.25);
+    --shadow-glow: 0 0 25px hsl(239 84% 67% / 0.25);
   }
 }
 
@@ -99,7 +140,144 @@ All colors MUST be HSL.
     @apply border-border;
   }
 
+  html {
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  }
+
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground antialiased;
+    font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  }
+
+  /* Scrollbar Styling */
+  ::-webkit-scrollbar {
+    @apply w-2 h-2;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-muted/50 rounded-full;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-muted-foreground/20 rounded-full hover:bg-muted-foreground/30 transition-colors;
+  }
+}
+
+@layer components {
+  /* Glass Effect */
+  .glass {
+    @apply bg-background/80 backdrop-blur-xl border border-border/50;
+  }
+
+  /* Stat Cards */
+  .stat-card {
+    @apply relative overflow-hidden rounded-xl p-6 transition-all duration-200;
+    background: var(--gradient-surface);
+    box-shadow: var(--shadow-md);
+  }
+
+  .stat-card:hover {
+    box-shadow: var(--shadow-lg);
+    transform: translateY(-1px);
+  }
+
+  /* Table Styling */
+  .data-table {
+    @apply w-full text-sm;
+  }
+
+  .data-table th {
+    @apply text-left font-semibold text-muted-foreground py-3 px-4 border-b border-border bg-muted/30;
+  }
+
+  .data-table td {
+    @apply py-3 px-4 border-b border-border/50;
+  }
+
+  .data-table tr:hover td {
+    @apply bg-muted/20;
+  }
+
+  /* Invoice Preview */
+  .invoice-preview {
+    @apply bg-white rounded-lg shadow-lg;
+    aspect-ratio: 210 / 297; /* A4 ratio */
+  }
+
+  /* Status Badges */
+  .status-draft {
+    @apply bg-muted text-muted-foreground;
+  }
+
+  .status-finalized {
+    @apply bg-info/10 text-info;
+  }
+
+  .status-paid {
+    @apply bg-success/10 text-success;
+  }
+
+  .status-cancelled {
+    @apply bg-destructive/10 text-destructive;
+  }
+
+  /* GST Badge */
+  .gst-badge {
+    @apply inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium;
+  }
+
+  .gst-badge-cgst {
+    @apply bg-emerald-100 text-emerald-700;
+  }
+
+  .gst-badge-sgst {
+    @apply bg-teal-100 text-teal-700;
+  }
+
+  .gst-badge-igst {
+    @apply bg-indigo-100 text-indigo-700;
+  }
+}
+
+@layer utilities {
+  /* Animation Classes */
+  .animate-fade-in {
+    animation: fadeIn 0.3s ease-out;
+  }
+
+  .animate-slide-up {
+    animation: slideUp 0.3s ease-out;
+  }
+
+  .animate-scale-in {
+    animation: scaleIn 0.2s ease-out;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes scaleIn {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
+  }
+
+  /* Number Display */
+  .tabular-nums {
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Text Gradient */
+  .text-gradient {
+    background: var(--gradient-primary);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
   }
 }
