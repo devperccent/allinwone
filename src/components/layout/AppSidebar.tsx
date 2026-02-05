@@ -1,4 +1,4 @@
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard,
   FileText,
@@ -13,6 +13,14 @@ import {
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
+import { useAuth } from '@/contexts/AuthContext';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 const navigation = [
   { name: 'Dashboard', href: '/', icon: LayoutDashboard },
@@ -25,7 +33,21 @@ const navigation = [
 
 export function AppSidebar() {
   const location = useLocation();
+  const navigate = useNavigate();
   const [collapsed, setCollapsed] = useState(false);
+  const { profile, signOut } = useAuth();
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate('/login');
+  };
+
+  const initials = profile?.org_name
+    ?.split(' ')
+    .map(word => word[0])
+    .join('')
+    .slice(0, 2)
+    .toUpperCase() || 'IN';
 
   return (
     <aside
@@ -70,8 +92,49 @@ export function AppSidebar() {
         })}
       </nav>
 
-      {/* Footer */}
-      <div className="p-3 border-t border-sidebar-border">
+      {/* User section */}
+      <div className="p-3 border-t border-sidebar-border space-y-2">
+        {/* User Profile Dropdown */}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button
+              className={cn(
+                'flex items-center gap-3 w-full px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200',
+                'text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground',
+                collapsed && 'justify-center'
+              )}
+            >
+              <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                <span className="text-xs font-semibold text-primary">{initials}</span>
+              </div>
+              {!collapsed && (
+                <div className="flex-1 text-left truncate">
+                  <p className="truncate">{profile?.org_name || 'Loading...'}</p>
+                </div>
+              )}
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-56">
+            <div className="px-2 py-1.5">
+              <p className="text-sm font-medium">{profile?.org_name}</p>
+              <p className="text-xs text-muted-foreground">{profile?.email}</p>
+            </div>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem asChild>
+              <Link to="/settings">
+                <Settings className="w-4 h-4 mr-2" />
+                Settings
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={handleSignOut} className="text-destructive focus:text-destructive">
+              <LogOut className="w-4 h-4 mr-2" />
+              Sign out
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+
+        {/* Collapse button */}
         <Button
           variant="ghost"
           size="sm"

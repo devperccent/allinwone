@@ -10,6 +10,7 @@ import {
   Mail,
   MapPin,
   IndianRupee,
+  Loader2,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -39,64 +40,70 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
+import { Skeleton } from '@/components/ui/skeleton';
 import { formatINR } from '@/hooks/useInvoiceCalculations';
+import { useClients } from '@/hooks/useClients';
 import { INDIAN_STATES } from '@/types';
-import type { Client } from '@/types';
-
-// Mock data
-const mockClients: Client[] = [
-  {
-    id: '1',
-    profile_id: '1',
-    name: 'ABC Enterprises',
-    email: 'abc@example.com',
-    phone: '9876543210',
-    billing_address: '123, MG Road, Mumbai, Maharashtra 400001',
-    gstin: '27AAAAA0000A1Z5',
-    state_code: '27',
-    credit_balance: 0,
-    created_at: '2024-01-01',
-    updated_at: '2024-01-01',
-  },
-  {
-    id: '2',
-    profile_id: '1',
-    name: 'XYZ Trading Co.',
-    email: 'xyz@example.com',
-    phone: '9876543211',
-    billing_address: '456, Connaught Place, New Delhi 110001',
-    gstin: '07BBBBB0000B1Z5',
-    state_code: '07',
-    credit_balance: 17200,
-    created_at: '2024-01-02',
-    updated_at: '2024-01-02',
-  },
-  {
-    id: '3',
-    profile_id: '1',
-    name: 'Tech Solutions Pvt. Ltd.',
-    email: 'info@techsolutions.in',
-    phone: '9876543212',
-    billing_address: '789, Koramangala, Bengaluru, Karnataka 560034',
-    gstin: '29CCCCC0000C1Z5',
-    state_code: '29',
-    credit_balance: 45000,
-    created_at: '2024-01-03',
-    updated_at: '2024-01-03',
-  },
-];
 
 export default function ClientsPage() {
+  const { clients, totalCreditBalance, isLoading, createClient, deleteClient } = useClients();
   const [searchQuery, setSearchQuery] = useState('');
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  
+  // Form state
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    gstin: '',
+    state_code: '27',
+    billing_address: '',
+  });
 
-  const filteredClients = mockClients.filter((client) =>
+  const filteredClients = clients.filter((client) =>
     client.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     client.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
     client.phone?.includes(searchQuery)
   );
 
-  const totalCredit = mockClients.reduce((sum, c) => sum + c.credit_balance, 0);
+  const handleSubmit = () => {
+    createClient.mutate({
+      name: formData.name,
+      email: formData.email || undefined,
+      phone: formData.phone || undefined,
+      gstin: formData.gstin || undefined,
+      state_code: formData.state_code,
+      billing_address: formData.billing_address || undefined,
+    }, {
+      onSuccess: () => {
+        setIsAddDialogOpen(false);
+        setFormData({
+          name: '',
+          email: '',
+          phone: '',
+          gstin: '',
+          state_code: '27',
+          billing_address: '',
+        });
+      },
+    });
+  };
+
+  if (isLoading) {
+    return (
+      <div className="space-y-6 animate-fade-in">
+        <div className="flex items-center justify-between">
+          <Skeleton className="h-9 w-32" />
+          <Skeleton className="h-10 w-32" />
+        </div>
+        <div className="space-y-4">
+          {[...Array(4)].map((_, i) => (
+            <Skeleton key={i} className="h-32" />
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -125,26 +132,50 @@ export default function ClientsPage() {
             <div className="grid gap-4 py-4">
               <div className="grid gap-2">
                 <Label htmlFor="name">Client Name *</Label>
-                <Input id="name" placeholder="e.g., ABC Enterprises" />
+                <Input 
+                  id="name" 
+                  placeholder="e.g., ABC Enterprises"
+                  value={formData.name}
+                  onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="grid gap-2">
                   <Label htmlFor="email">Email</Label>
-                  <Input id="email" type="email" placeholder="client@example.com" />
+                  <Input 
+                    id="email" 
+                    type="email" 
+                    placeholder="client@example.com"
+                    value={formData.email}
+                    onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
+                  />
                 </div>
                 <div className="grid gap-2">
                   <Label htmlFor="phone">Phone</Label>
-                  <Input id="phone" placeholder="9876543210" />
+                  <Input 
+                    id="phone" 
+                    placeholder="9876543210"
+                    value={formData.phone}
+                    onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
+                  />
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="grid gap-2">
                   <Label htmlFor="gstin">GSTIN</Label>
-                  <Input id="gstin" placeholder="27AAAAA0000A1Z5" />
+                  <Input 
+                    id="gstin" 
+                    placeholder="27AAAAA0000A1Z5"
+                    value={formData.gstin}
+                    onChange={(e) => setFormData(prev => ({ ...prev, gstin: e.target.value }))}
+                  />
                 </div>
                 <div className="grid gap-2">
                   <Label htmlFor="state">State *</Label>
-                  <Select>
+                  <Select 
+                    value={formData.state_code}
+                    onValueChange={(v) => setFormData(prev => ({ ...prev, state_code: v }))}
+                  >
                     <SelectTrigger>
                       <SelectValue placeholder="Select state" />
                     </SelectTrigger>
@@ -160,15 +191,31 @@ export default function ClientsPage() {
               </div>
               <div className="grid gap-2">
                 <Label htmlFor="address">Billing Address</Label>
-                <Textarea id="address" placeholder="Full billing address" rows={3} />
+                <Textarea 
+                  id="address" 
+                  placeholder="Full billing address" 
+                  rows={3}
+                  value={formData.billing_address}
+                  onChange={(e) => setFormData(prev => ({ ...prev, billing_address: e.target.value }))}
+                />
               </div>
             </div>
             <DialogFooter>
               <Button variant="outline" onClick={() => setIsAddDialogOpen(false)}>
                 Cancel
               </Button>
-              <Button onClick={() => setIsAddDialogOpen(false)}>
-                Add Client
+              <Button 
+                onClick={handleSubmit} 
+                disabled={createClient.isPending || !formData.name}
+              >
+                {createClient.isPending ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Adding...
+                  </>
+                ) : (
+                  'Add Client'
+                )}
               </Button>
             </DialogFooter>
           </DialogContent>
@@ -176,7 +223,7 @@ export default function ClientsPage() {
       </div>
 
       {/* Summary Card */}
-      {totalCredit > 0 && (
+      {totalCreditBalance > 0 && (
         <div className="rounded-xl border border-warning/30 bg-warning/5 p-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -185,11 +232,11 @@ export default function ClientsPage() {
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">Total Outstanding Credit (Udhaar)</p>
-                <p className="text-2xl font-bold text-warning">{formatINR(totalCredit)}</p>
+                <p className="text-2xl font-bold text-warning">{formatINR(totalCreditBalance)}</p>
               </div>
             </div>
             <Badge variant="outline" className="border-warning text-warning">
-              {mockClients.filter(c => c.credit_balance > 0).length} clients with pending
+              {clients.filter(c => Number(c.credit_balance) > 0).length} clients with pending
             </Badge>
           </div>
         </div>
@@ -257,10 +304,10 @@ export default function ClientsPage() {
                 
                 <div className="flex items-center gap-4">
                   <div className="text-right">
-                    {client.credit_balance > 0 ? (
+                    {Number(client.credit_balance) > 0 ? (
                       <>
                         <p className="text-sm text-muted-foreground">Credit Balance</p>
-                        <p className="text-lg font-bold text-warning">{formatINR(client.credit_balance)}</p>
+                        <p className="text-lg font-bold text-warning">{formatINR(Number(client.credit_balance))}</p>
                       </>
                     ) : (
                       <Badge className="bg-success/10 text-success">No pending</Badge>
@@ -279,7 +326,10 @@ export default function ClientsPage() {
                         Edit
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />
-                      <DropdownMenuItem className="text-destructive focus:text-destructive">
+                      <DropdownMenuItem 
+                        onClick={() => deleteClient.mutate(client.id)}
+                        className="text-destructive focus:text-destructive"
+                      >
                         <Trash2 className="w-4 h-4 mr-2" />
                         Delete
                       </DropdownMenuItem>
