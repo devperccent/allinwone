@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Building2, User, CreditCard, Bell, Shield, Palette } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Building2, CreditCard, Bell, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -16,18 +16,104 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { INDIAN_STATES } from '@/types';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/contexts/AuthContext';
+import { useProfile } from '@/hooks/useProfile';
 
 export default function SettingsPage() {
   const { toast } = useToast();
-  const [invoicePrefix, setInvoicePrefix] = useState('INW-');
-  const [nextNumber, setNextNumber] = useState(4);
+  const { profile: authProfile, refreshProfile } = useAuth();
+  const { updateProfile, isUpdating } = useProfile();
 
-  const handleSave = () => {
-    toast({
-      title: 'Settings saved',
-      description: 'Your settings have been updated successfully.',
-    });
+  // Business form state
+  const [orgName, setOrgName] = useState('');
+  const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
+  const [gstin, setGstin] = useState('');
+  const [stateCode, setStateCode] = useState('27');
+  const [address, setAddress] = useState('');
+  const [upiVpa, setUpiVpa] = useState('');
+
+  // Invoice form state
+  const [invoicePrefix, setInvoicePrefix] = useState('INW-');
+  const [nextNumber, setNextNumber] = useState(1);
+
+  // Load profile data
+  useEffect(() => {
+    if (authProfile) {
+      setOrgName(authProfile.org_name || '');
+      setEmail(authProfile.email || '');
+      setPhone(authProfile.phone || '');
+      setGstin(authProfile.gstin || '');
+      setStateCode(authProfile.state_code || '27');
+      setAddress(authProfile.address || '');
+      setUpiVpa(authProfile.upi_vpa || '');
+      setInvoicePrefix(authProfile.invoice_prefix || 'INW-');
+      setNextNumber(authProfile.next_invoice_number || 1);
+    }
+  }, [authProfile]);
+
+  const handleSaveBusiness = async () => {
+    if (!authProfile) return;
+
+    try {
+      await updateProfile({
+        id: authProfile.id,
+        org_name: orgName,
+        email,
+        phone: phone || null,
+        gstin: gstin || null,
+        state_code: stateCode,
+        address: address || null,
+        upi_vpa: upiVpa || null,
+      });
+
+      await refreshProfile();
+
+      toast({
+        title: 'Settings saved',
+        description: 'Your business profile has been updated.',
+      });
+    } catch (error: any) {
+      toast({
+        title: 'Error',
+        description: error.message,
+        variant: 'destructive',
+      });
+    }
   };
+
+  const handleSaveInvoice = async () => {
+    if (!authProfile) return;
+
+    try {
+      await updateProfile({
+        id: authProfile.id,
+        invoice_prefix: invoicePrefix,
+        next_invoice_number: nextNumber,
+      });
+
+      await refreshProfile();
+
+      toast({
+        title: 'Settings saved',
+        description: 'Your invoice settings have been updated.',
+      });
+    } catch (error: any) {
+      toast({
+        title: 'Error',
+        description: error.message,
+        variant: 'destructive',
+      });
+    }
+  };
+
+  if (!authProfile) {
+    return (
+      <div className="h-[calc(100vh-5rem)] flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -69,7 +155,8 @@ export default function SettingsPage() {
                   <Label htmlFor="org_name">Business Name *</Label>
                   <Input
                     id="org_name"
-                    defaultValue="Your Business Name"
+                    value={orgName}
+                    onChange={(e) => setOrgName(e.target.value)}
                     className="mt-1.5"
                   />
                 </div>
@@ -78,7 +165,8 @@ export default function SettingsPage() {
                   <Input
                     id="email"
                     type="email"
-                    defaultValue="contact@yourbusiness.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
                     className="mt-1.5"
                   />
                 </div>
@@ -86,7 +174,8 @@ export default function SettingsPage() {
                   <Label htmlFor="phone">Phone</Label>
                   <Input
                     id="phone"
-                    defaultValue="9876543210"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
                     className="mt-1.5"
                   />
                 </div>
@@ -94,13 +183,14 @@ export default function SettingsPage() {
                   <Label htmlFor="gstin">GSTIN</Label>
                   <Input
                     id="gstin"
-                    defaultValue="27XXXXX0000X1Z5"
+                    value={gstin}
+                    onChange={(e) => setGstin(e.target.value)}
                     className="mt-1.5"
                   />
                 </div>
                 <div>
                   <Label htmlFor="state">State</Label>
-                  <Select defaultValue="27">
+                  <Select value={stateCode} onValueChange={setStateCode}>
                     <SelectTrigger className="mt-1.5">
                       <SelectValue />
                     </SelectTrigger>
@@ -117,7 +207,8 @@ export default function SettingsPage() {
                   <Label htmlFor="address">Address</Label>
                   <Textarea
                     id="address"
-                    defaultValue="123, Business Park, Mumbai, Maharashtra 400001"
+                    value={address}
+                    onChange={(e) => setAddress(e.target.value)}
                     className="mt-1.5"
                     rows={3}
                   />
@@ -131,7 +222,8 @@ export default function SettingsPage() {
                     <Label htmlFor="upi">UPI VPA</Label>
                     <Input
                       id="upi"
-                      defaultValue="yourbusiness@upi"
+                      value={upiVpa}
+                      onChange={(e) => setUpiVpa(e.target.value)}
                       placeholder="yourname@upi"
                       className="mt-1.5"
                     />
@@ -139,19 +231,14 @@ export default function SettingsPage() {
                       This will be used to generate payment QR codes
                     </p>
                   </div>
-                  <div>
-                    <Label htmlFor="bank">Bank Account</Label>
-                    <Input
-                      id="bank"
-                      placeholder="Account number"
-                      className="mt-1.5"
-                    />
-                  </div>
                 </div>
               </div>
 
               <div className="flex justify-end">
-                <Button onClick={handleSave}>Save Changes</Button>
+                <Button onClick={handleSaveBusiness} disabled={isUpdating}>
+                  {isUpdating && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
+                  Save Changes
+                </Button>
               </div>
             </CardContent>
           </Card>
@@ -200,22 +287,11 @@ export default function SettingsPage() {
                 </p>
               </div>
 
-              <div className="pt-4 border-t">
-                <h4 className="font-semibold mb-4">Default Terms</h4>
-                <div>
-                  <Label htmlFor="terms">Default Invoice Notes</Label>
-                  <Textarea
-                    id="terms"
-                    placeholder="Payment terms, bank details, thank you message..."
-                    className="mt-1.5"
-                    rows={4}
-                    defaultValue="Thank you for your business. Payment is due within 30 days."
-                  />
-                </div>
-              </div>
-
               <div className="flex justify-end">
-                <Button onClick={handleSave}>Save Changes</Button>
+                <Button onClick={handleSaveInvoice} disabled={isUpdating}>
+                  {isUpdating && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
+                  Save Changes
+                </Button>
               </div>
             </CardContent>
           </Card>
@@ -270,7 +346,7 @@ export default function SettingsPage() {
               </div>
 
               <div className="flex justify-end">
-                <Button onClick={handleSave}>Save Changes</Button>
+                <Button>Save Changes</Button>
               </div>
             </CardContent>
           </Card>

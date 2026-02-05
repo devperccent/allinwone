@@ -1,5 +1,5 @@
-import { useState, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import {
   ArrowLeft,
   Save,
@@ -11,6 +11,9 @@ import {
   GripVertical,
   AlertTriangle,
   Search,
+  Download,
+  Mail,
+  Loader2,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -36,12 +39,26 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
 import { useInvoiceCalculations, formatINR } from '@/hooks/useInvoiceCalculations';
 import { cn } from '@/lib/utils';
 import { GST_RATES, INDIAN_STATES } from '@/types';
-import type { Client, Product, InvoiceItemFormData } from '@/types';
+import type { Client, Product, InvoiceItemFormData, Invoice, InvoiceItem } from '@/types';
 import { InvoicePdfPreview } from '@/components/invoice/InvoicePdfPreview';
+import { useAuth } from '@/contexts/AuthContext';
+import { useClients } from '@/hooks/useClients';
+import { useProducts } from '@/hooks/useProducts';
+import { useInvoices } from '@/hooks/useInvoices';
+import { usePdfDownload } from '@/hooks/usePdfDownload';
+import { useSendInvoiceEmail } from '@/hooks/useSendInvoiceEmail';
 
 import {
   DndContext,
@@ -60,95 +77,6 @@ import {
   useSortable,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-
-// Mock data
-const mockClients: Client[] = [
-  {
-    id: '1',
-    profile_id: '1',
-    name: 'ABC Enterprises',
-    email: 'abc@example.com',
-    phone: '9876543210',
-    billing_address: '123, MG Road, Mumbai, Maharashtra 400001',
-    gstin: '27AAAAA0000A1Z5',
-    state_code: '27',
-    credit_balance: 0,
-    created_at: '2024-01-01',
-    updated_at: '2024-01-01',
-  },
-  {
-    id: '2',
-    profile_id: '1',
-    name: 'XYZ Trading Co.',
-    email: 'xyz@example.com',
-    phone: '9876543211',
-    billing_address: '456, Connaught Place, New Delhi 110001',
-    gstin: '07BBBBB0000B1Z5',
-    state_code: '07',
-    credit_balance: 17200,
-    created_at: '2024-01-02',
-    updated_at: '2024-01-02',
-  },
-];
-
-const mockProducts: Product[] = [
-  {
-    id: '1',
-    profile_id: '1',
-    name: 'Wireless Mouse',
-    sku: 'WM-001',
-    description: 'Ergonomic wireless mouse',
-    type: 'goods',
-    hsn_code: '8471',
-    selling_price: 599,
-    stock_quantity: 3,
-    low_stock_limit: 10,
-    created_at: '2024-01-01',
-    updated_at: '2024-01-01',
-  },
-  {
-    id: '2',
-    profile_id: '1',
-    name: 'USB-C Cable',
-    sku: 'UC-001',
-    description: 'USB-C to USB-C cable 1m',
-    type: 'goods',
-    hsn_code: '8544',
-    selling_price: 299,
-    stock_quantity: 50,
-    low_stock_limit: 15,
-    created_at: '2024-01-01',
-    updated_at: '2024-01-01',
-  },
-  {
-    id: '3',
-    profile_id: '1',
-    name: 'Mechanical Keyboard',
-    sku: 'MK-001',
-    description: 'RGB mechanical keyboard',
-    type: 'goods',
-    hsn_code: '8471',
-    selling_price: 2499,
-    stock_quantity: 25,
-    low_stock_limit: 5,
-    created_at: '2024-01-01',
-    updated_at: '2024-01-01',
-  },
-  {
-    id: '4',
-    profile_id: '1',
-    name: 'Website Development',
-    sku: 'SRV-WEB',
-    description: 'Custom website development',
-    type: 'service',
-    hsn_code: '998314',
-    selling_price: 25000,
-    stock_quantity: 0,
-    low_stock_limit: 0,
-    created_at: '2024-01-01',
-    updated_at: '2024-01-01',
-  },
-];
 
 function generateId(): string {
   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
@@ -351,8 +279,31 @@ function SortableLineItem({
 
 export default function InvoiceEditor() {
   const navigate = useNavigate();
+  const { id } = useParams();
   const { toast } = useToast();
+  const { profile } = useAuth();
   const [showPreview, setShowPreview] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
+  const [emailDialogOpen, setEmailDialogOpen] = useState(false);
+  const [emailRecipient, setEmailRecipient] = useState('');
+
+  // Database hooks
+  const { clients, isLoading: clientsLoading } = useClients();
+  const { products, isLoading: productsLoading } = useProducts();
+  const { 
+    invoices, 
+    isLoading: invoicesLoading,
+    createInvoice,
+    updateInvoice,
+    finalizeInvoice,
+    isCreating,
+    isUpdating,
+    isFinalizing 
+  } = useInvoices();
+
+  const { generatePdf, isGenerating: isDownloading } = usePdfDownload();
+  const { sendInvoiceEmail, isSending } = useSendInvoiceEmail();
+  const { getInvoiceWithItems } = useInvoices();
 
   // Form state
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);
@@ -361,9 +312,57 @@ export default function InvoiceEditor() {
   const [notes, setNotes] = useState('');
   const [items, setItems] = useState<InvoiceItemFormData[]>([createEmptyItem()]);
   const [clientOpen, setClientOpen] = useState(false);
+  const [invoiceNumber, setInvoiceNumber] = useState('');
+  const [currentInvoice, setCurrentInvoice] = useState<Invoice | null>(null);
 
-  // Profile (mock)
-  const profileStateCode = '27'; // Maharashtra
+  // Profile state code
+  const profileStateCode = profile?.state_code || '27';
+
+  // Load existing invoice if editing
+  useEffect(() => {
+    const loadInvoice = async () => {
+      if (id) {
+        try {
+          const fullInvoice = await getInvoiceWithItems(id);
+          if (fullInvoice) {
+            setCurrentInvoice({
+              ...fullInvoice,
+              status: fullInvoice.status as 'draft' | 'finalized' | 'paid' | 'cancelled',
+              payment_mode: fullInvoice.payment_mode as 'cash' | 'upi' | 'credit' | 'split' | null,
+            });
+            setInvoiceNumber(fullInvoice.invoice_number);
+            setDateIssued(fullInvoice.date_issued);
+            setDateDue(fullInvoice.date_due || '');
+            setNotes(fullInvoice.notes || '');
+            
+            // Set client
+            if (fullInvoice.client) {
+              setSelectedClient(fullInvoice.client);
+            }
+
+            // Set items from invoice
+            if (fullInvoice.items && fullInvoice.items.length > 0) {
+              setItems(fullInvoice.items.map((item: any) => ({
+                id: item.id,
+                product_id: item.product_id,
+                description: item.description,
+                qty: item.qty,
+                rate: Number(item.rate),
+                tax_rate: Number(item.tax_rate),
+                discount: Number(item.discount),
+              })));
+            }
+          }
+        } catch (error) {
+          console.error('Error loading invoice:', error);
+        }
+      }
+    };
+    
+    if (id) {
+      loadInvoice();
+    }
+  }, [id, getInvoiceWithItems]);
 
   // DnD sensors
   const sensors = useSensors(
@@ -406,19 +405,187 @@ export default function InvoiceEditor() {
     }
   };
 
-  const handleSave = () => {
-    toast({
-      title: 'Invoice saved',
-      description: 'Your invoice has been saved as a draft.',
+  const handleSave = async () => {
+    if (!profile) {
+      toast({
+        title: 'Error',
+        description: 'Please complete your profile settings first.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    if (items.every(item => !item.description)) {
+      toast({
+        title: 'Error',
+        description: 'Please add at least one item.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    setIsSaving(true);
+
+    try {
+      const invoiceData = {
+        client_id: selectedClient?.id || null,
+        date_issued: dateIssued,
+        date_due: dateDue || null,
+        notes: notes || null,
+        subtotal: calculations.subtotal,
+        total_tax: calculations.totalTax,
+        total_discount: calculations.totalDiscount,
+        grand_total: calculations.grandTotal,
+        status: 'draft' as const,
+      };
+
+      const itemsData = items
+        .filter(item => item.description)
+        .map((item, index) => ({
+          product_id: item.product_id,
+          description: item.description,
+          qty: item.qty,
+          rate: item.rate,
+          tax_rate: item.tax_rate,
+          discount: item.discount,
+          amount: item.qty * item.rate * (1 + item.tax_rate / 100) - item.discount,
+          sort_order: index,
+        }));
+
+      if (id && currentInvoice) {
+        await updateInvoice({ id, data: invoiceData, items: itemsData });
+        toast({
+          title: 'Invoice updated',
+          description: 'Your invoice has been saved.',
+        });
+      } else {
+        const newInvoice = await createInvoice({ data: invoiceData, items: itemsData });
+        if (newInvoice) {
+          setInvoiceNumber(newInvoice.invoice_number);
+          setCurrentInvoice({
+            ...newInvoice,
+            status: newInvoice.status as 'draft' | 'finalized' | 'paid' | 'cancelled',
+            payment_mode: newInvoice.payment_mode as 'cash' | 'upi' | 'credit' | 'split' | null,
+          });
+          navigate(`/invoices/${newInvoice.id}/edit`, { replace: true });
+        }
+        toast({
+          title: 'Invoice created',
+          description: 'Your invoice has been saved as a draft.',
+        });
+      }
+    } catch (error: any) {
+      toast({
+        title: 'Error saving invoice',
+        description: error.message,
+        variant: 'destructive',
+      });
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleFinalize = async () => {
+    if (!currentInvoice) {
+      // Save first if not saved
+      await handleSave();
+      return;
+    }
+
+    try {
+      await finalizeInvoice(currentInvoice.id);
+      toast({
+        title: 'Invoice finalized',
+        description: 'Your invoice has been finalized and stock has been updated.',
+      });
+      navigate('/invoices');
+    } catch (error: any) {
+      toast({
+        title: 'Error finalizing invoice',
+        description: error.message,
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const handleDownloadPdf = async () => {
+    if (!profile || !currentInvoice) {
+      toast({
+        title: 'Save invoice first',
+        description: 'Please save the invoice before downloading.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    const invoiceItems: InvoiceItem[] = items
+      .filter(item => item.description)
+      .map((item, index) => ({
+        id: item.id,
+        invoice_id: currentInvoice.id,
+        product_id: item.product_id,
+        description: item.description,
+        qty: item.qty,
+        rate: item.rate,
+        tax_rate: item.tax_rate,
+        discount: item.discount,
+        amount: item.qty * item.rate * (1 + item.tax_rate / 100) - item.discount,
+        sort_order: index,
+        created_at: new Date().toISOString(),
+      }));
+
+    await generatePdf({
+      invoice: currentInvoice,
+      items: invoiceItems,
+      client: selectedClient,
+      profile,
     });
   };
 
-  const handleFinalize = () => {
-    toast({
-      title: 'Invoice finalized',
-      description: 'Your invoice has been finalized and stock has been updated.',
+  const handleSendEmail = async () => {
+    if (!profile || !currentInvoice || !emailRecipient) {
+      return;
+    }
+
+    const invoiceItems: InvoiceItem[] = items
+      .filter(item => item.description)
+      .map((item, index) => ({
+        id: item.id,
+        invoice_id: currentInvoice.id,
+        product_id: item.product_id,
+        description: item.description,
+        qty: item.qty,
+        rate: item.rate,
+        tax_rate: item.tax_rate,
+        discount: item.discount,
+        amount: item.qty * item.rate * (1 + item.tax_rate / 100) - item.discount,
+        sort_order: index,
+        created_at: new Date().toISOString(),
+      }));
+
+    const success = await sendInvoiceEmail({
+      invoice: currentInvoice,
+      items: invoiceItems,
+      client: selectedClient,
+      profile,
+      recipientEmail: emailRecipient,
     });
+
+    if (success) {
+      setEmailDialogOpen(false);
+      setEmailRecipient('');
+    }
   };
+
+  const isLoading = clientsLoading || productsLoading || invoicesLoading;
+
+  if (isLoading) {
+    return (
+      <div className="h-[calc(100vh-5rem)] flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   return (
     <div className="h-[calc(100vh-5rem)] flex flex-col animate-fade-in">
@@ -429,8 +596,12 @@ export default function InvoiceEditor() {
             <ArrowLeft className="w-5 h-5" />
           </Button>
           <div>
-            <h1 className="text-2xl font-bold">New Invoice</h1>
-            <p className="text-sm text-muted-foreground">INW-0004</p>
+            <h1 className="text-2xl font-bold">
+              {id ? 'Edit Invoice' : 'New Invoice'}
+            </h1>
+            <p className="text-sm text-muted-foreground">
+              {invoiceNumber || 'Will be generated on save'}
+            </p>
           </div>
         </div>
 
@@ -444,13 +615,63 @@ export default function InvoiceEditor() {
             {showPreview ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
             {showPreview ? 'Hide Preview' : 'Show Preview'}
           </Button>
-          <Button variant="outline" onClick={handleSave} className="gap-2">
-            <Save className="w-4 h-4" />
+          
+          {currentInvoice && (
+            <>
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={handleDownloadPdf}
+                disabled={isDownloading}
+                className="gap-2"
+              >
+                {isDownloading ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <Download className="w-4 h-4" />
+                )}
+                PDF
+              </Button>
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => {
+                  setEmailRecipient(selectedClient?.email || '');
+                  setEmailDialogOpen(true);
+                }}
+                className="gap-2"
+              >
+                <Mail className="w-4 h-4" />
+                Email
+              </Button>
+            </>
+          )}
+          
+          <Button 
+            variant="outline" 
+            onClick={handleSave} 
+            className="gap-2"
+            disabled={isSaving || isCreating || isUpdating}
+          >
+            {(isSaving || isCreating || isUpdating) ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <Save className="w-4 h-4" />
+            )}
             Save Draft
           </Button>
-          <Button onClick={handleFinalize} className="gap-2">
-            <Send className="w-4 h-4" />
-            Finalize & Send
+          
+          <Button 
+            onClick={handleFinalize} 
+            className="gap-2"
+            disabled={isFinalizing || !currentInvoice || currentInvoice?.status !== 'draft'}
+          >
+            {isFinalizing ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <Send className="w-4 h-4" />
+            )}
+            Finalize
           </Button>
         </div>
       </div>
@@ -481,9 +702,20 @@ export default function InvoiceEditor() {
                       <Command>
                         <CommandInput placeholder="Search clients..." />
                         <CommandList>
-                          <CommandEmpty>No client found.</CommandEmpty>
+                          <CommandEmpty>
+                            <p className="text-sm text-muted-foreground p-2">
+                              No client found. 
+                              <Button 
+                                variant="link" 
+                                className="px-1"
+                                onClick={() => navigate('/clients')}
+                              >
+                                Add one
+                              </Button>
+                            </p>
+                          </CommandEmpty>
                           <CommandGroup>
-                            {mockClients.map((client) => (
+                            {clients.map((client) => (
                               <CommandItem
                                 key={client.id}
                                 value={client.name}
@@ -589,7 +821,7 @@ export default function InvoiceEditor() {
                         index={index}
                         onUpdate={updateItem}
                         onRemove={removeItem}
-                        products={mockProducts}
+                        products={products}
                         canRemove={items.length > 1}
                       />
                     ))}
@@ -667,7 +899,7 @@ export default function InvoiceEditor() {
           <div className="w-[420px] flex-shrink-0 overflow-hidden rounded-xl border border-border bg-muted/30 p-4">
             <div className="h-full overflow-y-auto">
               <InvoicePdfPreview
-                invoiceNumber="INW-0004"
+                invoiceNumber={invoiceNumber || 'DRAFT'}
                 dateIssued={dateIssued}
                 dateDue={dateDue}
                 client={selectedClient}
@@ -680,6 +912,42 @@ export default function InvoiceEditor() {
           </div>
         )}
       </div>
+
+      {/* Email Dialog */}
+      <Dialog open={emailDialogOpen} onOpenChange={setEmailDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Send Invoice via Email</DialogTitle>
+            <DialogDescription>
+              Enter the recipient's email address to send the invoice.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="py-4">
+            <Label htmlFor="email">Email Address</Label>
+            <Input
+              id="email"
+              type="email"
+              value={emailRecipient}
+              onChange={(e) => setEmailRecipient(e.target.value)}
+              placeholder="client@example.com"
+              className="mt-1.5"
+            />
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEmailDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleSendEmail} disabled={isSending || !emailRecipient}>
+              {isSending ? (
+                <Loader2 className="w-4 h-4 animate-spin mr-2" />
+              ) : (
+                <Mail className="w-4 h-4 mr-2" />
+              )}
+              Send Email
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
