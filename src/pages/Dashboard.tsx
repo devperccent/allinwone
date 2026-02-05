@@ -3,7 +3,6 @@ import {
   Clock,
   FileText,
   AlertTriangle,
-  TrendingUp,
   Users,
   Package,
   Plus,
@@ -14,121 +13,34 @@ import { StatCard } from '@/components/dashboard/StatCard';
 import { RecentInvoices } from '@/components/dashboard/RecentInvoices';
 import { LowStockAlert } from '@/components/dashboard/LowStockAlert';
 import { formatINR } from '@/hooks/useInvoiceCalculations';
-import type { Invoice, Product } from '@/types';
-
-// Mock data for initial display
-const mockInvoices: Invoice[] = [
-  {
-    id: '1',
-    profile_id: '1',
-    client_id: '1',
-    invoice_number: 'INW-0001',
-    status: 'paid',
-    date_issued: '2024-01-15',
-    date_due: '2024-01-30',
-    subtotal: 25000,
-    total_tax: 4500,
-    total_discount: 0,
-    grand_total: 29500,
-    payment_mode: 'upi',
-    notes: null,
-    created_at: '2024-01-15',
-    updated_at: '2024-01-15',
-    client: {
-      id: '1',
-      profile_id: '1',
-      name: 'ABC Enterprises',
-      email: 'abc@example.com',
-      phone: '9876543210',
-      billing_address: 'Mumbai, Maharashtra',
-      gstin: '27AAAAA0000A1Z5',
-      state_code: '27',
-      credit_balance: 0,
-      created_at: '2024-01-01',
-      updated_at: '2024-01-01',
-    },
-  },
-  {
-    id: '2',
-    profile_id: '1',
-    client_id: '2',
-    invoice_number: 'INW-0002',
-    status: 'finalized',
-    date_issued: '2024-01-18',
-    date_due: '2024-02-02',
-    subtotal: 15000,
-    total_tax: 2700,
-    total_discount: 500,
-    grand_total: 17200,
-    payment_mode: null,
-    notes: null,
-    created_at: '2024-01-18',
-    updated_at: '2024-01-18',
-    client: {
-      id: '2',
-      profile_id: '1',
-      name: 'XYZ Trading Co.',
-      email: 'xyz@example.com',
-      phone: '9876543211',
-      billing_address: 'Delhi',
-      gstin: '07BBBBB0000B1Z5',
-      state_code: '07',
-      credit_balance: 17200,
-      created_at: '2024-01-02',
-      updated_at: '2024-01-02',
-    },
-  },
-  {
-    id: '3',
-    profile_id: '1',
-    client_id: null,
-    invoice_number: 'INW-0003',
-    status: 'draft',
-    date_issued: '2024-01-20',
-    date_due: null,
-    subtotal: 5000,
-    total_tax: 900,
-    total_discount: 0,
-    grand_total: 5900,
-    payment_mode: null,
-    notes: null,
-    created_at: '2024-01-20',
-    updated_at: '2024-01-20',
-  },
-];
-
-const mockLowStockProducts: Product[] = [
-  {
-    id: '1',
-    profile_id: '1',
-    name: 'Wireless Mouse',
-    sku: 'WM-001',
-    description: 'Ergonomic wireless mouse',
-    type: 'goods',
-    hsn_code: '8471',
-    selling_price: 599,
-    stock_quantity: 3,
-    low_stock_limit: 10,
-    created_at: '2024-01-01',
-    updated_at: '2024-01-01',
-  },
-  {
-    id: '2',
-    profile_id: '1',
-    name: 'USB-C Cable',
-    sku: 'UC-001',
-    description: 'USB-C to USB-C cable 1m',
-    type: 'goods',
-    hsn_code: '8544',
-    selling_price: 299,
-    stock_quantity: 5,
-    low_stock_limit: 15,
-    created_at: '2024-01-01',
-    updated_at: '2024-01-01',
-  },
-];
+import { useInvoices } from '@/hooks/useInvoices';
+import { useProducts } from '@/hooks/useProducts';
+import { Skeleton } from '@/components/ui/skeleton';
 
 export default function Dashboard() {
+  const { invoices, totalRevenue, pendingAmount, isLoading: invoicesLoading } = useInvoices();
+  const { products, lowStockProducts, isLoading: productsLoading } = useProducts();
+
+  const isLoading = invoicesLoading || productsLoading;
+
+  if (isLoading) {
+    return (
+      <div className="space-y-8 animate-fade-in">
+        <div className="flex items-center justify-between">
+          <div>
+            <Skeleton className="h-9 w-48" />
+            <Skeleton className="h-5 w-72 mt-2" />
+          </div>
+        </div>
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          {[...Array(4)].map((_, i) => (
+            <Skeleton key={i} className="h-32" />
+          ))}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-8 animate-fade-in">
       {/* Welcome Section */}
@@ -151,34 +63,34 @@ export default function Dashboard() {
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard
           title="Total Revenue"
-          value={formatINR(52600)}
-          change="+12.5% from last month"
+          value={formatINR(totalRevenue)}
+          change={invoices.filter(i => i.status === 'paid').length + ' paid invoices'}
           changeType="positive"
           icon={IndianRupee}
           iconColor="text-success"
         />
         <StatCard
           title="Pending Amount"
-          value={formatINR(17200)}
-          change="2 invoices unpaid"
+          value={formatINR(pendingAmount)}
+          change={invoices.filter(i => i.status === 'finalized').length + ' invoices unpaid'}
           changeType="neutral"
           icon={Clock}
           iconColor="text-warning"
         />
         <StatCard
           title="Total Invoices"
-          value="3"
-          change="+2 this month"
-          changeType="positive"
+          value={String(invoices.length)}
+          change={invoices.filter(i => i.status === 'draft').length + ' drafts'}
+          changeType="neutral"
           icon={FileText}
         />
         <StatCard
           title="Low Stock Items"
-          value="2"
-          change="Needs attention"
-          changeType="negative"
+          value={String(lowStockProducts.length)}
+          change={lowStockProducts.length > 0 ? 'Needs attention' : 'All stocked'}
+          changeType={lowStockProducts.length > 0 ? 'negative' : 'positive'}
           icon={AlertTriangle}
-          iconColor="text-destructive"
+          iconColor={lowStockProducts.length > 0 ? 'text-destructive' : 'text-success'}
         />
       </div>
 
@@ -198,7 +110,7 @@ export default function Dashboard() {
         </Link>
         
         <Link
-          to="/products/new"
+          to="/products"
           className="flex items-center gap-4 p-4 rounded-xl border border-border bg-card hover:bg-muted/30 transition-colors group"
         >
           <div className="p-3 rounded-xl bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
@@ -211,7 +123,7 @@ export default function Dashboard() {
         </Link>
         
         <Link
-          to="/clients/new"
+          to="/clients"
           className="flex items-center gap-4 p-4 rounded-xl border border-border bg-card hover:bg-muted/30 transition-colors group"
         >
           <div className="p-3 rounded-xl bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
@@ -227,10 +139,10 @@ export default function Dashboard() {
       {/* Main Content Grid */}
       <div className="grid gap-6 lg:grid-cols-3">
         <div className="lg:col-span-2">
-          <RecentInvoices invoices={mockInvoices} />
+          <RecentInvoices invoices={invoices.slice(0, 5)} />
         </div>
         <div>
-          <LowStockAlert products={mockLowStockProducts} />
+          <LowStockAlert products={lowStockProducts} />
         </div>
       </div>
     </div>

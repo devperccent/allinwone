@@ -11,6 +11,8 @@ import {
   Eye,
   Pencil,
   Trash2,
+  CheckCircle,
+  Loader2,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -29,9 +31,23 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
 import { formatINR } from '@/hooks/useInvoiceCalculations';
+import { useInvoices } from '@/hooks/useInvoices';
+import { usePdfDownload } from '@/hooks/usePdfDownload';
+import { useSendInvoiceEmail } from '@/hooks/useSendInvoiceEmail';
+import { useAuth } from '@/contexts/AuthContext';
 import { cn } from '@/lib/utils';
-import type { Invoice, InvoiceStatus } from '@/types';
+import { Skeleton } from '@/components/ui/skeleton';
+import type { Invoice, InvoiceStatus, PaymentMode } from '@/types';
 
 const statusConfig: Record<InvoiceStatus, { label: string; className: string }> = {
   draft: { label: 'Draft', className: 'status-draft' },
@@ -40,98 +56,90 @@ const statusConfig: Record<InvoiceStatus, { label: string; className: string }> 
   cancelled: { label: 'Cancelled', className: 'status-cancelled' },
 };
 
-// Mock data
-const mockInvoices: Invoice[] = [
-  {
-    id: '1',
-    profile_id: '1',
-    client_id: '1',
-    invoice_number: 'INW-0001',
-    status: 'paid',
-    date_issued: '2024-01-15',
-    date_due: '2024-01-30',
-    subtotal: 25000,
-    total_tax: 4500,
-    total_discount: 0,
-    grand_total: 29500,
-    payment_mode: 'upi',
-    notes: null,
-    created_at: '2024-01-15',
-    updated_at: '2024-01-15',
-    client: {
-      id: '1',
-      profile_id: '1',
-      name: 'ABC Enterprises',
-      email: 'abc@example.com',
-      phone: '9876543210',
-      billing_address: 'Mumbai, Maharashtra',
-      gstin: '27AAAAA0000A1Z5',
-      state_code: '27',
-      credit_balance: 0,
-      created_at: '2024-01-01',
-      updated_at: '2024-01-01',
-    },
-  },
-  {
-    id: '2',
-    profile_id: '1',
-    client_id: '2',
-    invoice_number: 'INW-0002',
-    status: 'finalized',
-    date_issued: '2024-01-18',
-    date_due: '2024-02-02',
-    subtotal: 15000,
-    total_tax: 2700,
-    total_discount: 500,
-    grand_total: 17200,
-    payment_mode: null,
-    notes: null,
-    created_at: '2024-01-18',
-    updated_at: '2024-01-18',
-    client: {
-      id: '2',
-      profile_id: '1',
-      name: 'XYZ Trading Co.',
-      email: 'xyz@example.com',
-      phone: '9876543211',
-      billing_address: 'Delhi',
-      gstin: '07BBBBB0000B1Z5',
-      state_code: '07',
-      credit_balance: 17200,
-      created_at: '2024-01-02',
-      updated_at: '2024-01-02',
-    },
-  },
-  {
-    id: '3',
-    profile_id: '1',
-    client_id: null,
-    invoice_number: 'INW-0003',
-    status: 'draft',
-    date_issued: '2024-01-20',
-    date_due: null,
-    subtotal: 5000,
-    total_tax: 900,
-    total_discount: 0,
-    grand_total: 5900,
-    payment_mode: null,
-    notes: null,
-    created_at: '2024-01-20',
-    updated_at: '2024-01-20',
-  },
-];
-
 export default function InvoicesPage() {
+  const { profile } = useAuth();
+  const { invoices, isLoading, finalizeInvoice, markAsPaid, deleteInvoice, getInvoiceWithItems } = useInvoices();
+  const { generatePdf, isGenerating } = usePdfDownload();
+  const { sendInvoiceEmail, isSending } = useSendInvoiceEmail();
+  
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [emailDialogOpen, setEmailDialogOpen] = useState(false);
+  const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
+  const [recipientEmail, setRecipientEmail] = useState('');
 
-  const filteredInvoices = mockInvoices.filter((invoice) => {
+  const filteredInvoices = invoices.filter((invoice) => {
     const matchesSearch =
       invoice.invoice_number.toLowerCase().includes(searchQuery.toLowerCase()) ||
       invoice.client?.name?.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesStatus = statusFilter === 'all' || invoice.status === statusFilter;
     return matchesSearch && matchesStatus;
   });
+
+  const handleDownload = async (invoice: Invoice) => {
+    if (!profile) return;
+    
+    try {
+      const fullInvoice = await getInvoiceWithItems(invoice.id);
+      await generatePdf({
+        invoice: { 
+          ...fullInvoice, 
+          status: fullInvoice.status as InvoiceStatus,
+          payment_mode: fullInvoice.payment_mode as PaymentMode | null,
+        },
+        items: fullInvoice.items || [],
+        client: fullInvoice.client || null,
+        profile,
+      });
+    } catch (error) {
+      console.error('Download error:', error);
+    }
+  };
+
+  const handleSendEmail = async () => {
+    if (!selectedInvoice || !profile || !recipientEmail) return;
+    
+    try {
+      const fullInvoice = await getInvoiceWithItems(selectedInvoice.id);
+      await sendInvoiceEmail({
+        invoice: { 
+          ...fullInvoice, 
+          status: fullInvoice.status as InvoiceStatus,
+          payment_mode: fullInvoice.payment_mode as PaymentMode | null,
+        },
+        items: fullInvoice.items || [],
+        client: fullInvoice.client || null,
+        profile,
+        recipientEmail,
+      });
+      setEmailDialogOpen(false);
+      setRecipientEmail('');
+    } catch (error) {
+      console.error('Email error:', error);
+    }
+  };
+
+  const openEmailDialog = (invoice: Invoice) => {
+    setSelectedInvoice(invoice);
+    setRecipientEmail(invoice.client?.email || '');
+    setEmailDialogOpen(true);
+  };
+
+  if (isLoading) {
+    return (
+      <div className="space-y-6 animate-fade-in">
+        <div className="flex items-center justify-between">
+          <Skeleton className="h-9 w-32" />
+          <Skeleton className="h-10 w-32" />
+        </div>
+        <div className="space-y-4">
+          {[...Array(5)].map((_, i) => (
+            <Skeleton key={i} className="h-16 w-full" />
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -218,7 +226,7 @@ export default function InvoicesPage() {
                   <td className="tabular-nums">{invoice.date_issued}</td>
                   <td className="tabular-nums">{invoice.date_due || '-'}</td>
                   <td className="font-semibold tabular-nums">
-                    {formatINR(invoice.grand_total)}
+                    {formatINR(Number(invoice.grand_total))}
                   </td>
                   <td>
                     <Badge className={cn('font-medium', statusConfig[invoice.status].className)}>
@@ -239,25 +247,56 @@ export default function InvoicesPage() {
                             View
                           </Link>
                         </DropdownMenuItem>
-                        <DropdownMenuItem asChild>
-                          <Link to={`/invoices/${invoice.id}/edit`}>
-                            <Pencil className="w-4 h-4 mr-2" />
-                            Edit
-                          </Link>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem>
+                        {invoice.status === 'draft' && (
+                          <DropdownMenuItem asChild>
+                            <Link to={`/invoices/${invoice.id}/edit`}>
+                              <Pencil className="w-4 h-4 mr-2" />
+                              Edit
+                            </Link>
+                          </DropdownMenuItem>
+                        )}
+                        <DropdownMenuItem onClick={() => handleDownload(invoice)} disabled={isGenerating}>
                           <Download className="w-4 h-4 mr-2" />
                           Download PDF
                         </DropdownMenuItem>
-                        <DropdownMenuItem>
-                          <Mail className="w-4 h-4 mr-2" />
-                          Send Email
-                        </DropdownMenuItem>
+                        {invoice.status !== 'draft' && (
+                          <DropdownMenuItem onClick={() => openEmailDialog(invoice)}>
+                            <Mail className="w-4 h-4 mr-2" />
+                            Send Email
+                          </DropdownMenuItem>
+                        )}
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem className="text-destructive focus:text-destructive">
-                          <Trash2 className="w-4 h-4 mr-2" />
-                          Delete
-                        </DropdownMenuItem>
+                        {invoice.status === 'draft' && (
+                          <DropdownMenuItem 
+                            onClick={() => finalizeInvoice.mutate(invoice.id)}
+                            disabled={finalizeInvoice.isPending}
+                          >
+                            <CheckCircle className="w-4 h-4 mr-2" />
+                            Finalize & Send
+                          </DropdownMenuItem>
+                        )}
+                        {invoice.status === 'finalized' && (
+                          <DropdownMenuItem 
+                            onClick={() => markAsPaid.mutate({ invoiceId: invoice.id, paymentMode: 'upi' })}
+                            disabled={markAsPaid.isPending}
+                          >
+                            <CheckCircle className="w-4 h-4 mr-2" />
+                            Mark as Paid
+                          </DropdownMenuItem>
+                        )}
+                        {invoice.status === 'draft' && (
+                          <>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem 
+                              onClick={() => deleteInvoice.mutate(invoice.id)}
+                              className="text-destructive focus:text-destructive"
+                              disabled={deleteInvoice.isPending}
+                            >
+                              <Trash2 className="w-4 h-4 mr-2" />
+                              Delete
+                            </DropdownMenuItem>
+                          </>
+                        )}
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </td>
@@ -267,6 +306,47 @@ export default function InvoicesPage() {
           </tbody>
         </table>
       </div>
+
+      {/* Email Dialog */}
+      <Dialog open={emailDialogOpen} onOpenChange={setEmailDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Send Invoice via Email</DialogTitle>
+            <DialogDescription>
+              Send {selectedInvoice?.invoice_number} to the client.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="py-4">
+            <Label htmlFor="email">Recipient Email</Label>
+            <Input
+              id="email"
+              type="email"
+              value={recipientEmail}
+              onChange={(e) => setRecipientEmail(e.target.value)}
+              placeholder="client@example.com"
+              className="mt-1.5"
+            />
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEmailDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleSendEmail} disabled={isSending || !recipientEmail}>
+              {isSending ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Sending...
+                </>
+              ) : (
+                <>
+                  <Mail className="w-4 h-4 mr-2" />
+                  Send Email
+                </>
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
