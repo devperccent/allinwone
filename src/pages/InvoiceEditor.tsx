@@ -53,6 +53,7 @@ import { cn } from '@/lib/utils';
 import { GST_RATES, INDIAN_STATES } from '@/types';
 import type { Client, Product, InvoiceItemFormData, Invoice, InvoiceItem } from '@/types';
 import { InvoicePdfPreview } from '@/components/invoice/InvoicePdfPreview';
+import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/components/ui/resizable';
 import { useAuth } from '@/contexts/AuthContext';
 import { useClients } from '@/hooks/useClients';
 import { useProducts } from '@/hooks/useProducts';
@@ -682,237 +683,460 @@ export default function InvoiceEditor() {
       </div>
 
       {/* Split View */}
-      <div className="flex-1 flex gap-6 pt-6 overflow-hidden">
-        {/* Editor Pane */}
-        <div className={cn('flex-1 overflow-y-auto pr-2', !showPreview && 'max-w-4xl mx-auto')}>
-          <div className="space-y-6">
-            {/* Client Selection */}
-            <div className="rounded-xl border border-border bg-card p-5">
-              <h3 className="text-lg font-semibold mb-4">Client Details</h3>
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div className="sm:col-span-2">
-                  <Label>Select Client</Label>
-                  <Popover open={clientOpen} onOpenChange={setClientOpen}>
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant="outline"
-                        role="combobox"
-                        className="w-full justify-between mt-1.5"
-                      >
-                        {selectedClient?.name || 'Select or add client...'}
-                        <Search className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-96 p-0" align="start">
-                      <Command>
-                        <CommandInput placeholder="Search clients..." />
-                        <CommandList>
-                          <CommandEmpty>
-                            <p className="text-sm text-muted-foreground p-2">
-                              No client found. 
-                              <Button 
-                                variant="link" 
-                                className="px-1"
-                                onClick={() => navigate('/clients')}
-                              >
-                                Add one
-                              </Button>
-                            </p>
-                          </CommandEmpty>
-                          <CommandGroup>
-                            {clients.map((client) => (
-                              <CommandItem
-                                key={client.id}
-                                value={client.name}
-                                onSelect={() => {
-                                  setSelectedClient(client);
-                                  setClientOpen(false);
-                                }}
-                              >
-                                <div>
-                                  <p className="font-medium">{client.name}</p>
-                                  <p className="text-xs text-muted-foreground">
-                                    {client.email} • {INDIAN_STATES[client.state_code]}
+      <div className="flex-1 pt-6 overflow-hidden">
+        {showPreview ? (
+          <ResizablePanelGroup direction="horizontal" className="h-full rounded-lg">
+            {/* Editor Pane */}
+            <ResizablePanel defaultSize={60} minSize={35}>
+              <div className="h-full overflow-y-auto pr-4">
+                <div className="space-y-6">
+                  {/* Client Selection */}
+                  <div className="rounded-xl border border-border bg-card p-5">
+                    <h3 className="text-lg font-semibold mb-4">Client Details</h3>
+                    <div className="grid gap-4 sm:grid-cols-2">
+                      <div className="sm:col-span-2">
+                        <Label>Select Client</Label>
+                        <Popover open={clientOpen} onOpenChange={setClientOpen}>
+                          <PopoverTrigger asChild>
+                            <Button
+                              variant="outline"
+                              role="combobox"
+                              className="w-full justify-between mt-1.5"
+                            >
+                              {selectedClient?.name || 'Select or add client...'}
+                              <Search className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                            </Button>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-96 p-0" align="start">
+                            <Command>
+                              <CommandInput placeholder="Search clients..." />
+                              <CommandList>
+                                <CommandEmpty>
+                                  <p className="text-sm text-muted-foreground p-2">
+                                    No client found. 
+                                    <Button 
+                                      variant="link" 
+                                      className="px-1"
+                                      onClick={() => navigate('/clients')}
+                                    >
+                                      Add one
+                                    </Button>
                                   </p>
-                                </div>
-                              </CommandItem>
-                            ))}
-                          </CommandGroup>
-                        </CommandList>
-                      </Command>
-                    </PopoverContent>
-                  </Popover>
-                </div>
+                                </CommandEmpty>
+                                <CommandGroup>
+                                  {clients.map((client) => (
+                                    <CommandItem
+                                      key={client.id}
+                                      value={client.name}
+                                      onSelect={() => {
+                                        setSelectedClient(client);
+                                        setClientOpen(false);
+                                      }}
+                                    >
+                                      <div>
+                                        <p className="font-medium">{client.name}</p>
+                                        <p className="text-xs text-muted-foreground">
+                                          {client.email} • {INDIAN_STATES[client.state_code]}
+                                        </p>
+                                      </div>
+                                    </CommandItem>
+                                  ))}
+                                </CommandGroup>
+                              </CommandList>
+                            </Command>
+                          </PopoverContent>
+                        </Popover>
+                      </div>
 
-                {selectedClient && (
-                  <>
-                    <div>
-                      <Label className="text-muted-foreground">GSTIN</Label>
-                      <p className="font-medium">{selectedClient.gstin || 'Not provided'}</p>
+                      {selectedClient && (
+                        <>
+                          <div>
+                            <Label className="text-muted-foreground">GSTIN</Label>
+                            <p className="font-medium">{selectedClient.gstin || 'Not provided'}</p>
+                          </div>
+                          <div>
+                            <Label className="text-muted-foreground">State</Label>
+                            <p className="font-medium">
+                              {INDIAN_STATES[selectedClient.state_code]}
+                              {selectedClient.state_code !== profileStateCode && (
+                                <span className="ml-2 text-xs gst-badge gst-badge-igst">
+                                  IGST Applicable
+                                </span>
+                              )}
+                              {selectedClient.state_code === profileStateCode && (
+                                <span className="ml-2 text-xs gst-badge gst-badge-cgst">
+                                  CGST + SGST
+                                </span>
+                              )}
+                            </p>
+                          </div>
+                        </>
+                      )}
                     </div>
-                    <div>
-                      <Label className="text-muted-foreground">State</Label>
-                      <p className="font-medium">
-                        {INDIAN_STATES[selectedClient.state_code]}
-                        {selectedClient.state_code !== profileStateCode && (
-                          <span className="ml-2 text-xs gst-badge gst-badge-igst">
-                            IGST Applicable
-                          </span>
-                        )}
-                        {selectedClient.state_code === profileStateCode && (
-                          <span className="ml-2 text-xs gst-badge gst-badge-cgst">
-                            CGST + SGST
-                          </span>
-                        )}
-                      </p>
-                    </div>
-                  </>
-                )}
-              </div>
-            </div>
-
-            {/* Dates */}
-            <div className="rounded-xl border border-border bg-card p-5">
-              <h3 className="text-lg font-semibold mb-4">Invoice Details</h3>
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div>
-                  <Label htmlFor="date-issued">Invoice Date</Label>
-                  <Input
-                    id="date-issued"
-                    type="date"
-                    value={dateIssued}
-                    onChange={(e) => setDateIssued(e.target.value)}
-                    className="mt-1.5"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="date-due">Due Date</Label>
-                  <Input
-                    id="date-due"
-                    type="date"
-                    value={dateDue}
-                    onChange={(e) => setDateDue(e.target.value)}
-                    className="mt-1.5"
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Line Items */}
-            <div className="rounded-xl border border-border bg-card p-5">
-              <h3 className="text-lg font-semibold mb-4">Line Items</h3>
-
-              {/* Header */}
-              <div className="grid grid-cols-12 gap-3 px-3 py-2 text-sm font-medium text-muted-foreground mb-2">
-                <div className="col-span-5 pl-6">Product / Description</div>
-                <div className="col-span-2">Qty</div>
-                <div className="col-span-2">Rate (₹)</div>
-                <div className="col-span-2">Tax %</div>
-                <div className="col-span-1"></div>
-              </div>
-
-              {/* Items */}
-              <DndContext
-                sensors={sensors}
-                collisionDetection={closestCenter}
-                onDragEnd={handleDragEnd}
-              >
-                <SortableContext items={items} strategy={verticalListSortingStrategy}>
-                  <div className="space-y-2">
-                    {items.map((item, index) => (
-                      <SortableLineItem
-                        key={item.id}
-                        item={item}
-                        index={index}
-                        onUpdate={updateItem}
-                        onRemove={removeItem}
-                        products={products}
-                        canRemove={items.length > 1}
-                      />
-                    ))}
                   </div>
-                </SortableContext>
-              </DndContext>
 
-              <Button
-                type="button"
-                variant="outline"
-                onClick={addItem}
-                className="w-full mt-4 gap-2"
-              >
-                <Plus className="w-4 h-4" />
-                Add Line Item
-              </Button>
-            </div>
+                  {/* Dates */}
+                  <div className="rounded-xl border border-border bg-card p-5">
+                    <h3 className="text-lg font-semibold mb-4">Invoice Details</h3>
+                    <div className="grid gap-4 sm:grid-cols-2">
+                      <div>
+                        <Label htmlFor="date-issued">Invoice Date</Label>
+                        <Input
+                          id="date-issued"
+                          type="date"
+                          value={dateIssued}
+                          onChange={(e) => setDateIssued(e.target.value)}
+                          className="mt-1.5"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="date-due">Due Date</Label>
+                        <Input
+                          id="date-due"
+                          type="date"
+                          value={dateDue}
+                          onChange={(e) => setDateDue(e.target.value)}
+                          className="mt-1.5"
+                        />
+                      </div>
+                    </div>
+                  </div>
 
-            {/* Totals */}
-            <div className="rounded-xl border border-border bg-card p-5">
-              <div className="space-y-3">
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Subtotal</span>
-                  <span className="font-medium tabular-nums">{formatINR(calculations.subtotal)}</span>
+                  {/* Line Items */}
+                  <div className="rounded-xl border border-border bg-card p-5">
+                    <h3 className="text-lg font-semibold mb-4">Line Items</h3>
+
+                    {/* Header */}
+                    <div className="grid grid-cols-12 gap-3 px-3 py-2 text-sm font-medium text-muted-foreground mb-2">
+                      <div className="col-span-5 pl-6">Product / Description</div>
+                      <div className="col-span-2">Qty</div>
+                      <div className="col-span-2">Rate (₹)</div>
+                      <div className="col-span-2">Tax %</div>
+                      <div className="col-span-1"></div>
+                    </div>
+
+                    {/* Items */}
+                    <DndContext
+                      sensors={sensors}
+                      collisionDetection={closestCenter}
+                      onDragEnd={handleDragEnd}
+                    >
+                      <SortableContext items={items} strategy={verticalListSortingStrategy}>
+                        <div className="space-y-2">
+                          {items.map((item, index) => (
+                            <SortableLineItem
+                              key={item.id}
+                              item={item}
+                              index={index}
+                              onUpdate={updateItem}
+                              onRemove={removeItem}
+                              products={products}
+                              canRemove={items.length > 1}
+                            />
+                          ))}
+                        </div>
+                      </SortableContext>
+                    </DndContext>
+
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={addItem}
+                      className="w-full mt-4 gap-2"
+                    >
+                      <Plus className="w-4 h-4" />
+                      Add Line Item
+                    </Button>
+                  </div>
+
+                  {/* Totals */}
+                  <div className="rounded-xl border border-border bg-card p-5">
+                    <div className="space-y-3">
+                      <div className="flex justify-between text-sm">
+                        <span className="text-muted-foreground">Subtotal</span>
+                        <span className="font-medium tabular-nums">{formatINR(calculations.subtotal)}</span>
+                      </div>
+                      {calculations.totalDiscount > 0 && (
+                        <div className="flex justify-between text-sm">
+                          <span className="text-muted-foreground">Discount</span>
+                          <span className="font-medium tabular-nums text-success">
+                            -{formatINR(calculations.totalDiscount)}
+                          </span>
+                        </div>
+                      )}
+                      <div className="flex justify-between text-sm">
+                        <span className="text-muted-foreground">
+                          {calculations.gstBreakdown.type === 'intra-state' ? (
+                            <>
+                              CGST ({formatINR(calculations.gstBreakdown.cgst)}) + SGST (
+                              {formatINR(calculations.gstBreakdown.sgst)})
+                            </>
+                          ) : (
+                            <>IGST</>
+                          )}
+                        </span>
+                        <span className="font-medium tabular-nums">
+                          {formatINR(calculations.totalTax)}
+                        </span>
+                      </div>
+                      <div className="border-t border-border pt-3 flex justify-between">
+                        <span className="text-lg font-semibold">Grand Total</span>
+                        <span className="text-2xl font-bold tabular-nums text-primary">
+                          {formatINR(calculations.grandTotal)}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Notes */}
+                  <div className="rounded-xl border border-border bg-card p-5">
+                    <Label htmlFor="notes">Notes / Terms</Label>
+                    <Textarea
+                      id="notes"
+                      value={notes}
+                      onChange={(e) => setNotes(e.target.value)}
+                      placeholder="Payment terms, bank details, etc."
+                      className="mt-1.5"
+                      rows={3}
+                    />
+                  </div>
                 </div>
-                {calculations.totalDiscount > 0 && (
+              </div>
+            </ResizablePanel>
+
+            <ResizableHandle withHandle />
+
+            {/* Preview Pane */}
+            <ResizablePanel defaultSize={40} minSize={25}>
+              <div className="h-full overflow-y-auto pl-4">
+                <div className="rounded-xl border border-border bg-muted/30 p-4 h-full">
+                  <InvoicePdfPreview
+                    invoiceNumber={invoiceNumber || 'DRAFT'}
+                    dateIssued={dateIssued}
+                    dateDue={dateDue}
+                    client={selectedClient}
+                    items={items}
+                    calculations={calculations}
+                    profileStateCode={profileStateCode}
+                    notes={notes}
+                  />
+                </div>
+              </div>
+            </ResizablePanel>
+          </ResizablePanelGroup>
+        ) : (
+          <div className="h-full overflow-y-auto max-w-4xl mx-auto">
+            <div className="space-y-6">
+              {/* Client Selection */}
+              <div className="rounded-xl border border-border bg-card p-5">
+                <h3 className="text-lg font-semibold mb-4">Client Details</h3>
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div className="sm:col-span-2">
+                    <Label>Select Client</Label>
+                    <Popover open={clientOpen} onOpenChange={setClientOpen}>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          role="combobox"
+                          className="w-full justify-between mt-1.5"
+                        >
+                          {selectedClient?.name || 'Select or add client...'}
+                          <Search className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-96 p-0" align="start">
+                        <Command>
+                          <CommandInput placeholder="Search clients..." />
+                          <CommandList>
+                            <CommandEmpty>
+                              <p className="text-sm text-muted-foreground p-2">
+                                No client found. 
+                                <Button 
+                                  variant="link" 
+                                  className="px-1"
+                                  onClick={() => navigate('/clients')}
+                                >
+                                  Add one
+                                </Button>
+                              </p>
+                            </CommandEmpty>
+                            <CommandGroup>
+                              {clients.map((client) => (
+                                <CommandItem
+                                  key={client.id}
+                                  value={client.name}
+                                  onSelect={() => {
+                                    setSelectedClient(client);
+                                    setClientOpen(false);
+                                  }}
+                                >
+                                  <div>
+                                    <p className="font-medium">{client.name}</p>
+                                    <p className="text-xs text-muted-foreground">
+                                      {client.email} • {INDIAN_STATES[client.state_code]}
+                                    </p>
+                                  </div>
+                                </CommandItem>
+                              ))}
+                            </CommandGroup>
+                          </CommandList>
+                        </Command>
+                      </PopoverContent>
+                    </Popover>
+                  </div>
+
+                  {selectedClient && (
+                    <>
+                      <div>
+                        <Label className="text-muted-foreground">GSTIN</Label>
+                        <p className="font-medium">{selectedClient.gstin || 'Not provided'}</p>
+                      </div>
+                      <div>
+                        <Label className="text-muted-foreground">State</Label>
+                        <p className="font-medium">
+                          {INDIAN_STATES[selectedClient.state_code]}
+                          {selectedClient.state_code !== profileStateCode && (
+                            <span className="ml-2 text-xs gst-badge gst-badge-igst">
+                              IGST Applicable
+                            </span>
+                          )}
+                          {selectedClient.state_code === profileStateCode && (
+                            <span className="ml-2 text-xs gst-badge gst-badge-cgst">
+                              CGST + SGST
+                            </span>
+                          )}
+                        </p>
+                      </div>
+                    </>
+                  )}
+                </div>
+              </div>
+
+              {/* Dates */}
+              <div className="rounded-xl border border-border bg-card p-5">
+                <h3 className="text-lg font-semibold mb-4">Invoice Details</h3>
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div>
+                    <Label htmlFor="date-issued">Invoice Date</Label>
+                    <Input
+                      id="date-issued"
+                      type="date"
+                      value={dateIssued}
+                      onChange={(e) => setDateIssued(e.target.value)}
+                      className="mt-1.5"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="date-due">Due Date</Label>
+                    <Input
+                      id="date-due"
+                      type="date"
+                      value={dateDue}
+                      onChange={(e) => setDateDue(e.target.value)}
+                      className="mt-1.5"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Line Items */}
+              <div className="rounded-xl border border-border bg-card p-5">
+                <h3 className="text-lg font-semibold mb-4">Line Items</h3>
+
+                {/* Header */}
+                <div className="grid grid-cols-12 gap-3 px-3 py-2 text-sm font-medium text-muted-foreground mb-2">
+                  <div className="col-span-5 pl-6">Product / Description</div>
+                  <div className="col-span-2">Qty</div>
+                  <div className="col-span-2">Rate (₹)</div>
+                  <div className="col-span-2">Tax %</div>
+                  <div className="col-span-1"></div>
+                </div>
+
+                {/* Items */}
+                <DndContext
+                  sensors={sensors}
+                  collisionDetection={closestCenter}
+                  onDragEnd={handleDragEnd}
+                >
+                  <SortableContext items={items} strategy={verticalListSortingStrategy}>
+                    <div className="space-y-2">
+                      {items.map((item, index) => (
+                        <SortableLineItem
+                          key={item.id}
+                          item={item}
+                          index={index}
+                          onUpdate={updateItem}
+                          onRemove={removeItem}
+                          products={products}
+                          canRemove={items.length > 1}
+                        />
+                      ))}
+                    </div>
+                  </SortableContext>
+                </DndContext>
+
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={addItem}
+                  className="w-full mt-4 gap-2"
+                >
+                  <Plus className="w-4 h-4" />
+                  Add Line Item
+                </Button>
+              </div>
+
+              {/* Totals */}
+              <div className="rounded-xl border border-border bg-card p-5">
+                <div className="space-y-3">
                   <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Discount</span>
-                    <span className="font-medium tabular-nums text-success">
-                      -{formatINR(calculations.totalDiscount)}
+                    <span className="text-muted-foreground">Subtotal</span>
+                    <span className="font-medium tabular-nums">{formatINR(calculations.subtotal)}</span>
+                  </div>
+                  {calculations.totalDiscount > 0 && (
+                    <div className="flex justify-between text-sm">
+                      <span className="text-muted-foreground">Discount</span>
+                      <span className="font-medium tabular-nums text-success">
+                        -{formatINR(calculations.totalDiscount)}
+                      </span>
+                    </div>
+                  )}
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">
+                      {calculations.gstBreakdown.type === 'intra-state' ? (
+                        <>
+                          CGST ({formatINR(calculations.gstBreakdown.cgst)}) + SGST (
+                          {formatINR(calculations.gstBreakdown.sgst)})
+                        </>
+                      ) : (
+                        <>IGST</>
+                      )}
+                    </span>
+                    <span className="font-medium tabular-nums">
+                      {formatINR(calculations.totalTax)}
                     </span>
                   </div>
-                )}
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">
-                    {calculations.gstBreakdown.type === 'intra-state' ? (
-                      <>
-                        CGST ({formatINR(calculations.gstBreakdown.cgst)}) + SGST (
-                        {formatINR(calculations.gstBreakdown.sgst)})
-                      </>
-                    ) : (
-                      <>IGST</>
-                    )}
-                  </span>
-                  <span className="font-medium tabular-nums">
-                    {formatINR(calculations.totalTax)}
-                  </span>
-                </div>
-                <div className="border-t border-border pt-3 flex justify-between">
-                  <span className="text-lg font-semibold">Grand Total</span>
-                  <span className="text-2xl font-bold tabular-nums text-primary">
-                    {formatINR(calculations.grandTotal)}
-                  </span>
+                  <div className="border-t border-border pt-3 flex justify-between">
+                    <span className="text-lg font-semibold">Grand Total</span>
+                    <span className="text-2xl font-bold tabular-nums text-primary">
+                      {formatINR(calculations.grandTotal)}
+                    </span>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            {/* Notes */}
-            <div className="rounded-xl border border-border bg-card p-5">
-              <Label htmlFor="notes">Notes / Terms</Label>
-              <Textarea
-                id="notes"
-                value={notes}
-                onChange={(e) => setNotes(e.target.value)}
-                placeholder="Payment terms, bank details, etc."
-                className="mt-1.5"
-                rows={3}
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* Preview Pane */}
-        {showPreview && (
-          <div className="w-[420px] flex-shrink-0 overflow-hidden rounded-xl border border-border bg-muted/30 p-4">
-            <div className="h-full overflow-y-auto">
-              <InvoicePdfPreview
-                invoiceNumber={invoiceNumber || 'DRAFT'}
-                dateIssued={dateIssued}
-                dateDue={dateDue}
-                client={selectedClient}
-                items={items}
-                calculations={calculations}
-                profileStateCode={profileStateCode}
-                notes={notes}
-              />
+              {/* Notes */}
+              <div className="rounded-xl border border-border bg-card p-5">
+                <Label htmlFor="notes">Notes / Terms</Label>
+                <Textarea
+                  id="notes"
+                  value={notes}
+                  onChange={(e) => setNotes(e.target.value)}
+                  placeholder="Payment terms, bank details, etc."
+                  className="mt-1.5"
+                  rows={3}
+                />
+              </div>
             </div>
           </div>
         )}
