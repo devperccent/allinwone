@@ -8,6 +8,9 @@ import {
   Trash2,
   AlertTriangle,
   Loader2,
+  History,
+  ArrowDownRight,
+  ArrowUpRight,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -36,17 +39,28 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+} from '@/components/ui/sheet';
 import { formatINR } from '@/hooks/useInvoiceCalculations';
 import { useProducts } from '@/hooks/useProducts';
+import { useInventoryLogs } from '@/hooks/useInventoryLogs';
 import { cn } from '@/lib/utils';
 import { Skeleton } from '@/components/ui/skeleton';
 import type { Product, ProductType } from '@/types';
 import { GST_RATES } from '@/types';
+import { format } from 'date-fns';
 
 export default function ProductsPage() {
   const { products, isLoading, createProduct, deleteProduct } = useProducts();
   const [searchQuery, setSearchQuery] = useState('');
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [stockSheetOpen, setStockSheetOpen] = useState(false);
   
   // Form state
   const [formData, setFormData] = useState({
@@ -286,6 +300,15 @@ export default function ProductsPage() {
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
+                    {product.type === 'goods' && (
+                      <DropdownMenuItem onClick={() => {
+                        setSelectedProduct(product);
+                        setStockSheetOpen(true);
+                      }}>
+                        <History className="w-4 h-4 mr-2" />
+                        Stock History
+                      </DropdownMenuItem>
+                    )}
                     <DropdownMenuItem>
                       <Pencil className="w-4 h-4 mr-2" />
                       Edit
@@ -335,6 +358,86 @@ export default function ProductsPage() {
           ))
         )}
       </div>
+
+      {/* Stock History Sheet */}
+      <StockHistorySheet
+        product={selectedProduct}
+        open={stockSheetOpen}
+        onOpenChange={setStockSheetOpen}
+      />
     </div>
+  );
+}
+
+function StockHistorySheet({
+  product,
+  open,
+  onOpenChange,
+}: {
+  product: Product | null;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+}) {
+  const { logs, isLoading } = useInventoryLogs(product?.id);
+
+  return (
+    <Sheet open={open} onOpenChange={onOpenChange}>
+      <SheetContent className="sm:max-w-md">
+        <SheetHeader>
+          <SheetTitle className="flex items-center gap-2">
+            <History className="w-5 h-5" />
+            Stock Movement
+          </SheetTitle>
+          <SheetDescription>
+            {product?.name} — Current stock: <span className="font-semibold">{product?.stock_quantity}</span>
+          </SheetDescription>
+        </SheetHeader>
+
+        <div className="mt-6 space-y-3">
+          {isLoading ? (
+            [...Array(4)].map((_, i) => (
+              <Skeleton key={i} className="h-14 w-full" />
+            ))
+          ) : logs.length === 0 ? (
+            <div className="text-center py-8 text-muted-foreground">
+              <Package className="w-10 h-10 mx-auto mb-2 opacity-50" />
+              <p>No stock movement recorded yet</p>
+            </div>
+          ) : (
+            logs.map((log) => (
+              <div
+                key={log.id}
+                className="flex items-center gap-3 p-3 rounded-lg border border-border bg-card"
+              >
+                <div className={cn(
+                  'p-2 rounded-full',
+                  log.change_amount < 0 ? 'bg-destructive/10 text-destructive' : 'bg-success/10 text-success'
+                )}>
+                  {log.change_amount < 0 ? (
+                    <ArrowDownRight className="w-4 h-4" />
+                  ) : (
+                    <ArrowUpRight className="w-4 h-4" />
+                  )}
+                </div>
+                <div className="flex-1">
+                  <p className="text-sm font-medium">
+                    {log.reason === 'invoice_deduction' ? 'Invoice Deduction' : log.reason}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {format(new Date(log.created_at), 'dd MMM yyyy, hh:mm a')}
+                  </p>
+                </div>
+                <span className={cn(
+                  'text-sm font-semibold tabular-nums',
+                  log.change_amount < 0 ? 'text-destructive' : 'text-success'
+                )}>
+                  {log.change_amount > 0 ? '+' : ''}{log.change_amount}
+                </span>
+              </div>
+            ))
+          )}
+        </div>
+      </SheetContent>
+    </Sheet>
   );
 }
