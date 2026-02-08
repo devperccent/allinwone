@@ -10,6 +10,7 @@ import {
   ChevronLeft,
 } from 'lucide-react';
 import inwLogo from '@/assets/inw-logomark.png';
+import inwWideLogo from '@/assets/inw-wide.png';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
@@ -59,9 +60,10 @@ export function AppSidebar() {
       {/* Logo */}
       <div className="flex items-center h-16 px-4 border-b border-sidebar-border">
         <Link to="/" className="flex items-center gap-3">
-          <img src={inwLogo} alt="Inw" className="w-10 h-10 object-contain" />
-          {!collapsed && (
-            <span className="text-xl font-bold text-foreground">Inw</span>
+          {collapsed ? (
+            <img src={inwLogo} alt="Inw" className="w-10 h-10 object-contain" />
+          ) : (
+            <img src={inwWideLogo} alt="Inw" className="h-8 object-contain" />
           )}
         </Link>
       </div>
