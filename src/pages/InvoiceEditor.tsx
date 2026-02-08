@@ -14,6 +14,7 @@ import {
   Download,
   Mail,
   Loader2,
+  Package,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -491,18 +492,47 @@ export default function InvoiceEditor() {
     }
   };
 
-  const handleFinalize = async () => {
+  const [finalizeDialogOpen, setFinalizeDialogOpen] = useState(false);
+
+  const stockImpactItems = items
+    .filter(item => item.product_id && item.description)
+    .map(item => {
+      const product = products.find(p => p.id === item.product_id);
+      if (!product || product.type !== 'goods') return null;
+      return {
+        name: product.name,
+        currentStock: product.stock_quantity,
+        deduction: item.qty,
+        newStock: product.stock_quantity - item.qty,
+        isNegative: product.stock_quantity - item.qty < 0,
+      };
+    })
+    .filter(Boolean);
+
+  const handleFinalizeClick = async () => {
     if (!currentInvoice) {
-      // Save first if not saved
+      // Save first, then open confirmation
       await handleSave();
+      // After save, currentInvoice will be set via state update
+      // We'll open the dialog after save completes
+      toast({
+        title: 'Invoice saved',
+        description: 'Invoice saved as draft. Click Finalize again to confirm.',
+      });
       return;
     }
+    setFinalizeDialogOpen(true);
+  };
 
+  const handleFinalizeConfirm = async () => {
+    if (!currentInvoice) return;
+    setFinalizeDialogOpen(false);
+    
     try {
       await finalizeInvoice(currentInvoice.id);
       toast({
         title: 'Invoice finalized',
-        description: 'Your invoice has been finalized and stock has been updated.',
+        description: 'Invoice finalized and stock has been updated.',
       });
       navigate('/invoices');
     } catch (error: any) {
@@ -668,7 +698,7 @@ export default function InvoiceEditor() {
           </Button>
           
           <Button 
-            onClick={handleFinalize} 
+            onClick={handleFinalizeClick} 
             className="gap-2"
             disabled={isFinalizing || !currentInvoice || currentInvoice?.status !== 'draft'}
           >
@@ -1173,6 +1203,71 @@ export default function InvoiceEditor() {
                 <Mail className="w-4 h-4 mr-2" />
               )}
               Send Email
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Finalize Confirmation Dialog with Stock Impact */}
+      <Dialog open={finalizeDialogOpen} onOpenChange={setFinalizeDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Finalize Invoice</DialogTitle>
+            <DialogDescription>
+              This will mark the invoice as sent and deduct stock for all goods items. This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          
+          {stockImpactItems.length > 0 && (
+            <div className="py-2">
+              <h4 className="text-sm font-semibold mb-3 flex items-center gap-2">
+                <Package className="w-4 h-4" />
+                Stock Impact
+              </h4>
+              <div className="rounded-lg border border-border overflow-hidden">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="bg-muted/30">
+                      <th className="text-left py-2 px-3 font-medium text-muted-foreground">Product</th>
+                      <th className="text-right py-2 px-3 font-medium text-muted-foreground">Current</th>
+                      <th className="text-right py-2 px-3 font-medium text-muted-foreground">Deduct</th>
+                      <th className="text-right py-2 px-3 font-medium text-muted-foreground">After</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {stockImpactItems.map((item: any, idx: number) => (
+                      <tr key={idx} className={cn('border-t border-border/50', item.isNegative && 'bg-destructive/5')}>
+                        <td className="py-2 px-3 font-medium">{item.name}</td>
+                        <td className="py-2 px-3 text-right tabular-nums">{item.currentStock}</td>
+                        <td className="py-2 px-3 text-right tabular-nums text-destructive">-{item.deduction}</td>
+                        <td className={cn('py-2 px-3 text-right tabular-nums font-semibold', item.isNegative ? 'text-destructive' : 'text-success')}>
+                          {item.newStock}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              {stockImpactItems.some((item: any) => item.isNegative) && (
+                <div className="flex items-center gap-2 mt-3 text-sm text-destructive">
+                  <AlertTriangle className="w-4 h-4" />
+                  <span>Warning: Some products will go into negative stock!</span>
+                </div>
+              )}
+            </div>
+          )}
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setFinalizeDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleFinalizeConfirm} disabled={isFinalizing} className="gap-2">
+              {isFinalizing ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <Send className="w-4 h-4" />
+              )}
+              Confirm & Finalize
             </Button>
           </DialogFooter>
         </DialogContent>
