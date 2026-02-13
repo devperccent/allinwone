@@ -14,6 +14,12 @@ import {
   CheckCircle,
   Loader2,
   MessageCircle,
+  Share2,
+  Bell,
+  FileSpreadsheet,
+  Calendar,
+  Copy,
+  Check,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -41,6 +47,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { formatINR } from '@/hooks/useInvoiceCalculations';
 import { useInvoices } from '@/hooks/useInvoices';
 import { usePdfDownload } from '@/hooks/usePdfDownload';
@@ -48,6 +55,9 @@ import { useSendInvoiceEmail } from '@/hooks/useSendInvoiceEmail';
 import { useAuth } from '@/contexts/AuthContext';
 import { cn } from '@/lib/utils';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
+import { exportInvoicesToCSV } from '@/utils/csvExport';
 import type { Invoice, InvoiceStatus, PaymentMode } from '@/types';
 
 const statusConfig: Record<InvoiceStatus, { label: string; className: string }> = {
@@ -64,6 +74,8 @@ function InvoiceActions({
   onFinalize,
   onMarkPaid,
   onDelete,
+  onShare,
+  onRemind,
   isGenerating,
   isFinalizing,
   isMarkingPaid,
@@ -73,8 +85,10 @@ function InvoiceActions({
   onDownload: (invoice: Invoice) => void;
   onEmail: (invoice: Invoice) => void;
   onFinalize: (id: string) => void;
-  onMarkPaid: (id: string) => void;
+  onMarkPaid: (invoice: Invoice) => void;
   onDelete: (id: string) => void;
+  onShare: (invoice: Invoice) => void;
+  onRemind: (invoice: Invoice) => void;
   isGenerating: boolean;
   isFinalizing: boolean;
   isMarkingPaid: boolean;
@@ -112,6 +126,10 @@ function InvoiceActions({
               <Mail className="w-4 h-4 mr-2" />
               Send Email
             </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => onShare(invoice)}>
+              <Share2 className="w-4 h-4 mr-2" />
+              Get Shareable Link
+            </DropdownMenuItem>
             <DropdownMenuItem onClick={() => {
               const text = `Hi! Here's your invoice ${invoice.invoice_number} for ${formatINR(Number(invoice.grand_total))}. Please check and confirm.`;
               window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
@@ -123,7 +141,7 @@ function InvoiceActions({
         )}
         <DropdownMenuSeparator />
         {invoice.status === 'draft' && (
-          <DropdownMenuItem 
+          <DropdownMenuItem
             onClick={() => onFinalize(invoice.id)}
             disabled={isFinalizing}
           >
@@ -132,18 +150,24 @@ function InvoiceActions({
           </DropdownMenuItem>
         )}
         {invoice.status === 'finalized' && (
-          <DropdownMenuItem 
-            onClick={() => onMarkPaid(invoice.id)}
-            disabled={isMarkingPaid}
-          >
-            <CheckCircle className="w-4 h-4 mr-2" />
-            Mark as Paid
-          </DropdownMenuItem>
+          <>
+            <DropdownMenuItem
+              onClick={() => onMarkPaid(invoice)}
+              disabled={isMarkingPaid}
+            >
+              <CheckCircle className="w-4 h-4 mr-2" />
+              Mark as Paid
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => onRemind(invoice)}>
+              <Bell className="w-4 h-4 mr-2" />
+              Send Reminder
+            </DropdownMenuItem>
+          </>
         )}
         {invoice.status === 'draft' && (
           <>
             <DropdownMenuSeparator />
-            <DropdownMenuItem 
+            <DropdownMenuItem
               onClick={() => onDelete(invoice.id)}
               className="text-destructive focus:text-destructive"
               disabled={isDeleting}
@@ -160,32 +184,48 @@ function InvoiceActions({
 
 export default function InvoicesPage() {
   const { profile } = useAuth();
+  const { toast } = useToast();
   const { invoices, isLoading, finalizeInvoiceMutation, markAsPaid, deleteInvoice, getInvoiceWithItems } = useInvoices();
   const { generatePdf, isGenerating } = usePdfDownload();
   const { sendInvoiceEmail, isSending } = useSendInvoiceEmail();
-  
+
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [dateFrom, setDateFrom] = useState('');
+  const [dateTo, setDateTo] = useState('');
   const [emailDialogOpen, setEmailDialogOpen] = useState(false);
   const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
   const [recipientEmail, setRecipientEmail] = useState('');
+
+  // Mark as Paid dialog state
+  const [paidDialogOpen, setPaidDialogOpen] = useState(false);
+  const [paidInvoice, setPaidInvoice] = useState<Invoice | null>(null);
+  const [paymentMode, setPaymentMode] = useState<PaymentMode>('upi');
+  const [paymentDate, setPaymentDate] = useState(new Date().toISOString().split('T')[0]);
+
+  // Share link state
+  const [shareDialogOpen, setShareDialogOpen] = useState(false);
+  const [shareLink, setShareLink] = useState('');
+  const [linkCopied, setLinkCopied] = useState(false);
+  const [isGeneratingLink, setIsGeneratingLink] = useState(false);
 
   const filteredInvoices = invoices.filter((invoice) => {
     const matchesSearch =
       invoice.invoice_number.toLowerCase().includes(searchQuery.toLowerCase()) ||
       invoice.client?.name?.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesStatus = statusFilter === 'all' || invoice.status === statusFilter;
-    return matchesSearch && matchesStatus;
+    const matchesDateFrom = !dateFrom || invoice.date_issued >= dateFrom;
+    const matchesDateTo = !dateTo || invoice.date_issued <= dateTo;
+    return matchesSearch && matchesStatus && matchesDateFrom && matchesDateTo;
   });
 
   const handleDownload = async (invoice: Invoice) => {
     if (!profile) return;
-    
     try {
       const fullInvoice = await getInvoiceWithItems(invoice.id);
       await generatePdf({
-        invoice: { 
-          ...fullInvoice, 
+        invoice: {
+          ...fullInvoice,
           status: fullInvoice.status as InvoiceStatus,
           payment_mode: fullInvoice.payment_mode as PaymentMode | null,
         },
@@ -200,12 +240,11 @@ export default function InvoicesPage() {
 
   const handleSendEmail = async () => {
     if (!selectedInvoice || !profile || !recipientEmail) return;
-    
     try {
       const fullInvoice = await getInvoiceWithItems(selectedInvoice.id);
       await sendInvoiceEmail({
-        invoice: { 
-          ...fullInvoice, 
+        invoice: {
+          ...fullInvoice,
           status: fullInvoice.status as InvoiceStatus,
           payment_mode: fullInvoice.payment_mode as PaymentMode | null,
         },
@@ -222,6 +261,73 @@ export default function InvoicesPage() {
   };
 
   const openEmailDialog = (invoice: Invoice) => {
+    setSelectedInvoice(invoice);
+    setRecipientEmail(invoice.client?.email || '');
+    setEmailDialogOpen(true);
+  };
+
+  const openPaidDialog = (invoice: Invoice) => {
+    setPaidInvoice(invoice);
+    setPaymentMode('upi');
+    setPaymentDate(new Date().toISOString().split('T')[0]);
+    setPaidDialogOpen(true);
+  };
+
+  const handleMarkPaid = () => {
+    if (!paidInvoice) return;
+    markAsPaid.mutate(
+      { invoiceId: paidInvoice.id, paymentMode },
+      {
+        onSuccess: async () => {
+          // Also update payment_date
+          await supabase
+            .from('invoices')
+            .update({ payment_date: paymentDate } as any)
+            .eq('id', paidInvoice.id);
+          setPaidDialogOpen(false);
+        },
+      }
+    );
+  };
+
+  const handleShare = async (invoice: Invoice) => {
+    setIsGeneratingLink(true);
+    setShareDialogOpen(true);
+    setLinkCopied(false);
+
+    try {
+      let token = (invoice as any).share_token;
+      if (!token) {
+        // Generate a share token
+        const { data, error } = await supabase.rpc('generate_share_token');
+        if (error) throw error;
+        token = data;
+
+        await supabase
+          .from('invoices')
+          .update({ share_token: token } as any)
+          .eq('id', invoice.id);
+      }
+
+      const baseUrl = window.location.origin;
+      setShareLink(`${baseUrl}/invoice/view?token=${token}`);
+    } catch (err: any) {
+      toast({ title: 'Error generating link', description: err.message, variant: 'destructive' });
+      setShareDialogOpen(false);
+    } finally {
+      setIsGeneratingLink(false);
+    }
+  };
+
+  const copyShareLink = () => {
+    navigator.clipboard.writeText(shareLink);
+    setLinkCopied(true);
+    toast({ title: 'Link copied!', description: 'Share this link with your client.' });
+    setTimeout(() => setLinkCopied(false), 2000);
+  };
+
+  const handleRemind = (invoice: Invoice) => {
+    // Open email dialog pre-filled as a reminder
     setSelectedInvoice(invoice);
     setRecipientEmail(invoice.client?.email || '');
     setEmailDialogOpen(true);
@@ -253,12 +359,23 @@ export default function InvoicesPage() {
             Manage and track all your invoices
           </p>
         </div>
-        <Button asChild className="gap-2 w-full sm:w-auto">
-          <Link to="/invoices/new">
-            <Plus className="w-4 h-4" />
-            New Invoice
-          </Link>
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => exportInvoicesToCSV(filteredInvoices)}
+            className="gap-2"
+          >
+            <FileSpreadsheet className="w-4 h-4" />
+            <span className="hidden sm:inline">Export CSV</span>
+          </Button>
+          <Button asChild className="gap-2">
+            <Link to="/invoices/new">
+              <Plus className="w-4 h-4" />
+              New Invoice
+            </Link>
+          </Button>
+        </div>
       </div>
 
       {/* Filters */}
@@ -286,6 +403,25 @@ export default function InvoicesPage() {
             <SelectItem value="cancelled">Cancelled</SelectItem>
           </SelectContent>
         </Select>
+        <div className="flex items-center gap-2">
+          <div className="relative">
+            <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
+            <Input
+              type="date"
+              value={dateFrom}
+              onChange={(e) => setDateFrom(e.target.value)}
+              className="pl-10 w-40"
+              placeholder="From"
+            />
+          </div>
+          <span className="text-muted-foreground text-sm">to</span>
+          <Input
+            type="date"
+            value={dateTo}
+            onChange={(e) => setDateTo(e.target.value)}
+            className="w-40"
+          />
+        </div>
       </div>
 
       {/* Table - Desktop */}
@@ -341,8 +477,10 @@ export default function InvoicesPage() {
                       onDownload={handleDownload}
                       onEmail={openEmailDialog}
                       onFinalize={(id) => finalizeInvoiceMutation.mutate(id)}
-                      onMarkPaid={(id) => markAsPaid.mutate({ invoiceId: id, paymentMode: 'upi' })}
+                      onMarkPaid={openPaidDialog}
                       onDelete={(id) => deleteInvoice.mutate(id)}
+                      onShare={handleShare}
+                      onRemind={handleRemind}
                       isGenerating={isGenerating}
                       isFinalizing={finalizeInvoiceMutation.isPending}
                       isMarkingPaid={markAsPaid.isPending}
@@ -379,8 +517,10 @@ export default function InvoicesPage() {
                   onDownload={handleDownload}
                   onEmail={openEmailDialog}
                   onFinalize={(id) => finalizeInvoiceMutation.mutate(id)}
-                  onMarkPaid={(id) => markAsPaid.mutate({ invoiceId: id, paymentMode: 'upi' })}
+                  onMarkPaid={openPaidDialog}
                   onDelete={(id) => deleteInvoice.mutate(id)}
+                  onShare={handleShare}
+                  onRemind={handleRemind}
                   isGenerating={isGenerating}
                   isFinalizing={finalizeInvoiceMutation.isPending}
                   isMarkingPaid={markAsPaid.isPending}
@@ -437,6 +577,112 @@ export default function InvoicesPage() {
                   Send Email
                 </>
               )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Mark as Paid Dialog */}
+      <Dialog open={paidDialogOpen} onOpenChange={setPaidDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Mark as Paid</DialogTitle>
+            <DialogDescription>
+              Record payment details for {paidInvoice?.invoice_number}.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="py-4 space-y-4">
+            <div>
+              <Label>Payment Method</Label>
+              <RadioGroup
+                value={paymentMode}
+                onValueChange={(v) => setPaymentMode(v as PaymentMode)}
+                className="mt-2 grid grid-cols-2 gap-2"
+              >
+                {[
+                  { value: 'upi', label: 'UPI' },
+                  { value: 'cash', label: 'Cash' },
+                  { value: 'credit', label: 'Bank Transfer' },
+                  { value: 'split', label: 'Card' },
+                ].map((mode) => (
+                  <Label
+                    key={mode.value}
+                    htmlFor={mode.value}
+                    className={cn(
+                      'flex items-center gap-2 rounded-lg border p-3 cursor-pointer transition-colors',
+                      paymentMode === mode.value
+                        ? 'border-primary bg-primary/5'
+                        : 'border-border hover:bg-muted/30'
+                    )}
+                  >
+                    <RadioGroupItem value={mode.value} id={mode.value} />
+                    <span className="font-medium">{mode.label}</span>
+                  </Label>
+                ))}
+              </RadioGroup>
+            </div>
+            <div>
+              <Label htmlFor="payment_date">Payment Date</Label>
+              <Input
+                id="payment_date"
+                type="date"
+                value={paymentDate}
+                onChange={(e) => setPaymentDate(e.target.value)}
+                className="mt-1.5"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setPaidDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleMarkPaid} disabled={markAsPaid.isPending}>
+              {markAsPaid.isPending ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Saving...
+                </>
+              ) : (
+                <>
+                  <CheckCircle className="w-4 h-4 mr-2" />
+                  Confirm Payment
+                </>
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Share Link Dialog */}
+      <Dialog open={shareDialogOpen} onOpenChange={setShareDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Shareable Invoice Link</DialogTitle>
+            <DialogDescription>
+              Anyone with this link can view the invoice — no login required.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="py-4">
+            {isGeneratingLink ? (
+              <div className="flex items-center justify-center py-8">
+                <Loader2 className="w-6 h-6 animate-spin text-primary" />
+              </div>
+            ) : (
+              <div className="flex items-center gap-2">
+                <Input
+                  value={shareLink}
+                  readOnly
+                  className="font-mono text-xs"
+                />
+                <Button size="icon" variant="outline" onClick={copyShareLink}>
+                  {linkCopied ? <Check className="w-4 h-4 text-success" /> : <Copy className="w-4 h-4" />}
+                </Button>
+              </div>
+            )}
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShareDialogOpen(false)}>
+              Close
             </Button>
           </DialogFooter>
         </DialogContent>
