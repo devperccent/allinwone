@@ -160,7 +160,7 @@ const handler = async (req: Request): Promise<Response> => {
   </div>
   
   <div style="text-align: center; padding: 20px; color: #9ca3af; font-size: 12px;">
-    <p>This email was sent by ${profile.org_name} using Inw Invoice System</p>
+    <p>This email was sent by ${profile.org_name} using Inw Invoices</p>
   </div>
 </body>
 </html>
