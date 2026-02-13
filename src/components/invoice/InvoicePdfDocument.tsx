@@ -280,6 +280,9 @@ export function InvoicePdfDocument({
         {/* Teal Header Bar */}
         <View style={styles.header}>
           <View style={styles.headerLeft}>
+            {profile.logo_url && (
+              <Image src={profile.logo_url} style={{ width: 48, height: 48, marginBottom: 6, objectFit: 'contain' }} />
+            )}
             <Text style={styles.companyName}>{profile.org_name}</Text>
             {profile.address && <Text style={styles.headerDetail}>{profile.address}</Text>}
             {profile.gstin && <Text style={styles.headerDetail}>GSTIN: {profile.gstin}</Text>}

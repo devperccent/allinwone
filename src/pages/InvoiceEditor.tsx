@@ -54,6 +54,8 @@ import { cn } from '@/lib/utils';
 import { GST_RATES, INDIAN_STATES } from '@/types';
 import type { Client, Product, InvoiceItemFormData, Invoice, InvoiceItem } from '@/types';
 import { InvoicePdfPreview } from '@/components/invoice/InvoicePdfPreview';
+import { InlineClientCreate } from '@/components/invoice/InlineClientCreate';
+import { InlineProductCreate } from '@/components/invoice/InlineProductCreate';
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/components/ui/resizable';
 import { useAuth } from '@/contexts/AuthContext';
 import { useClients } from '@/hooks/useClients';
@@ -186,7 +188,22 @@ function SortableLineItem({
                 <Command>
                   <CommandInput placeholder="Search products..." />
                   <CommandList>
-                    <CommandEmpty>No product found.</CommandEmpty>
+                    <CommandEmpty>
+                      <div className="p-2 space-y-2">
+                        <p className="text-sm text-muted-foreground">No product found.</p>
+                        <InlineProductCreate
+                          onCreated={(product) => {
+                            onUpdate(item.id, {
+                              product_id: product.id,
+                              description: product.name,
+                              rate: product.selling_price,
+                              tax_rate: 18,
+                            });
+                            setProductOpen(false);
+                          }}
+                        />
+                      </div>
+                    </CommandEmpty>
                     <CommandGroup>
                       {products.map((product) => (
                         <CommandItem
@@ -742,16 +759,15 @@ export default function InvoiceEditor() {
                               <CommandInput placeholder="Search clients..." />
                               <CommandList>
                                 <CommandEmpty>
-                                  <p className="text-sm text-muted-foreground p-2">
-                                    No client found. 
-                                    <Button 
-                                      variant="link" 
-                                      className="px-1"
-                                      onClick={() => navigate('/clients')}
-                                    >
-                                      Add one
-                                    </Button>
-                                  </p>
+                                  <div className="p-2 space-y-2">
+                                    <p className="text-sm text-muted-foreground">No client found.</p>
+                                    <InlineClientCreate
+                                      onCreated={(client) => {
+                                        setSelectedClient(client);
+                                        setClientOpen(false);
+                                      }}
+                                    />
+                                  </div>
                                 </CommandEmpty>
                                 <CommandGroup>
                                   {clients.map((client) => (
@@ -979,16 +995,15 @@ export default function InvoiceEditor() {
                           <CommandInput placeholder="Search clients..." />
                           <CommandList>
                             <CommandEmpty>
-                              <p className="text-sm text-muted-foreground p-2">
-                                No client found. 
-                                <Button 
-                                  variant="link" 
-                                  className="px-1"
-                                  onClick={() => navigate('/clients')}
-                                >
-                                  Add one
-                                </Button>
-                              </p>
+                              <div className="p-2 space-y-2">
+                                <p className="text-sm text-muted-foreground">No client found.</p>
+                                <InlineClientCreate
+                                  onCreated={(client) => {
+                                    setSelectedClient(client);
+                                    setClientOpen(false);
+                                  }}
+                                />
+                              </div>
                             </CommandEmpty>
                             <CommandGroup>
                               {clients.map((client) => (

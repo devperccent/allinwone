@@ -15,6 +15,7 @@ interface UpdateProfileData {
   upi_vpa?: string | null;
   invoice_prefix?: string;
   next_invoice_number?: number;
+  logo_url?: string | null;
 }
 
 export function useProfile() {
