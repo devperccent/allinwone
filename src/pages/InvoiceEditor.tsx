@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
   ArrowLeft,
@@ -18,6 +18,7 @@ import {
   MessageCircle,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { supabase } from '@/integrations/supabase/client';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
@@ -724,8 +725,20 @@ export default function InvoiceEditor() {
               <Button 
                 variant="outline" 
                 size="sm"
-                onClick={() => {
-                  const text = `Hi! Here's your invoice ${invoiceNumber} for ${formatINR(calculations.grandTotal)}. Please check and confirm.`;
+                onClick={async () => {
+                  let token: string | null = null;
+                  if (id) {
+                    const { data: inv } = await supabase.from('invoices').select('share_token').eq('id', id).single();
+                    token = inv?.share_token || null;
+                    if (!token) {
+                      const { data, error } = await supabase.rpc('generate_share_token');
+                      if (error) { console.error(error); return; }
+                      token = data;
+                      await supabase.from('invoices').update({ share_token: token } as any).eq('id', id);
+                    }
+                  }
+                  const link = token ? `${window.location.origin}/invoice/view?token=${token}` : '';
+                  const text = `Hi! Here's your invoice ${invoiceNumber} for ${formatINR(calculations.grandTotal)}.${link ? ` View it here: ${link}` : ''}`;
                   const phone = selectedClient?.phone?.replace(/[^0-9]/g, '') || '';
                   window.open(`https://wa.me/${phone}?text=${encodeURIComponent(text)}`, '_blank');
                 }}

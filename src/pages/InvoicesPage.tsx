@@ -130,8 +130,16 @@ function InvoiceActions({
               <Share2 className="w-4 h-4 mr-2" />
               Get Shareable Link
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => {
-              const text = `Hi! Here's your invoice ${invoice.invoice_number} for ${formatINR(Number(invoice.grand_total))}. Please check and confirm.`;
+            <DropdownMenuItem onClick={async () => {
+              let token = (invoice as any).share_token;
+              if (!token) {
+                const { data, error } = await supabase.rpc('generate_share_token');
+                if (error) { console.error(error); return; }
+                token = data;
+                await supabase.from('invoices').update({ share_token: token } as any).eq('id', invoice.id);
+              }
+              const link = `${window.location.origin}/invoice/view?token=${token}`;
+              const text = `Hi! Here's your invoice ${invoice.invoice_number} for ${formatINR(Number(invoice.grand_total))}. View it here: ${link}`;
               window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
             }}>
               <MessageCircle className="w-4 h-4 mr-2" />
