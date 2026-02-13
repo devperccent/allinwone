@@ -7,7 +7,7 @@ interface ProtectedRouteProps {
 }
 
 export function ProtectedRoute({ children }: ProtectedRouteProps) {
-  const { user, loading } = useAuth();
+  const { user, profile, loading } = useAuth();
   const location = useLocation();
 
   if (loading) {
@@ -23,6 +23,12 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
 
   if (!user) {
     return <Navigate to="/login" state={{ from: location }} replace />;
+  }
+
+  // Redirect to onboarding if profile is incomplete (only org_name from signup, no address/gstin filled)
+  const needsOnboarding = profile && !profile.address && !profile.gstin && location.pathname !== '/onboarding';
+  if (needsOnboarding) {
+    return <Navigate to="/onboarding" replace />;
   }
 
   return <>{children}</>;

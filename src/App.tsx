@@ -15,6 +15,7 @@ import ReportsPage from "./pages/ReportsPage";
 import SettingsPage from "./pages/SettingsPage";
 import LoginPage from "./pages/LoginPage";
 import SignupPage from "./pages/SignupPage";
+import OnboardingPage from "./pages/OnboardingPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -30,6 +31,11 @@ const App = () => (
             {/* Public routes */}
             <Route path="/login" element={<LoginPage />} />
             <Route path="/signup" element={<SignupPage />} />
+            <Route path="/onboarding" element={
+              <ProtectedRoute>
+                <OnboardingPage />
+              </ProtectedRoute>
+            } />
             
             {/* Protected routes */}
             <Route element={

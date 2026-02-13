@@ -1,12 +1,14 @@
-import { Bell, Search, Plus } from 'lucide-react';
+import { Bell, Search, Plus, Moon, Sun } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
+import { useTheme } from '@/hooks/useTheme';
 
 export function AppHeader() {
   const navigate = useNavigate();
   const { profile } = useAuth();
+  const { theme, setTheme } = useTheme();
 
   const initials = profile?.org_name
     ?.split(' ')
@@ -14,6 +16,8 @@ export function AppHeader() {
     .join('')
     .slice(0, 2)
     .toUpperCase() || 'IN';
+
+  const isDark = theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
 
   return (
     <header className="flex items-center justify-between h-16 px-6 border-b border-border bg-card">
@@ -35,6 +39,15 @@ export function AppHeader() {
         >
           <Plus className="w-4 h-4" />
           New Invoice
+        </Button>
+
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => setTheme(isDark ? 'light' : 'dark')}
+          title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+        >
+          {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
         </Button>
         
         <Button variant="ghost" size="icon" className="relative">

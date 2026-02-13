@@ -4,71 +4,72 @@ import {
   Text,
   View,
   StyleSheet,
-  Font,
   Image,
 } from '@react-pdf/renderer';
 import type { Invoice, InvoiceItem, Client, Profile } from '@/types';
 import { INDIAN_STATES } from '@/types';
 
-// Register font (using default for now)
-Font.register({
-  family: 'Helvetica',
-  fonts: [
-    { src: 'https://fonts.gstatic.com/s/helvetica/v1/helvetica.woff2' },
-  ],
-});
+// Deep Teal primary color matching the app theme
+const TEAL = '#03556E';
+const TEAL_LIGHT = '#E8F4F8';
+const GRAY = '#6b7280';
+const BORDER = '#e5e7eb';
 
 const styles = StyleSheet.create({
   page: {
-    padding: 40,
+    padding: 0,
     fontSize: 10,
     fontFamily: 'Helvetica',
     color: '#1a1a2e',
   },
+  // Header - matches the teal header bar in the preview
   header: {
+    backgroundColor: TEAL,
+    paddingHorizontal: 40,
+    paddingVertical: 24,
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 30,
-    paddingBottom: 20,
-    borderBottom: '2px solid #4f46e5',
+    alignItems: 'flex-start',
   },
   headerLeft: {
     flex: 1,
   },
-  headerRight: {
-    textAlign: 'right',
-  },
   companyName: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#4f46e5',
-    marginBottom: 5,
+    color: '#ffffff',
+    marginBottom: 4,
+  },
+  headerDetail: {
+    fontSize: 9,
+    color: 'rgba(255,255,255,0.8)',
+    marginBottom: 2,
+  },
+  headerRight: {
+    textAlign: 'right',
   },
   invoiceTitle: {
-    fontSize: 24,
+    fontSize: 20,
     fontWeight: 'bold',
-    color: '#4f46e5',
+    color: '#ffffff',
   },
   invoiceNumber: {
-    fontSize: 12,
-    color: '#666',
-    marginTop: 5,
+    fontSize: 11,
+    color: 'rgba(255,255,255,0.8)',
+    marginTop: 4,
   },
-  section: {
-    marginBottom: 20,
+  // Body content
+  body: {
+    paddingHorizontal: 40,
+    paddingTop: 20,
   },
-  sectionTitle: {
-    fontSize: 10,
-    fontWeight: 'bold',
-    color: '#888',
-    marginBottom: 8,
-    textTransform: 'uppercase',
-    letterSpacing: 1,
-  },
-  row: {
+  // Bill To & Invoice Info row
+  infoRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginBottom: 20,
+    paddingBottom: 16,
+    borderBottom: `1px solid ${BORDER}`,
   },
   column: {
     flex: 1,
@@ -77,114 +78,136 @@ const styles = StyleSheet.create({
     flex: 1,
     textAlign: 'right',
   },
+  sectionTitle: {
+    fontSize: 9,
+    fontWeight: 'bold',
+    color: GRAY,
+    marginBottom: 8,
+    textTransform: 'uppercase',
+    letterSpacing: 1,
+  },
   label: {
     fontSize: 9,
-    color: '#888',
-    marginBottom: 3,
+    color: GRAY,
+    marginBottom: 2,
   },
   value: {
-    fontSize: 11,
+    fontSize: 10,
     marginBottom: 3,
   },
+  // Table
   table: {
-    marginTop: 10,
+    marginBottom: 20,
   },
   tableHeader: {
     flexDirection: 'row',
-    backgroundColor: '#f5f5f5',
-    padding: 8,
-    borderBottom: '1px solid #e0e0e0',
+    borderBottom: `1px solid ${BORDER}`,
+    paddingVertical: 8,
   },
   tableRow: {
     flexDirection: 'row',
-    padding: 8,
-    borderBottom: '1px solid #f0f0f0',
+    paddingVertical: 8,
+    borderBottom: `1px solid ${BORDER}50`,
   },
   tableCell: {
     fontSize: 10,
   },
+  tableCellBold: {
+    fontSize: 10,
+    fontWeight: 'bold',
+  },
+  colNum: { width: 25 },
   colDescription: { flex: 3 },
-  colQty: { width: 50, textAlign: 'center' },
-  colRate: { width: 80, textAlign: 'right' },
-  colTax: { width: 60, textAlign: 'right' },
+  colQty: { width: 45, textAlign: 'right' },
+  colRate: { width: 75, textAlign: 'right' },
+  colTax: { width: 70, textAlign: 'right' },
   colAmount: { width: 80, textAlign: 'right' },
+  // Totals section - matches the muted bg from preview
+  totalsWrapper: {
+    backgroundColor: TEAL_LIGHT,
+    paddingHorizontal: 40,
+    paddingVertical: 16,
+  },
   totalsSection: {
-    marginTop: 20,
     marginLeft: 'auto',
     width: 250,
   },
   totalRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    paddingVertical: 5,
+    paddingVertical: 4,
   },
   totalLabel: {
     fontSize: 10,
-    color: '#666',
+    color: GRAY,
   },
   totalValue: {
     fontSize: 10,
     fontWeight: 'bold',
   },
   grandTotal: {
-    borderTop: '2px solid #4f46e5',
-    paddingTop: 10,
-    marginTop: 10,
+    borderTop: `2px solid ${TEAL}`,
+    paddingTop: 8,
+    marginTop: 8,
   },
   grandTotalLabel: {
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: 'bold',
   },
   grandTotalValue: {
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: 'bold',
-    color: '#4f46e5',
+    color: TEAL,
   },
-  footer: {
-    position: 'absolute',
-    bottom: 40,
-    left: 40,
-    right: 40,
+  amountInWords: {
+    marginTop: 8,
+    fontSize: 9,
+    fontStyle: 'italic',
+    color: GRAY,
+  },
+  // Footer
+  footerArea: {
+    paddingHorizontal: 40,
+    paddingVertical: 16,
+    borderTop: `1px solid ${BORDER}`,
   },
   footerContent: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    paddingTop: 20,
-    borderTop: '1px solid #e0e0e0',
+    alignItems: 'flex-end',
+  },
+  notesTitle: {
+    fontSize: 9,
+    fontWeight: 'bold',
+    color: GRAY,
+    textTransform: 'uppercase',
+    marginBottom: 4,
+  },
+  notesText: {
+    fontSize: 9,
+    color: GRAY,
   },
   footerText: {
     fontSize: 9,
-    color: '#888',
+    color: GRAY,
   },
   qrSection: {
     alignItems: 'center',
   },
-  qrPlaceholder: {
-    width: 80,
-    height: 80,
-    backgroundColor: '#f5f5f5',
-    marginBottom: 5,
+  legalFooter: {
+    position: 'absolute',
+    bottom: 30,
+    left: 0,
+    right: 0,
+    textAlign: 'center',
+    fontSize: 8,
+    color: GRAY,
+    backgroundColor: TEAL_LIGHT,
+    paddingVertical: 10,
   },
   notes: {
-    marginTop: 30,
-    padding: 15,
-    backgroundColor: '#f9f9f9',
-    borderRadius: 5,
-  },
-  notesTitle: {
-    fontSize: 10,
-    fontWeight: 'bold',
-    marginBottom: 5,
-  },
-  notesText: {
-    fontSize: 9,
-    color: '#666',
-  },
-  amountInWords: {
-    marginTop: 10,
-    fontSize: 9,
-    fontStyle: 'italic',
-    color: '#666',
+    paddingHorizontal: 40,
+    paddingVertical: 10,
   },
 });
 
@@ -239,8 +262,7 @@ export function InvoicePdfDocument({
   qrCodeDataUrl,
 }: InvoicePdfDocumentProps) {
   const isIntraState = !client || profile.state_code === client.state_code;
-  
-  // Calculate tax totals
+
   let cgst = 0, sgst = 0, igst = 0;
   items.forEach(item => {
     const taxAmount = (Number(item.qty) * Number(item.rate) - Number(item.discount)) * (Number(item.tax_rate) / 100);
@@ -255,15 +277,12 @@ export function InvoicePdfDocument({
   return (
     <Document>
       <Page size="A4" style={styles.page}>
-        {/* Header */}
+        {/* Teal Header Bar */}
         <View style={styles.header}>
           <View style={styles.headerLeft}>
             <Text style={styles.companyName}>{profile.org_name}</Text>
-            <Text style={styles.value}>{profile.address}</Text>
-            {profile.gstin && <Text style={styles.value}>GSTIN: {profile.gstin}</Text>}
-            <Text style={styles.value}>
-              {profile.email} | {profile.phone}
-            </Text>
+            {profile.address && <Text style={styles.headerDetail}>{profile.address}</Text>}
+            {profile.gstin && <Text style={styles.headerDetail}>GSTIN: {profile.gstin}</Text>}
           </View>
           <View style={styles.headerRight}>
             <Text style={styles.invoiceTitle}>TAX INVOICE</Text>
@@ -272,142 +291,141 @@ export function InvoicePdfDocument({
         </View>
 
         {/* Bill To & Invoice Details */}
-        <View style={styles.row}>
-          <View style={styles.column}>
-            <Text style={styles.sectionTitle}>Bill To</Text>
-            {client ? (
-              <>
-                <Text style={styles.value}>{client.name}</Text>
-                <Text style={styles.value}>{client.billing_address}</Text>
-                {client.gstin && <Text style={styles.value}>GSTIN: {client.gstin}</Text>}
-                <Text style={styles.value}>
-                  State: {INDIAN_STATES[client.state_code]} ({client.state_code})
-                </Text>
-              </>
-            ) : (
-              <Text style={styles.value}>Walk-in Customer</Text>
-            )}
-          </View>
-          <View style={styles.columnRight}>
-            <View style={{ marginBottom: 10 }}>
-              <Text style={styles.label}>Invoice Date</Text>
-              <Text style={styles.value}>{invoice.date_issued}</Text>
+        <View style={styles.body}>
+          <View style={styles.infoRow}>
+            <View style={styles.column}>
+              <Text style={styles.sectionTitle}>Bill To</Text>
+              {client ? (
+                <>
+                  <Text style={[styles.value, { fontWeight: 'bold' }]}>{client.name}</Text>
+                  <Text style={styles.value}>{client.billing_address}</Text>
+                  {client.gstin && <Text style={styles.value}>GSTIN: {client.gstin}</Text>}
+                  <Text style={styles.value}>
+                    State: {INDIAN_STATES[client.state_code]} ({client.state_code})
+                  </Text>
+                </>
+              ) : (
+                <Text style={[styles.value, { fontStyle: 'italic', color: GRAY }]}>Walk-in Customer</Text>
+              )}
             </View>
-            {invoice.date_due && (
-              <View style={{ marginBottom: 10 }}>
-                <Text style={styles.label}>Due Date</Text>
-                <Text style={styles.value}>{invoice.date_due}</Text>
+            <View style={styles.columnRight}>
+              <View style={{ marginBottom: 6 }}>
+                <Text style={styles.label}>Date</Text>
+                <Text style={[styles.value, { fontWeight: 'bold' }]}>{invoice.date_issued}</Text>
               </View>
-            )}
-            <View>
-              <Text style={styles.label}>Place of Supply</Text>
-              <Text style={styles.value}>
-                {client ? INDIAN_STATES[client.state_code] : INDIAN_STATES[profile.state_code]}
-              </Text>
+              {invoice.date_due && (
+                <View style={{ marginBottom: 6 }}>
+                  <Text style={styles.label}>Due</Text>
+                  <Text style={[styles.value, { fontWeight: 'bold' }]}>{invoice.date_due}</Text>
+                </View>
+              )}
+              <View>
+                <Text style={styles.label}>Place of Supply</Text>
+                <Text style={[styles.value, { fontWeight: 'bold' }]}>
+                  {client ? INDIAN_STATES[client.state_code] : INDIAN_STATES[profile.state_code]}
+                </Text>
+              </View>
             </View>
+          </View>
+
+          {/* Items Table */}
+          <View style={styles.table}>
+            <View style={styles.tableHeader}>
+              <Text style={[styles.tableCellBold, styles.colNum]}>#</Text>
+              <Text style={[styles.tableCellBold, styles.colDescription]}>Description</Text>
+              <Text style={[styles.tableCellBold, styles.colQty]}>Qty</Text>
+              <Text style={[styles.tableCellBold, styles.colRate]}>Rate</Text>
+              {isIntraState ? (
+                <>
+                  <Text style={[styles.tableCellBold, styles.colTax]}>CGST</Text>
+                  <Text style={[styles.tableCellBold, styles.colTax]}>SGST</Text>
+                </>
+              ) : (
+                <Text style={[styles.tableCellBold, styles.colTax]}>IGST</Text>
+              )}
+              <Text style={[styles.tableCellBold, styles.colAmount]}>Amount</Text>
+            </View>
+
+            {items.map((item, index) => {
+              const baseAmount = Number(item.qty) * Number(item.rate);
+              const taxAmount = (baseAmount - Number(item.discount)) * (Number(item.tax_rate) / 100);
+              const totalAmount = baseAmount - Number(item.discount) + taxAmount;
+
+              return (
+                <View key={index} style={styles.tableRow}>
+                  <Text style={[styles.tableCell, styles.colNum]}>{index + 1}</Text>
+                  <Text style={[styles.tableCell, styles.colDescription]}>{item.description}</Text>
+                  <Text style={[styles.tableCell, styles.colQty]}>{item.qty}</Text>
+                  <Text style={[styles.tableCell, styles.colRate]}>{formatINR(Number(item.rate))}</Text>
+                  {isIntraState ? (
+                    <>
+                      <Text style={[styles.tableCell, styles.colTax]}>{formatINR(taxAmount / 2)}</Text>
+                      <Text style={[styles.tableCell, styles.colTax]}>{formatINR(taxAmount / 2)}</Text>
+                    </>
+                  ) : (
+                    <Text style={[styles.tableCell, styles.colTax]}>{formatINR(taxAmount)}</Text>
+                  )}
+                  <Text style={[styles.tableCell, styles.colAmount, { fontWeight: 'bold' }]}>{formatINR(totalAmount)}</Text>
+                </View>
+              );
+            })}
           </View>
         </View>
 
-        {/* Items Table */}
-        <View style={styles.table}>
-          <View style={styles.tableHeader}>
-            <Text style={[styles.tableCell, styles.colDescription, { fontWeight: 'bold' }]}>
-              Description
-            </Text>
-            <Text style={[styles.tableCell, styles.colQty, { fontWeight: 'bold' }]}>Qty</Text>
-            <Text style={[styles.tableCell, styles.colRate, { fontWeight: 'bold' }]}>Rate</Text>
+        {/* Totals - teal tinted background matching preview */}
+        <View style={styles.totalsWrapper}>
+          <View style={styles.totalsSection}>
+            <View style={styles.totalRow}>
+              <Text style={styles.totalLabel}>Subtotal</Text>
+              <Text style={styles.totalValue}>{formatINR(Number(invoice.subtotal))}</Text>
+            </View>
+            {Number(invoice.total_discount) > 0 && (
+              <View style={styles.totalRow}>
+                <Text style={styles.totalLabel}>Discount</Text>
+                <Text style={[styles.totalValue, { color: '#16a34a' }]}>-{formatINR(Number(invoice.total_discount))}</Text>
+              </View>
+            )}
             {isIntraState ? (
               <>
-                <Text style={[styles.tableCell, styles.colTax, { fontWeight: 'bold' }]}>CGST</Text>
-                <Text style={[styles.tableCell, styles.colTax, { fontWeight: 'bold' }]}>SGST</Text>
+                <View style={styles.totalRow}>
+                  <Text style={styles.totalLabel}>CGST</Text>
+                  <Text style={styles.totalValue}>{formatINR(cgst)}</Text>
+                </View>
+                <View style={styles.totalRow}>
+                  <Text style={styles.totalLabel}>SGST</Text>
+                  <Text style={styles.totalValue}>{formatINR(sgst)}</Text>
+                </View>
               </>
             ) : (
-              <Text style={[styles.tableCell, styles.colTax, { fontWeight: 'bold' }]}>IGST</Text>
+              <View style={styles.totalRow}>
+                <Text style={styles.totalLabel}>IGST</Text>
+                <Text style={styles.totalValue}>{formatINR(igst)}</Text>
+              </View>
             )}
-            <Text style={[styles.tableCell, styles.colAmount, { fontWeight: 'bold' }]}>Amount</Text>
-          </View>
-
-          {items.map((item, index) => {
-            const baseAmount = Number(item.qty) * Number(item.rate);
-            const taxAmount = (baseAmount - Number(item.discount)) * (Number(item.tax_rate) / 100);
-            const totalAmount = baseAmount - Number(item.discount) + taxAmount;
-
-            return (
-              <View key={index} style={styles.tableRow}>
-                <Text style={[styles.tableCell, styles.colDescription]}>{item.description}</Text>
-                <Text style={[styles.tableCell, styles.colQty]}>{item.qty}</Text>
-                <Text style={[styles.tableCell, styles.colRate]}>{formatINR(Number(item.rate))}</Text>
-                {isIntraState ? (
-                  <>
-                    <Text style={[styles.tableCell, styles.colTax]}>
-                      {formatINR(taxAmount / 2)}
-                    </Text>
-                    <Text style={[styles.tableCell, styles.colTax]}>
-                      {formatINR(taxAmount / 2)}
-                    </Text>
-                  </>
-                ) : (
-                  <Text style={[styles.tableCell, styles.colTax]}>{formatINR(taxAmount)}</Text>
-                )}
-                <Text style={[styles.tableCell, styles.colAmount]}>{formatINR(totalAmount)}</Text>
-              </View>
-            );
-          })}
-        </View>
-
-        {/* Totals */}
-        <View style={styles.totalsSection}>
-          <View style={styles.totalRow}>
-            <Text style={styles.totalLabel}>Subtotal</Text>
-            <Text style={styles.totalValue}>{formatINR(Number(invoice.subtotal))}</Text>
-          </View>
-          {Number(invoice.total_discount) > 0 && (
-            <View style={styles.totalRow}>
-              <Text style={styles.totalLabel}>Discount</Text>
-              <Text style={styles.totalValue}>-{formatINR(Number(invoice.total_discount))}</Text>
+            <View style={[styles.totalRow, styles.grandTotal]}>
+              <Text style={styles.grandTotalLabel}>Grand Total</Text>
+              <Text style={styles.grandTotalValue}>{formatINR(Number(invoice.grand_total))}</Text>
             </View>
-          )}
-          {isIntraState ? (
-            <>
-              <View style={styles.totalRow}>
-                <Text style={styles.totalLabel}>CGST</Text>
-                <Text style={styles.totalValue}>{formatINR(cgst)}</Text>
-              </View>
-              <View style={styles.totalRow}>
-                <Text style={styles.totalLabel}>SGST</Text>
-                <Text style={styles.totalValue}>{formatINR(sgst)}</Text>
-              </View>
-            </>
-          ) : (
-            <View style={styles.totalRow}>
-              <Text style={styles.totalLabel}>IGST</Text>
-              <Text style={styles.totalValue}>{formatINR(igst)}</Text>
-            </View>
-          )}
-          <View style={[styles.totalRow, styles.grandTotal]}>
-            <Text style={styles.grandTotalLabel}>Grand Total</Text>
-            <Text style={styles.grandTotalValue}>{formatINR(Number(invoice.grand_total))}</Text>
           </View>
+          <Text style={styles.amountInWords}>
+            Amount in words: {numberToWords(Number(invoice.grand_total))}
+          </Text>
         </View>
-
-        <Text style={styles.amountInWords}>
-          Amount in words: {numberToWords(Number(invoice.grand_total))}
-        </Text>
 
         {/* Notes */}
         {invoice.notes && (
           <View style={styles.notes}>
-            <Text style={styles.notesTitle}>Notes / Terms</Text>
+            <Text style={styles.notesTitle}>Notes</Text>
             <Text style={styles.notesText}>{invoice.notes}</Text>
           </View>
         )}
 
-        {/* Footer */}
-        <View style={styles.footer}>
+        {/* Footer with bank details & QR */}
+        <View style={styles.footerArea}>
           <View style={styles.footerContent}>
             <View>
               <Text style={styles.notesTitle}>Bank Details</Text>
-              <Text style={styles.footerText}>Account: {profile.org_name}</Text>
+              <Text style={styles.footerText}>Account Name: {profile.org_name}</Text>
               {profile.upi_vpa && <Text style={styles.footerText}>UPI: {profile.upi_vpa}</Text>}
             </View>
             {qrCodeDataUrl && (
@@ -417,9 +435,11 @@ export function InvoicePdfDocument({
               </View>
             )}
           </View>
-          <Text style={[styles.footerText, { textAlign: 'center', marginTop: 15 }]}>
-            This is a computer-generated invoice and does not require a signature.
-          </Text>
+        </View>
+
+        {/* Legal footer */}
+        <View style={styles.legalFooter}>
+          <Text>This is a computer-generated invoice and does not require a signature.</Text>
         </View>
       </Page>
     </Document>
