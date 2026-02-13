@@ -67,64 +67,64 @@ export function InvoicePdfPreview({
   const isIntraState = calculations.gstBreakdown.type === 'intra-state';
 
   return (
-    <div className="bg-white rounded-lg shadow-lg overflow-hidden" style={{ fontSize: '10px' }}>
+    <div className="bg-white text-[#1a1a2e] rounded-lg shadow-lg overflow-hidden" style={{ fontSize: '10px', colorScheme: 'light' }}>
       {/* Header */}
-      <div className="bg-primary px-6 py-4">
+      <div className="px-6 py-4" style={{ backgroundColor: '#03556E' }}>
         <div className="flex justify-between items-start">
           <div>
-            <h1 className="text-xl font-bold text-primary-foreground">
+            <h1 className="text-xl font-bold text-white">
               {mockProfile.org_name}
             </h1>
-            <p className="text-primary-foreground/80 mt-1 text-xs">
+            <p className="text-white/80 mt-1 text-xs">
               {mockProfile.address}
             </p>
-            <p className="text-primary-foreground/80 text-xs">
+            <p className="text-white/80 text-xs">
               GSTIN: {mockProfile.gstin}
             </p>
           </div>
           <div className="text-right">
-            <h2 className="text-lg font-bold text-primary-foreground">TAX INVOICE</h2>
-            <p className="text-primary-foreground/80 font-medium">{invoiceNumber}</p>
+            <h2 className="text-lg font-bold text-white">TAX INVOICE</h2>
+            <p className="text-white/80 font-medium">{invoiceNumber}</p>
           </div>
         </div>
       </div>
 
       {/* Invoice Info */}
-      <div className="px-6 py-4 border-b border-border">
+      <div className="px-6 py-4" style={{ borderBottom: '1px solid #e5e7eb' }}>
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <h3 className="font-semibold text-muted-foreground uppercase tracking-wide text-xs">
+            <h3 className="font-semibold uppercase tracking-wide text-xs" style={{ color: '#6b7280' }}>
               Bill To
             </h3>
             {client ? (
               <div className="mt-2">
                 <p className="font-semibold">{client.name}</p>
-                <p className="text-muted-foreground">{client.billing_address}</p>
+                <p style={{ color: '#6b7280' }}>{client.billing_address}</p>
                 {client.gstin && (
-                  <p className="text-muted-foreground">GSTIN: {client.gstin}</p>
+                  <p style={{ color: '#6b7280' }}>GSTIN: {client.gstin}</p>
                 )}
-                <p className="text-muted-foreground">
+                <p style={{ color: '#6b7280' }}>
                   State: {INDIAN_STATES[client.state_code]} ({client.state_code})
                 </p>
               </div>
             ) : (
-              <p className="mt-2 text-muted-foreground italic">Walk-in Customer</p>
+              <p className="mt-2 italic" style={{ color: '#6b7280' }}>Walk-in Customer</p>
             )}
           </div>
           <div className="text-right">
             <div className="space-y-1">
               <div>
-                <span className="text-muted-foreground">Date: </span>
+                <span style={{ color: '#6b7280' }}>Date: </span>
                 <span className="font-medium">{dateIssued}</span>
               </div>
               {dateDue && (
                 <div>
-                  <span className="text-muted-foreground">Due: </span>
+                  <span style={{ color: '#6b7280' }}>Due: </span>
                   <span className="font-medium">{dateDue}</span>
                 </div>
               )}
               <div>
-                <span className="text-muted-foreground">Place of Supply: </span>
+                <span style={{ color: '#6b7280' }}>Place of Supply: </span>
                 <span className="font-medium">
                   {client ? INDIAN_STATES[client.state_code] : INDIAN_STATES[profileStateCode]}
                 </span>
@@ -138,7 +138,7 @@ export function InvoicePdfPreview({
       <div className="px-6 py-4">
         <table className="w-full">
           <thead>
-            <tr className="border-b border-border">
+            <tr style={{ borderBottom: '1px solid #e5e7eb' }}>
               <th className="text-left py-2 font-semibold">#</th>
               <th className="text-left py-2 font-semibold">Description</th>
               <th className="text-right py-2 font-semibold">Qty</th>
@@ -157,7 +157,7 @@ export function InvoicePdfPreview({
           <tbody>
             {validItems.length === 0 ? (
               <tr>
-                <td colSpan={isIntraState ? 7 : 6} className="py-8 text-center text-muted-foreground">
+                <td colSpan={isIntraState ? 7 : 6} className="py-8 text-center" style={{ color: '#6b7280' }}>
                   No items added
                 </td>
               </tr>
@@ -169,7 +169,7 @@ export function InvoicePdfPreview({
                 const taxAmount = itemCalc?.taxAmount || 0;
                 
                 return (
-                  <tr key={item.id} className="border-b border-border/50">
+                  <tr key={item.id} style={{ borderBottom: '1px solid #e5e7eb80' }}>
                     <td className="py-2">{index + 1}</td>
                     <td className="py-2">{item.description}</td>
                     <td className="py-2 text-right tabular-nums">{item.qty}</td>
@@ -179,19 +179,19 @@ export function InvoicePdfPreview({
                         <td className="py-2 text-right tabular-nums">
                           {formatINR(taxAmount / 2)}
                           <br />
-                          <span className="text-xs text-muted-foreground">{item.tax_rate / 2}%</span>
+                          <span className="text-xs" style={{ color: '#6b7280' }}>{item.tax_rate / 2}%</span>
                         </td>
                         <td className="py-2 text-right tabular-nums">
                           {formatINR(taxAmount / 2)}
                           <br />
-                          <span className="text-xs text-muted-foreground">{item.tax_rate / 2}%</span>
+                          <span className="text-xs" style={{ color: '#6b7280' }}>{item.tax_rate / 2}%</span>
                         </td>
                       </>
                     ) : (
                       <td className="py-2 text-right tabular-nums">
                         {formatINR(taxAmount)}
                         <br />
-                        <span className="text-xs text-muted-foreground">{item.tax_rate}%</span>
+                        <span className="text-xs" style={{ color: '#6b7280' }}>{item.tax_rate}%</span>
                       </td>
                     )}
                     <td className="py-2 text-right font-medium tabular-nums">
@@ -206,17 +206,17 @@ export function InvoicePdfPreview({
       </div>
 
       {/* Totals */}
-      <div className="px-6 py-4 bg-muted/30">
+      <div className="px-6 py-4" style={{ backgroundColor: '#E8F4F8' }}>
         <div className="flex justify-end">
           <div className="w-64 space-y-2">
             <div className="flex justify-between">
-              <span className="text-muted-foreground">Subtotal</span>
+              <span style={{ color: '#6b7280' }}>Subtotal</span>
               <span className="font-medium tabular-nums">{formatINR(calculations.subtotal)}</span>
             </div>
             {calculations.totalDiscount > 0 && (
               <div className="flex justify-between">
-                <span className="text-muted-foreground">Discount</span>
-                <span className="font-medium tabular-nums text-success">
+                <span style={{ color: '#6b7280' }}>Discount</span>
+                <span className="font-medium tabular-nums" style={{ color: '#16a34a' }}>
                   -{formatINR(calculations.totalDiscount)}
                 </span>
               </div>
@@ -224,47 +224,47 @@ export function InvoicePdfPreview({
             {isIntraState ? (
               <>
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">CGST</span>
+                  <span style={{ color: '#6b7280' }}>CGST</span>
                   <span className="tabular-nums">{formatINR(calculations.gstBreakdown.cgst)}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">SGST</span>
+                  <span style={{ color: '#6b7280' }}>SGST</span>
                   <span className="tabular-nums">{formatINR(calculations.gstBreakdown.sgst)}</span>
                 </div>
               </>
             ) : (
               <div className="flex justify-between">
-                <span className="text-muted-foreground">IGST</span>
+                <span style={{ color: '#6b7280' }}>IGST</span>
                 <span className="tabular-nums">{formatINR(calculations.gstBreakdown.igst)}</span>
               </div>
             )}
-            <div className="border-t border-border pt-2 flex justify-between">
+            <div className="pt-2 flex justify-between" style={{ borderTop: '2px solid #03556E' }}>
               <span className="font-semibold">Grand Total</span>
-              <span className="font-bold text-lg tabular-nums">{formatINR(calculations.grandTotal)}</span>
+              <span className="font-bold text-lg tabular-nums" style={{ color: '#03556E' }}>{formatINR(calculations.grandTotal)}</span>
             </div>
           </div>
         </div>
         
         {calculations.grandTotal > 0 && (
-          <p className="mt-3 text-xs text-muted-foreground italic">
+          <p className="mt-3 text-xs italic" style={{ color: '#6b7280' }}>
             Amount in words: {numberToWords(calculations.grandTotal)}
           </p>
         )}
       </div>
 
       {/* Footer with QR */}
-      <div className="px-6 py-4 border-t border-border">
+      <div className="px-6 py-4" style={{ borderTop: '1px solid #e5e7eb' }}>
         <div className="flex justify-between items-end">
           <div className="flex-1">
             {notes && (
               <div className="mb-3">
-                <h4 className="font-semibold text-xs uppercase text-muted-foreground">Notes</h4>
+                <h4 className="font-semibold text-xs uppercase" style={{ color: '#6b7280' }}>Notes</h4>
                 <p className="mt-1 text-sm whitespace-pre-wrap">{notes}</p>
               </div>
             )}
             <div>
-              <h4 className="font-semibold text-xs uppercase text-muted-foreground">Bank Details</h4>
-              <p className="mt-1 text-sm text-muted-foreground">
+              <h4 className="font-semibold text-xs uppercase" style={{ color: '#6b7280' }}>Bank Details</h4>
+              <p className="mt-1 text-sm" style={{ color: '#6b7280' }}>
                 Account Name: {mockProfile.org_name}
                 <br />
                 UPI: {mockProfile.upi_vpa}
@@ -275,14 +275,14 @@ export function InvoicePdfPreview({
           {qrCodeUrl && (
             <div className="text-center">
               <img src={qrCodeUrl} alt="UPI QR Code" className="w-20 h-20" />
-              <p className="text-xs text-muted-foreground mt-1">Scan to Pay</p>
+              <p className="text-xs mt-1" style={{ color: '#6b7280' }}>Scan to Pay</p>
             </div>
           )}
         </div>
       </div>
 
       {/* Legal Footer */}
-      <div className="px-6 py-3 bg-muted/50 text-center text-xs text-muted-foreground">
+      <div className="px-6 py-3 text-center text-xs" style={{ backgroundColor: '#E8F4F8', color: '#6b7280' }}>
         This is a computer-generated invoice and does not require a signature.
       </div>
     </div>
