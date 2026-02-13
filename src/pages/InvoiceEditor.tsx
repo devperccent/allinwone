@@ -15,6 +15,7 @@ import {
   Mail,
   Loader2,
   Package,
+  MessageCircle,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -696,6 +697,19 @@ export default function InvoiceEditor() {
               >
                 <Mail className="w-4 h-4" />
                 Email
+              </Button>
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => {
+                  const text = `Hi! Here's your invoice ${invoiceNumber} for ${formatINR(calculations.grandTotal)}. Please check and confirm.`;
+                  const phone = selectedClient?.phone?.replace(/[^0-9]/g, '') || '';
+                  window.open(`https://wa.me/${phone}?text=${encodeURIComponent(text)}`, '_blank');
+                }}
+                className="gap-2"
+              >
+                <MessageCircle className="w-4 h-4" />
+                WhatsApp
               </Button>
             </>
           )}

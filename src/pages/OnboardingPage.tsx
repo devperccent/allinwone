@@ -95,6 +95,7 @@ export default function OnboardingPage() {
         upi_vpa: upiVpa || null,
         invoice_prefix: invoicePrefix,
         next_invoice_number: nextNumber,
+        onboarding_completed: true,
       });
 
       await refreshProfile();

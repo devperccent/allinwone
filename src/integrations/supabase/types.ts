@@ -288,6 +288,7 @@ export type Database = {
           invoice_prefix: string
           logo_url: string | null
           next_invoice_number: number
+          onboarding_completed: boolean
           org_name: string
           phone: string | null
           state_code: string
@@ -304,6 +305,7 @@ export type Database = {
           invoice_prefix?: string
           logo_url?: string | null
           next_invoice_number?: number
+          onboarding_completed?: boolean
           org_name: string
           phone?: string | null
           state_code?: string
@@ -320,6 +322,7 @@ export type Database = {
           invoice_prefix?: string
           logo_url?: string | null
           next_invoice_number?: number
+          onboarding_completed?: boolean
           org_name?: string
           phone?: string | null
           state_code?: string

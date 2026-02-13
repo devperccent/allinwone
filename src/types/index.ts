@@ -17,6 +17,7 @@ export interface Profile {
   upi_vpa: string | null;
   invoice_prefix: string;
   next_invoice_number: number;
+  onboarding_completed: boolean;
   created_at: string;
   updated_at: string;
 }

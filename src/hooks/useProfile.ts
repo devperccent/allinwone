@@ -16,6 +16,7 @@ interface UpdateProfileData {
   invoice_prefix?: string;
   next_invoice_number?: number;
   logo_url?: string | null;
+  onboarding_completed?: boolean;
 }
 
 export function useProfile() {
