@@ -25,8 +25,8 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
-  // Redirect to onboarding if profile still has the default org_name from signup trigger
-  const needsOnboarding = profile && profile.org_name === 'My Business' && location.pathname !== '/onboarding';
+  // Redirect to onboarding if not completed yet
+  const needsOnboarding = profile && !profile.onboarding_completed && location.pathname !== '/onboarding';
   if (needsOnboarding) {
     return <Navigate to="/onboarding" replace />;
   }

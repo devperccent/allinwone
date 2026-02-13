@@ -13,6 +13,7 @@ import {
   Trash2,
   CheckCircle,
   Loader2,
+  MessageCircle,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -260,10 +261,19 @@ export default function InvoicesPage() {
                           Download PDF
                         </DropdownMenuItem>
                         {invoice.status !== 'draft' && (
-                          <DropdownMenuItem onClick={() => openEmailDialog(invoice)}>
-                            <Mail className="w-4 h-4 mr-2" />
-                            Send Email
-                          </DropdownMenuItem>
+                          <>
+                            <DropdownMenuItem onClick={() => openEmailDialog(invoice)}>
+                              <Mail className="w-4 h-4 mr-2" />
+                              Send Email
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => {
+                              const text = `Hi! Here's your invoice ${invoice.invoice_number} for ${formatINR(Number(invoice.grand_total))}. Please check and confirm.`;
+                              window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+                            }}>
+                              <MessageCircle className="w-4 h-4 mr-2" />
+                              Share via WhatsApp
+                            </DropdownMenuItem>
+                          </>
                         )}
                         <DropdownMenuSeparator />
                         {invoice.status === 'draft' && (
