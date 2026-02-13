@@ -14,6 +14,7 @@ export function AppHeader() {
   const { profile } = useAuth();
   const { theme, setTheme } = useTheme();
   const isMobile = useIsMobile();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const initials = profile?.org_name
     ?.split(' ')
@@ -29,14 +30,14 @@ export function AppHeader() {
       {/* Mobile menu + Search */}
       <div className="flex items-center gap-2 flex-1 min-w-0">
         {isMobile && (
-          <Sheet>
+          <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
             <SheetTrigger asChild>
               <Button variant="ghost" size="icon" className="shrink-0">
                 <Menu className="w-5 h-5" />
               </Button>
             </SheetTrigger>
             <SheetContent side="left" className="p-0 w-64">
-              <AppSidebar />
+              <AppSidebar onNavigate={() => setSidebarOpen(false)} />
             </SheetContent>
           </Sheet>
         )}
