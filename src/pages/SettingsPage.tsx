@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Building2, CreditCard, Bell, Loader2 } from 'lucide-react';
+import { Building2, CreditCard, Bell, Loader2, ImageIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -18,6 +18,7 @@ import { INDIAN_STATES } from '@/types';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
 import { useProfile } from '@/hooks/useProfile';
+import { LogoUpload } from '@/components/LogoUpload';
 
 export default function SettingsPage() {
   const { toast } = useToast();
@@ -150,6 +151,13 @@ export default function SettingsPage() {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
+              {/* Logo Upload */}
+              <div>
+                <Label>Business Logo</Label>
+                <p className="text-xs text-muted-foreground mb-2">Appears on your invoices and PDF exports</p>
+                <LogoUpload currentLogoUrl={authProfile.logo_url} />
+              </div>
+
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="sm:col-span-2">
                   <Label htmlFor="org_name">Business Name *</Label>
