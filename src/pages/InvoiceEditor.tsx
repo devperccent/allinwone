@@ -82,6 +82,7 @@ import {
   useSortable,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 function generateId(): string {
   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
@@ -152,146 +153,148 @@ function SortableLineItem({
       ref={setNodeRef}
       style={style}
       className={cn(
-        'flex items-start gap-2 p-3 rounded-lg border bg-card',
+        'p-3 rounded-lg border bg-card',
         isDragging && 'opacity-50 shadow-lg',
         isLowStock && 'border-destructive/50 bg-destructive/5'
       )}
     >
-      <button
-        type="button"
-        className="mt-2 cursor-grab active:cursor-grabbing text-muted-foreground hover:text-foreground"
-        {...attributes}
-        {...listeners}
-      >
-        <GripVertical className="w-4 h-4" />
-      </button>
+      <div className="flex items-start gap-2">
+        <button
+          type="button"
+          className="mt-2 cursor-grab active:cursor-grabbing text-muted-foreground hover:text-foreground hidden sm:block"
+          {...attributes}
+          {...listeners}
+        >
+          <GripVertical className="w-4 h-4" />
+        </button>
 
-      <div className="flex-1 grid gap-3">
-        <div className="grid grid-cols-12 gap-3">
-          {/* Product Search */}
-          <div className="col-span-5">
-            <Popover open={productOpen} onOpenChange={setProductOpen}>
-              <PopoverTrigger asChild>
-                <Button
-                  variant="outline"
-                  role="combobox"
-                  aria-expanded={productOpen}
-                  className={cn(
-                    'w-full justify-between font-normal',
-                    !item.description && 'text-muted-foreground'
-                  )}
-                >
-                  {item.description || 'Search product...'}
-                  <Search className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-80 p-0" align="start">
-                <Command>
-                  <CommandInput placeholder="Search products..." />
-                  <CommandList>
-                    <CommandEmpty>
-                      <div className="p-2 space-y-2">
-                        <p className="text-sm text-muted-foreground">No product found.</p>
-                        <InlineProductCreate
-                          onCreated={(product) => {
-                            onUpdate(item.id, {
-                              product_id: product.id,
-                              description: product.name,
-                              rate: product.selling_price,
-                              tax_rate: 18,
-                            });
-                            setProductOpen(false);
-                          }}
-                        />
-                      </div>
-                    </CommandEmpty>
-                    <CommandGroup>
-                      {products.map((product) => (
-                        <CommandItem
-                          key={product.id}
-                          value={product.name}
-                          onSelect={() => handleProductSelect(product)}
-                        >
-                          <div className="flex-1">
-                            <p className="font-medium">{product.name}</p>
-                            <p className="text-xs text-muted-foreground">
-                              {product.sku} • {formatINR(product.selling_price)}
-                              {product.type === 'goods' && ` • Stock: ${product.stock_quantity}`}
-                            </p>
-                          </div>
-                        </CommandItem>
-                      ))}
-                    </CommandGroup>
-                  </CommandList>
-                </Command>
-              </PopoverContent>
-            </Popover>
-          </div>
-
-          {/* Qty */}
-          <div className="col-span-2">
-            <Input
-              type="number"
-              min="1"
-              value={item.qty}
-              onChange={(e) => onUpdate(item.id, { qty: parseInt(e.target.value) || 1 })}
-              className={cn(isLowStock && 'border-destructive')}
-            />
-          </div>
-
-          {/* Rate */}
-          <div className="col-span-2">
-            <Input
-              type="number"
-              min="0"
-              step="0.01"
-              value={item.rate}
-              onChange={(e) => onUpdate(item.id, { rate: parseFloat(e.target.value) || 0 })}
-            />
-          </div>
-
-          {/* Tax */}
-          <div className="col-span-2">
-            <Select
-              value={String(item.tax_rate)}
-              onValueChange={(v) => onUpdate(item.id, { tax_rate: parseInt(v) })}
-            >
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {GST_RATES.map((rate) => (
-                  <SelectItem key={rate} value={String(rate)}>
-                    {rate}%
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* Delete */}
-          <div className="col-span-1">
+        <div className="flex-1 space-y-3">
+          {/* Product search - full width on mobile */}
+          <div className="flex gap-2">
+            <div className="flex-1">
+              <Popover open={productOpen} onOpenChange={setProductOpen}>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    role="combobox"
+                    aria-expanded={productOpen}
+                    className={cn(
+                      'w-full justify-between font-normal',
+                      !item.description && 'text-muted-foreground'
+                    )}
+                  >
+                    <span className="truncate">{item.description || 'Search product...'}</span>
+                    <Search className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-[calc(100vw-4rem)] sm:w-80 p-0" align="start">
+                  <Command>
+                    <CommandInput placeholder="Search products..." />
+                    <CommandList>
+                      <CommandEmpty>
+                        <div className="p-2 space-y-2">
+                          <p className="text-sm text-muted-foreground">No product found.</p>
+                          <InlineProductCreate
+                            onCreated={(product) => {
+                              onUpdate(item.id, {
+                                product_id: product.id,
+                                description: product.name,
+                                rate: product.selling_price,
+                                tax_rate: 18,
+                              });
+                              setProductOpen(false);
+                            }}
+                          />
+                        </div>
+                      </CommandEmpty>
+                      <CommandGroup>
+                        {products.map((product) => (
+                          <CommandItem
+                            key={product.id}
+                            value={product.name}
+                            onSelect={() => handleProductSelect(product)}
+                          >
+                            <div className="flex-1">
+                              <p className="font-medium">{product.name}</p>
+                              <p className="text-xs text-muted-foreground">
+                                {product.sku} • {formatINR(product.selling_price)}
+                                {product.type === 'goods' && ` • Stock: ${product.stock_quantity}`}
+                              </p>
+                            </div>
+                          </CommandItem>
+                        ))}
+                      </CommandGroup>
+                    </CommandList>
+                  </Command>
+                </PopoverContent>
+              </Popover>
+            </div>
             <Button
               type="button"
               variant="ghost"
               size="icon"
               onClick={() => onRemove(item.id)}
               disabled={!canRemove}
-              className="text-muted-foreground hover:text-destructive"
+              className="text-muted-foreground hover:text-destructive shrink-0"
             >
               <Trash2 className="w-4 h-4" />
             </Button>
           </div>
-        </div>
 
-        {isLowStock && (
-          <div className="flex items-center gap-2 text-sm text-destructive">
-            <AlertTriangle className="w-4 h-4" />
-            <span>
-              Only {selectedProduct?.stock_quantity} in stock!
-            </span>
+          {/* Qty, Rate, Tax - responsive grid */}
+          <div className="grid grid-cols-3 gap-2">
+            <div>
+              <label className="text-xs text-muted-foreground sm:hidden">Qty</label>
+              <Input
+                type="number"
+                min="1"
+                value={item.qty}
+                onChange={(e) => onUpdate(item.id, { qty: parseInt(e.target.value) || 1 })}
+                className={cn('text-sm', isLowStock && 'border-destructive')}
+                placeholder="Qty"
+              />
+            </div>
+            <div>
+              <label className="text-xs text-muted-foreground sm:hidden">Rate</label>
+              <Input
+                type="number"
+                min="0"
+                step="0.01"
+                value={item.rate}
+                onChange={(e) => onUpdate(item.id, { rate: parseFloat(e.target.value) || 0 })}
+                className="text-sm"
+                placeholder="Rate"
+              />
+            </div>
+            <div>
+              <label className="text-xs text-muted-foreground sm:hidden">Tax</label>
+              <Select
+                value={String(item.tax_rate)}
+                onValueChange={(v) => onUpdate(item.id, { tax_rate: parseInt(v) })}
+              >
+                <SelectTrigger className="text-sm">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {GST_RATES.map((rate) => (
+                    <SelectItem key={rate} value={String(rate)}>
+                      {rate}%
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           </div>
-        )}
+
+          {isLowStock && (
+            <div className="flex items-center gap-2 text-sm text-destructive">
+              <AlertTriangle className="w-4 h-4" />
+              <span>
+                Only {selectedProduct?.stock_quantity} in stock!
+              </span>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
@@ -302,6 +305,7 @@ export default function InvoiceEditor() {
   const { id } = useParams();
   const { toast } = useToast();
   const { profile } = useAuth();
+  const isMobileView = useIsMobile();
   const [showPreview, setShowPreview] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [emailDialogOpen, setEmailDialogOpen] = useState(false);
@@ -642,29 +646,30 @@ export default function InvoiceEditor() {
   }
 
   return (
-    <div className="h-[calc(100vh-5rem)] flex flex-col animate-fade-in">
+    <div className="h-[calc(100vh-4.5rem)] md:h-[calc(100vh-5rem)] flex flex-col animate-fade-in">
       {/* Header */}
-      <div className="flex items-center justify-between pb-4 border-b border-border">
-        <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" onClick={() => navigate('/invoices')}>
+      <div className="flex items-center justify-between pb-3 md:pb-4 border-b border-border gap-2">
+        <div className="flex items-center gap-2 md:gap-4 min-w-0">
+          <Button variant="ghost" size="icon" onClick={() => navigate('/invoices')} className="shrink-0">
             <ArrowLeft className="w-5 h-5" />
           </Button>
-          <div>
-            <h1 className="text-2xl font-bold">
+          <div className="min-w-0">
+            <h1 className="text-lg md:text-2xl font-bold truncate">
               {id ? 'Edit Invoice' : 'New Invoice'}
             </h1>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-xs md:text-sm text-muted-foreground truncate">
               {invoiceNumber || 'Will be generated on save'}
             </p>
           </div>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-1.5 md:gap-3 shrink-0">
+          {/* Preview toggle - hide on mobile (no split view) */}
           <Button
             variant="outline"
             size="sm"
             onClick={() => setShowPreview(!showPreview)}
-            className="gap-2"
+            className="gap-2 hidden lg:flex"
           >
             {showPreview ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
             {showPreview ? 'Hide Preview' : 'Show Preview'}
@@ -674,17 +679,35 @@ export default function InvoiceEditor() {
             <>
               <Button 
                 variant="outline" 
+                size="icon"
+                onClick={handleDownloadPdf}
+                disabled={isDownloading}
+                className="md:hidden"
+                title="Download PDF"
+              >
+                {isDownloading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
+              </Button>
+              <Button 
+                variant="outline" 
                 size="sm"
                 onClick={handleDownloadPdf}
                 disabled={isDownloading}
-                className="gap-2"
+                className="gap-2 hidden md:flex"
               >
-                {isDownloading ? (
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                ) : (
-                  <Download className="w-4 h-4" />
-                )}
+                {isDownloading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
                 PDF
+              </Button>
+              <Button 
+                variant="outline" 
+                size="icon"
+                onClick={() => {
+                  setEmailRecipient(selectedClient?.email || '');
+                  setEmailDialogOpen(true);
+                }}
+                className="hidden sm:flex md:hidden"
+                title="Email"
+              >
+                <Mail className="w-4 h-4" />
               </Button>
               <Button 
                 variant="outline" 
@@ -693,7 +716,7 @@ export default function InvoiceEditor() {
                   setEmailRecipient(selectedClient?.email || '');
                   setEmailDialogOpen(true);
                 }}
-                className="gap-2"
+                className="gap-2 hidden md:flex"
               >
                 <Mail className="w-4 h-4" />
                 Email
@@ -706,7 +729,7 @@ export default function InvoiceEditor() {
                   const phone = selectedClient?.phone?.replace(/[^0-9]/g, '') || '';
                   window.open(`https://wa.me/${phone}?text=${encodeURIComponent(text)}`, '_blank');
                 }}
-                className="gap-2"
+                className="gap-2 hidden md:flex"
               >
                 <MessageCircle className="w-4 h-4" />
                 WhatsApp
@@ -717,6 +740,7 @@ export default function InvoiceEditor() {
           <Button 
             variant="outline" 
             onClick={handleSave} 
+            size="sm"
             className="gap-2"
             disabled={isSaving || isCreating || isUpdating}
           >
@@ -725,11 +749,12 @@ export default function InvoiceEditor() {
             ) : (
               <Save className="w-4 h-4" />
             )}
-            Save Draft
+            <span className="hidden sm:inline">Save</span>
           </Button>
           
           <Button 
             onClick={handleFinalizeClick} 
+            size="sm"
             className="gap-2"
             disabled={isFinalizing || !currentInvoice || currentInvoice?.status !== 'draft'}
           >
@@ -738,14 +763,14 @@ export default function InvoiceEditor() {
             ) : (
               <Send className="w-4 h-4" />
             )}
-            Finalize
+            <span className="hidden sm:inline">Finalize</span>
           </Button>
         </div>
       </div>
 
       {/* Split View */}
-      <div className="flex-1 pt-6 overflow-hidden">
-        {showPreview ? (
+      <div className="flex-1 pt-4 md:pt-6 overflow-hidden">
+        {showPreview && !isMobileView ? (
           <ResizablePanelGroup direction="horizontal" className="h-full rounded-lg">
             {/* Editor Pane */}
             <ResizablePanel defaultSize={60} minSize={35}>
@@ -768,7 +793,7 @@ export default function InvoiceEditor() {
                               <Search className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                             </Button>
                           </PopoverTrigger>
-                          <PopoverContent className="w-96 p-0" align="start">
+                          <PopoverContent className="w-[calc(100vw-4rem)] sm:w-96 p-0" align="start">
                             <Command>
                               <CommandInput placeholder="Search clients..." />
                               <CommandList>
@@ -866,8 +891,8 @@ export default function InvoiceEditor() {
                   <div className="rounded-xl border border-border bg-card p-5">
                     <h3 className="text-lg font-semibold mb-4">Line Items</h3>
 
-                    {/* Header */}
-                    <div className="grid grid-cols-12 gap-3 px-3 py-2 text-sm font-medium text-muted-foreground mb-2">
+                    {/* Header - hidden on mobile since labels are inline */}
+                    <div className="hidden sm:grid grid-cols-12 gap-3 px-3 py-2 text-sm font-medium text-muted-foreground mb-2">
                       <div className="col-span-5 pl-6">Product / Description</div>
                       <div className="col-span-2">Qty</div>
                       <div className="col-span-2">Rate (₹)</div>
@@ -1004,7 +1029,7 @@ export default function InvoiceEditor() {
                           <Search className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                         </Button>
                       </PopoverTrigger>
-                      <PopoverContent className="w-96 p-0" align="start">
+                      <PopoverContent className="w-[calc(100vw-4rem)] sm:w-96 p-0" align="start">
                         <Command>
                           <CommandInput placeholder="Search clients..." />
                           <CommandList>
@@ -1102,8 +1127,8 @@ export default function InvoiceEditor() {
               <div className="rounded-xl border border-border bg-card p-5">
                 <h3 className="text-lg font-semibold mb-4">Line Items</h3>
 
-                {/* Header */}
-                <div className="grid grid-cols-12 gap-3 px-3 py-2 text-sm font-medium text-muted-foreground mb-2">
+                {/* Header - hidden on mobile */}
+                <div className="hidden sm:grid grid-cols-12 gap-3 px-3 py-2 text-sm font-medium text-muted-foreground mb-2">
                   <div className="col-span-5 pl-6">Product / Description</div>
                   <div className="col-span-2">Qty</div>
                   <div className="col-span-2">Rate (₹)</div>

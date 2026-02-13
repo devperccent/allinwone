@@ -7,8 +7,8 @@ export default function ReportsPage() {
     <div className="space-y-6 animate-fade-in">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold">Reports & Analytics</h1>
-        <p className="text-muted-foreground mt-1">
+        <h1 className="text-2xl md:text-3xl font-bold">Reports & Analytics</h1>
+        <p className="text-muted-foreground mt-1 text-sm md:text-base">
           Track your business performance and generate reports
         </p>
       </div>

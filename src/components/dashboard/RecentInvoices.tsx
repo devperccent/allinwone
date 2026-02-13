@@ -44,25 +44,25 @@ export function RecentInvoices({ invoices }: RecentInvoicesProps) {
             <Link
               key={invoice.id}
               to={`/invoices/${invoice.id}`}
-              className="flex items-center justify-between p-4 hover:bg-muted/30 transition-colors"
+              className="flex items-center justify-between p-3 sm:p-4 hover:bg-muted/30 transition-colors gap-3"
             >
-              <div className="flex items-center gap-4">
-                <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-muted">
+              <div className="flex items-center gap-3 sm:gap-4 min-w-0">
+                <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-muted shrink-0">
                   <FileText className="w-5 h-5 text-muted-foreground" />
                 </div>
-                <div>
-                  <p className="font-medium">{invoice.invoice_number}</p>
-                  <p className="text-sm text-muted-foreground">
+                <div className="min-w-0">
+                  <p className="font-medium truncate">{invoice.invoice_number}</p>
+                  <p className="text-sm text-muted-foreground truncate">
                     {invoice.client?.name || 'Walk-in Customer'}
                   </p>
                 </div>
               </div>
               
-              <div className="flex items-center gap-4">
-                <Badge className={cn('font-medium', statusConfig[invoice.status].className)}>
+              <div className="flex items-center gap-2 sm:gap-4 shrink-0">
+                <Badge className={cn('font-medium hidden sm:inline-flex', statusConfig[invoice.status].className)}>
                   {statusConfig[invoice.status].label}
                 </Badge>
-                <span className="font-semibold tabular-nums">
+                <span className="font-semibold tabular-nums text-sm sm:text-base">
                   {formatINR(invoice.grand_total)}
                 </span>
               </div>
