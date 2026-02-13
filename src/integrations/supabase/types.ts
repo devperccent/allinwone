@@ -166,8 +166,10 @@ export type Database = {
           id: string
           invoice_number: string
           notes: string | null
+          payment_date: string | null
           payment_mode: string | null
           profile_id: string
+          share_token: string | null
           status: string
           subtotal: number
           total_discount: number
@@ -183,8 +185,10 @@ export type Database = {
           id?: string
           invoice_number: string
           notes?: string | null
+          payment_date?: string | null
           payment_mode?: string | null
           profile_id: string
+          share_token?: string | null
           status?: string
           subtotal?: number
           total_discount?: number
@@ -200,8 +204,10 @@ export type Database = {
           id?: string
           invoice_number?: string
           notes?: string | null
+          payment_date?: string | null
           payment_mode?: string | null
           profile_id?: string
+          share_token?: string | null
           status?: string
           subtotal?: number
           total_discount?: number
@@ -342,6 +348,7 @@ export type Database = {
         Args: { p_profile_id: string }
         Returns: string
       }
+      generate_share_token: { Args: never; Returns: string }
       get_user_profile_id: { Args: never; Returns: string }
     }
     Enums: {
