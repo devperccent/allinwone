@@ -171,8 +171,7 @@
 
   /* Stat Cards */
   .stat-card {
-    @apply relative overflow-hidden rounded-xl p-6 transition-all duration-200;
-    background: var(--gradient-surface);
+    @apply relative overflow-hidden rounded-xl p-6 transition-all duration-200 border border-border bg-card text-card-foreground;
     box-shadow: var(--shadow-md);
   }
 
