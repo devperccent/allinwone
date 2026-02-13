@@ -15,6 +15,7 @@ import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import { useIsMobile } from '@/hooks/use-mobile';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -35,8 +36,12 @@ const navigation = [
 export function AppSidebar() {
   const location = useLocation();
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
   const [collapsed, setCollapsed] = useState(false);
   const { profile, signOut } = useAuth();
+
+  // On mobile (used inside Sheet), always show expanded
+  const isCollapsed = isMobile ? false : collapsed;
 
   const handleSignOut = async () => {
     await signOut();
@@ -53,14 +58,14 @@ export function AppSidebar() {
   return (
     <aside
       className={cn(
-        'flex flex-col h-screen bg-sidebar border-r border-sidebar-border transition-all duration-300',
-        collapsed ? 'w-[72px]' : 'w-64'
+        'flex flex-col h-full bg-sidebar border-r border-sidebar-border transition-all duration-300',
+        isCollapsed ? 'w-[72px]' : 'w-64'
       )}
     >
       {/* Logo */}
       <div className="flex items-center h-16 px-4 border-b border-sidebar-border">
         <Link to="/" className="flex items-center gap-3">
-          {collapsed ? (
+          {isCollapsed ? (
             <img src={inwLogo} alt="Inw" className="w-10 h-10 object-contain" />
           ) : (
             <img src={inwWideLogo} alt="Inw" className="h-8 object-contain" />
@@ -86,7 +91,7 @@ export function AppSidebar() {
               )}
             >
               <item.icon className={cn('w-5 h-5 flex-shrink-0', isActive && 'text-primary')} />
-              {!collapsed && <span>{item.name}</span>}
+              {!isCollapsed && <span>{item.name}</span>}
             </Link>
           );
         })}
@@ -101,13 +106,13 @@ export function AppSidebar() {
               className={cn(
                 'flex items-center gap-3 w-full px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200',
                 'text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground',
-                collapsed && 'justify-center'
+                isCollapsed && 'justify-center'
               )}
             >
               <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
                 <span className="text-xs font-semibold text-primary">{initials}</span>
               </div>
-              {!collapsed && (
+              {!isCollapsed && (
                 <div className="flex-1 text-left truncate">
                   <p className="truncate">{profile?.org_name || 'Loading...'}</p>
                 </div>
@@ -134,19 +139,21 @@ export function AppSidebar() {
           </DropdownMenuContent>
         </DropdownMenu>
 
-        {/* Collapse button */}
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => setCollapsed(!collapsed)}
-          className={cn(
-            'w-full justify-start gap-3 text-sidebar-foreground hover:text-sidebar-accent-foreground hover:bg-sidebar-accent/50',
-            collapsed && 'justify-center'
-          )}
-        >
-          <ChevronLeft className={cn('w-5 h-5 transition-transform', collapsed && 'rotate-180')} />
-          {!collapsed && <span>Collapse</span>}
-        </Button>
+        {/* Collapse button - hide on mobile */}
+        {!isMobile && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setCollapsed(!collapsed)}
+            className={cn(
+              'w-full justify-start gap-3 text-sidebar-foreground hover:text-sidebar-accent-foreground hover:bg-sidebar-accent/50',
+              isCollapsed && 'justify-center'
+            )}
+          >
+            <ChevronLeft className={cn('w-5 h-5 transition-transform', isCollapsed && 'rotate-180')} />
+            {!isCollapsed && <span>Collapse</span>}
+          </Button>
+        )}
       </div>
     </aside>
   );

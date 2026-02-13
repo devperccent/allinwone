@@ -44,14 +44,14 @@ export default function Dashboard() {
   return (
     <div className="space-y-8 animate-fade-in">
       {/* Welcome Section */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold">Welcome back!</h1>
-          <p className="text-muted-foreground mt-1">
+          <h1 className="text-2xl md:text-3xl font-bold">Welcome back!</h1>
+          <p className="text-muted-foreground mt-1 text-sm md:text-base">
             Here's what's happening with your business today.
           </p>
         </div>
-        <Button asChild className="gap-2">
+        <Button asChild className="gap-2 w-full sm:w-auto">
           <Link to="/invoices/new">
             <Plus className="w-4 h-4" />
             Create Invoice

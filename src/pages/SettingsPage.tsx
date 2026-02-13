@@ -120,25 +120,25 @@ export default function SettingsPage() {
     <div className="space-y-6 animate-fade-in">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold">Settings</h1>
-        <p className="text-muted-foreground mt-1">
+        <h1 className="text-2xl md:text-3xl font-bold">Settings</h1>
+        <p className="text-muted-foreground mt-1 text-sm md:text-base">
           Manage your business profile and preferences
         </p>
       </div>
 
       <Tabs defaultValue="business" className="space-y-6">
-        <TabsList className="bg-muted/50">
-          <TabsTrigger value="business" className="gap-2">
+        <TabsList className="bg-muted/50 w-full sm:w-auto">
+          <TabsTrigger value="business" className="gap-2 flex-1 sm:flex-none">
             <Building2 className="w-4 h-4" />
-            Business
+            <span className="hidden sm:inline">Business</span>
           </TabsTrigger>
-          <TabsTrigger value="invoice" className="gap-2">
+          <TabsTrigger value="invoice" className="gap-2 flex-1 sm:flex-none">
             <CreditCard className="w-4 h-4" />
-            Invoice
+            <span className="hidden sm:inline">Invoice</span>
           </TabsTrigger>
-          <TabsTrigger value="notifications" className="gap-2">
+          <TabsTrigger value="notifications" className="gap-2 flex-1 sm:flex-none">
             <Bell className="w-4 h-4" />
-            Notifications
+            <span className="hidden sm:inline">Notifications</span>
           </TabsTrigger>
         </TabsList>
 

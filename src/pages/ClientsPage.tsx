@@ -108,11 +108,11 @@ export default function ClientsPage() {
   return (
     <div className="space-y-6 animate-fade-in">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold">Clients</h1>
-          <p className="text-muted-foreground mt-1">
-            Manage your clients and track credit (Udhaar)
+          <h1 className="text-2xl md:text-3xl font-bold">Clients</h1>
+          <p className="text-muted-foreground mt-1 text-sm md:text-base">
+            Manage your clients and track credit
           </p>
         </div>
         <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
@@ -139,7 +139,7 @@ export default function ClientsPage() {
                   onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
                 />
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="grid gap-2">
                   <Label htmlFor="email">Email</Label>
                   <Input 
@@ -160,7 +160,7 @@ export default function ClientsPage() {
                   />
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="grid gap-2">
                   <Label htmlFor="gstin">GSTIN</Label>
                   <Input 
@@ -272,38 +272,38 @@ export default function ClientsPage() {
               key={client.id}
               className="rounded-xl border border-border bg-card p-5 transition-all hover:shadow-md"
             >
-              <div className="flex items-start justify-between">
-                <div className="flex items-start gap-4">
-                  <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-primary/10 text-primary font-semibold text-lg">
+              <div className="flex items-start justify-between gap-3">
+                <div className="flex items-start gap-3 sm:gap-4 min-w-0 flex-1">
+                  <div className="flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-primary/10 text-primary font-semibold text-base sm:text-lg shrink-0">
                     {client.name.charAt(0)}
                   </div>
-                  <div>
-                    <h3 className="font-semibold text-lg">{client.name}</h3>
-                    <div className="flex flex-wrap items-center gap-4 mt-2 text-sm text-muted-foreground">
+                  <div className="min-w-0">
+                    <h3 className="font-semibold text-base sm:text-lg truncate">{client.name}</h3>
+                    <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-1 sm:mt-2 text-sm text-muted-foreground">
                       {client.email && (
-                        <div className="flex items-center gap-1">
-                          <Mail className="w-4 h-4" />
-                          {client.email}
+                        <div className="flex items-center gap-1 truncate">
+                          <Mail className="w-4 h-4 shrink-0" />
+                          <span className="truncate">{client.email}</span>
                         </div>
                       )}
                       {client.phone && (
                         <div className="flex items-center gap-1">
-                          <Phone className="w-4 h-4" />
+                          <Phone className="w-4 h-4 shrink-0" />
                           {client.phone}
                         </div>
                       )}
                     </div>
                     {client.billing_address && (
-                      <div className="flex items-start gap-1 mt-2 text-sm text-muted-foreground">
+                      <div className="flex items-start gap-1 mt-1 sm:mt-2 text-sm text-muted-foreground">
                         <MapPin className="w-4 h-4 mt-0.5 flex-shrink-0" />
-                        <span>{client.billing_address}</span>
+                        <span className="line-clamp-2">{client.billing_address}</span>
                       </div>
                     )}
                   </div>
                 </div>
                 
-                <div className="flex items-center gap-4">
-                  <div className="text-right">
+                <div className="flex items-center gap-2 sm:gap-4 shrink-0">
+                  <div className="text-right hidden sm:block">
                     {Number(client.credit_balance) > 0 ? (
                       <>
                         <p className="text-sm text-muted-foreground">Credit Balance</p>
@@ -337,6 +337,13 @@ export default function ClientsPage() {
                   </DropdownMenu>
                 </div>
               </div>
+              {/* Mobile credit balance */}
+              {Number(client.credit_balance) > 0 && (
+                <div className="sm:hidden mt-3 flex items-center justify-between pt-3 border-t border-border">
+                  <span className="text-sm text-muted-foreground">Credit Balance</span>
+                  <span className="font-bold text-warning">{formatINR(Number(client.credit_balance))}</span>
+                </div>
+              )}
               
               <div className="mt-4 flex items-center gap-2">
                 {client.gstin && (

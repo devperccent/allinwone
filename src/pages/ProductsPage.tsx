@@ -125,10 +125,10 @@ export default function ProductsPage() {
   return (
     <div className="space-y-6 animate-fade-in">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold">Products & Inventory</h1>
-          <p className="text-muted-foreground mt-1">
+          <h1 className="text-2xl md:text-3xl font-bold">Products & Inventory</h1>
+          <p className="text-muted-foreground mt-1 text-sm md:text-base">
             Manage your products and track inventory levels
           </p>
         </div>
@@ -156,7 +156,7 @@ export default function ProductsPage() {
                   onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
                 />
               </div>
-              <div className="grid grid-cols-2 gap-4">
+               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="grid gap-2">
                   <Label htmlFor="sku">SKU *</Label>
                   <Input 
@@ -182,7 +182,7 @@ export default function ProductsPage() {
                   </Select>
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-4">
+               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="grid gap-2">
                   <Label htmlFor="price">Selling Price (₹) *</Label>
                   <Input 
@@ -204,7 +204,7 @@ export default function ProductsPage() {
                 </div>
               </div>
               {formData.type === 'goods' && (
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="grid gap-2">
                     <Label htmlFor="stock">Stock Quantity</Label>
                     <Input 

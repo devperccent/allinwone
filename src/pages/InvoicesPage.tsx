@@ -57,6 +57,107 @@ const statusConfig: Record<InvoiceStatus, { label: string; className: string }> 
   cancelled: { label: 'Cancelled', className: 'status-cancelled' },
 };
 
+function InvoiceActions({
+  invoice,
+  onDownload,
+  onEmail,
+  onFinalize,
+  onMarkPaid,
+  onDelete,
+  isGenerating,
+  isFinalizing,
+  isMarkingPaid,
+  isDeleting,
+}: {
+  invoice: Invoice;
+  onDownload: (invoice: Invoice) => void;
+  onEmail: (invoice: Invoice) => void;
+  onFinalize: (id: string) => void;
+  onMarkPaid: (id: string) => void;
+  onDelete: (id: string) => void;
+  isGenerating: boolean;
+  isFinalizing: boolean;
+  isMarkingPaid: boolean;
+  isDeleting: boolean;
+}) {
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="ghost" size="icon" className="h-8 w-8">
+          <MoreHorizontal className="w-4 h-4" />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end">
+        <DropdownMenuItem asChild>
+          <Link to={`/invoices/${invoice.id}`}>
+            <Eye className="w-4 h-4 mr-2" />
+            View
+          </Link>
+        </DropdownMenuItem>
+        {invoice.status === 'draft' && (
+          <DropdownMenuItem asChild>
+            <Link to={`/invoices/${invoice.id}/edit`}>
+              <Pencil className="w-4 h-4 mr-2" />
+              Edit
+            </Link>
+          </DropdownMenuItem>
+        )}
+        <DropdownMenuItem onClick={() => onDownload(invoice)} disabled={isGenerating}>
+          <Download className="w-4 h-4 mr-2" />
+          Download PDF
+        </DropdownMenuItem>
+        {invoice.status !== 'draft' && (
+          <>
+            <DropdownMenuItem onClick={() => onEmail(invoice)}>
+              <Mail className="w-4 h-4 mr-2" />
+              Send Email
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => {
+              const text = `Hi! Here's your invoice ${invoice.invoice_number} for ${formatINR(Number(invoice.grand_total))}. Please check and confirm.`;
+              window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+            }}>
+              <MessageCircle className="w-4 h-4 mr-2" />
+              Share via WhatsApp
+            </DropdownMenuItem>
+          </>
+        )}
+        <DropdownMenuSeparator />
+        {invoice.status === 'draft' && (
+          <DropdownMenuItem 
+            onClick={() => onFinalize(invoice.id)}
+            disabled={isFinalizing}
+          >
+            <CheckCircle className="w-4 h-4 mr-2" />
+            Finalize & Send
+          </DropdownMenuItem>
+        )}
+        {invoice.status === 'finalized' && (
+          <DropdownMenuItem 
+            onClick={() => onMarkPaid(invoice.id)}
+            disabled={isMarkingPaid}
+          >
+            <CheckCircle className="w-4 h-4 mr-2" />
+            Mark as Paid
+          </DropdownMenuItem>
+        )}
+        {invoice.status === 'draft' && (
+          <>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem 
+              onClick={() => onDelete(invoice.id)}
+              className="text-destructive focus:text-destructive"
+              disabled={isDeleting}
+            >
+              <Trash2 className="w-4 h-4 mr-2" />
+              Delete
+            </DropdownMenuItem>
+          </>
+        )}
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}
+
 export default function InvoicesPage() {
   const { profile } = useAuth();
   const { invoices, isLoading, finalizeInvoiceMutation, markAsPaid, deleteInvoice, getInvoiceWithItems } = useInvoices();
@@ -145,14 +246,14 @@ export default function InvoicesPage() {
   return (
     <div className="space-y-6 animate-fade-in">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold">Invoices</h1>
-          <p className="text-muted-foreground mt-1">
+          <h1 className="text-2xl md:text-3xl font-bold">Invoices</h1>
+          <p className="text-muted-foreground mt-1 text-sm md:text-base">
             Manage and track all your invoices
           </p>
         </div>
-        <Button asChild className="gap-2">
+        <Button asChild className="gap-2 w-full sm:w-auto">
           <Link to="/invoices/new">
             <Plus className="w-4 h-4" />
             New Invoice
@@ -161,8 +262,8 @@ export default function InvoicesPage() {
       </div>
 
       {/* Filters */}
-      <div className="flex items-center gap-4">
-        <div className="relative flex-1 max-w-sm">
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+        <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input
             type="search"
@@ -173,7 +274,7 @@ export default function InvoicesPage() {
           />
         </div>
         <Select value={statusFilter} onValueChange={setStatusFilter}>
-          <SelectTrigger className="w-40">
+          <SelectTrigger className="w-full sm:w-40">
             <Filter className="w-4 h-4 mr-2" />
             <SelectValue placeholder="Status" />
           </SelectTrigger>
@@ -187,8 +288,8 @@ export default function InvoicesPage() {
         </Select>
       </div>
 
-      {/* Table */}
-      <div className="rounded-xl border border-border bg-card overflow-hidden">
+      {/* Table - Desktop */}
+      <div className="rounded-xl border border-border bg-card overflow-hidden hidden md:block">
         <table className="data-table">
           <thead>
             <tr>
@@ -235,86 +336,69 @@ export default function InvoicesPage() {
                     </Badge>
                   </td>
                   <td>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon" className="h-8 w-8">
-                          <MoreHorizontal className="w-4 h-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem asChild>
-                          <Link to={`/invoices/${invoice.id}`}>
-                            <Eye className="w-4 h-4 mr-2" />
-                            View
-                          </Link>
-                        </DropdownMenuItem>
-                        {invoice.status === 'draft' && (
-                          <DropdownMenuItem asChild>
-                            <Link to={`/invoices/${invoice.id}/edit`}>
-                              <Pencil className="w-4 h-4 mr-2" />
-                              Edit
-                            </Link>
-                          </DropdownMenuItem>
-                        )}
-                        <DropdownMenuItem onClick={() => handleDownload(invoice)} disabled={isGenerating}>
-                          <Download className="w-4 h-4 mr-2" />
-                          Download PDF
-                        </DropdownMenuItem>
-                        {invoice.status !== 'draft' && (
-                          <>
-                            <DropdownMenuItem onClick={() => openEmailDialog(invoice)}>
-                              <Mail className="w-4 h-4 mr-2" />
-                              Send Email
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => {
-                              const text = `Hi! Here's your invoice ${invoice.invoice_number} for ${formatINR(Number(invoice.grand_total))}. Please check and confirm.`;
-                              window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
-                            }}>
-                              <MessageCircle className="w-4 h-4 mr-2" />
-                              Share via WhatsApp
-                            </DropdownMenuItem>
-                          </>
-                        )}
-                        <DropdownMenuSeparator />
-                        {invoice.status === 'draft' && (
-                          <DropdownMenuItem 
-                            onClick={() => finalizeInvoiceMutation.mutate(invoice.id)}
-                            disabled={finalizeInvoiceMutation.isPending}
-                          >
-                            <CheckCircle className="w-4 h-4 mr-2" />
-                            Finalize & Send
-                          </DropdownMenuItem>
-                        )}
-                        {invoice.status === 'finalized' && (
-                          <DropdownMenuItem 
-                            onClick={() => markAsPaid.mutate({ invoiceId: invoice.id, paymentMode: 'upi' })}
-                            disabled={markAsPaid.isPending}
-                          >
-                            <CheckCircle className="w-4 h-4 mr-2" />
-                            Mark as Paid
-                          </DropdownMenuItem>
-                        )}
-                        {invoice.status === 'draft' && (
-                          <>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem 
-                              onClick={() => deleteInvoice.mutate(invoice.id)}
-                              className="text-destructive focus:text-destructive"
-                              disabled={deleteInvoice.isPending}
-                            >
-                              <Trash2 className="w-4 h-4 mr-2" />
-                              Delete
-                            </DropdownMenuItem>
-                          </>
-                        )}
-                      </DropdownMenuContent>
-                    </DropdownMenu>
+                    <InvoiceActions
+                      invoice={invoice}
+                      onDownload={handleDownload}
+                      onEmail={openEmailDialog}
+                      onFinalize={(id) => finalizeInvoiceMutation.mutate(id)}
+                      onMarkPaid={(id) => markAsPaid.mutate({ invoiceId: id, paymentMode: 'upi' })}
+                      onDelete={(id) => deleteInvoice.mutate(id)}
+                      isGenerating={isGenerating}
+                      isFinalizing={finalizeInvoiceMutation.isPending}
+                      isMarkingPaid={markAsPaid.isPending}
+                      isDeleting={deleteInvoice.isPending}
+                    />
                   </td>
                 </tr>
               ))
             )}
           </tbody>
         </table>
+      </div>
+
+      {/* Card list - Mobile */}
+      <div className="md:hidden space-y-3">
+        {filteredInvoices.length === 0 ? (
+          <div className="text-center py-12 rounded-xl border border-border bg-card">
+            <FileText className="w-12 h-12 mx-auto text-muted-foreground/50 mb-3" />
+            <p className="text-muted-foreground">No invoices found</p>
+            <Button variant="link" asChild className="mt-2">
+              <Link to="/invoices/new">Create your first invoice</Link>
+            </Button>
+          </div>
+        ) : (
+          filteredInvoices.map((invoice) => (
+            <div key={invoice.id} className="rounded-xl border border-border bg-card p-4">
+              <div className="flex items-start justify-between">
+                <Link to={`/invoices/${invoice.id}`} className="flex-1 min-w-0">
+                  <p className="font-semibold text-primary">{invoice.invoice_number}</p>
+                  <p className="text-sm text-muted-foreground truncate">{invoice.client?.name || 'Walk-in Customer'}</p>
+                </Link>
+                <InvoiceActions
+                  invoice={invoice}
+                  onDownload={handleDownload}
+                  onEmail={openEmailDialog}
+                  onFinalize={(id) => finalizeInvoiceMutation.mutate(id)}
+                  onMarkPaid={(id) => markAsPaid.mutate({ invoiceId: id, paymentMode: 'upi' })}
+                  onDelete={(id) => deleteInvoice.mutate(id)}
+                  isGenerating={isGenerating}
+                  isFinalizing={finalizeInvoiceMutation.isPending}
+                  isMarkingPaid={markAsPaid.isPending}
+                  isDeleting={deleteInvoice.isPending}
+                />
+              </div>
+              <div className="flex items-center justify-between mt-3">
+                <div className="flex items-center gap-2">
+                  <Badge className={cn('font-medium', statusConfig[invoice.status].className)}>
+                    {statusConfig[invoice.status].label}
+                  </Badge>
+                  <span className="text-xs text-muted-foreground tabular-nums">{invoice.date_issued}</span>
+                </div>
+                <span className="font-semibold tabular-nums">{formatINR(Number(invoice.grand_total))}</span>
+              </div>
+            </div>
+          ))
+        )}
       </div>
 
       {/* Email Dialog */}
