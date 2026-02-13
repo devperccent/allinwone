@@ -16,14 +16,14 @@ import { cn } from '@/lib/utils';
 import { LogoUpload } from '@/components/LogoUpload';
 
 const steps = [
-  { id: 'business', label: 'Business Info', icon: Building2, description: 'Apna business ka naam aur contact daalein' },
-  { id: 'location', label: 'Location & Tax', icon: MapPin, description: 'State aur GSTIN set karein — GST auto-calculate hoga' },
-  { id: 'payment', label: 'Payment', icon: CreditCard, description: 'UPI add karein — invoice pe QR code aayega' },
-  { id: 'invoice', label: 'Invoice Setup', icon: FileText, description: 'Invoice number format customize karein' },
+  { id: 'business', label: 'Business Info', icon: Building2, description: 'Enter your business name and contact details' },
+  { id: 'location', label: 'Location & Tax', icon: MapPin, description: 'Set your state and GSTIN — GST will auto-calculate' },
+  { id: 'payment', label: 'Payment', icon: CreditCard, description: 'Add your UPI — a QR code will appear on invoices' },
+  { id: 'invoice', label: 'Invoice Setup', icon: FileText, description: 'Customize your invoice number format' },
 ];
 
 const BUSINESS_TYPES = [
-  'Retail / Dukaan',
+  'Retail / Shop',
   'Wholesale / Distributor',
   'Manufacturing',
   'Service Provider',
@@ -33,7 +33,7 @@ const BUSINESS_TYPES = [
   'Textile / Garments',
   'Electronics',
   'Medical / Pharmacy',
-  'Agriculture / Kisan',
+  'Agriculture',
   'Other',
 ];
 
@@ -172,14 +172,14 @@ export default function OnboardingPage() {
             {currentStep === 0 && (
               <div className="space-y-4">
                 <div>
-                  <Label htmlFor="orgName">Business / Dukaan Name *</Label>
+                  <Label htmlFor="orgName">Business Name *</Label>
                   <Input id="orgName" value={orgName} onChange={(e) => setOrgName(e.target.value)} placeholder="e.g., Sharma Traders, Gupta Electronics" className="mt-1.5" />
-                  <p className="text-xs text-muted-foreground mt-1">Yeh naam aapke invoice pe dikhega</p>
+                  <p className="text-xs text-muted-foreground mt-1">This name will appear on your invoices</p>
                 </div>
                 <div>
                   <Label htmlFor="email">Business Email</Label>
                   <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="hello@example.com" className="mt-1.5" />
-                  <p className="text-xs text-muted-foreground mt-1">Optional — invoices email se bhejne ke liye</p>
+                  <p className="text-xs text-muted-foreground mt-1">Optional — for sending invoices via email</p>
                 </div>
                 <div>
                   <Label htmlFor="phone">Phone / WhatsApp Number</Label>
@@ -188,7 +188,7 @@ export default function OnboardingPage() {
                 {/* Logo Upload */}
                 <div>
                   <Label>Business Logo (Optional)</Label>
-                  <p className="text-xs text-muted-foreground mb-2">Invoice pe aapka logo dikhega — professional look ke liye</p>
+                  <p className="text-xs text-muted-foreground mb-2">Your logo will appear on invoices for a professional look</p>
                   <LogoUpload currentLogoUrl={profile?.logo_url || null} />
                 </div>
               </div>
@@ -198,7 +198,7 @@ export default function OnboardingPage() {
             {currentStep === 1 && (
               <div className="space-y-4">
                 <div>
-                  <Label htmlFor="state">State / Rajya *</Label>
+                  <Label htmlFor="state">State *</Label>
                   <Select value={stateCode} onValueChange={setStateCode}>
                     <SelectTrigger className="mt-1.5">
                       <SelectValue />
@@ -209,21 +209,21 @@ export default function OnboardingPage() {
                       ))}
                     </SelectContent>
                   </Select>
-                  <p className="text-xs text-muted-foreground mt-1">GST auto-calculate hoga — same state = CGST+SGST, different state = IGST</p>
+                  <p className="text-xs text-muted-foreground mt-1">GST auto-calculates — same state = CGST+SGST, different state = IGST</p>
                 </div>
                 <div>
-                  <Label htmlFor="gstin">GSTIN (agar registered ho)</Label>
+                  <Label htmlFor="gstin">GSTIN (if registered)</Label>
                   <Input id="gstin" value={gstin} onChange={(e) => setGstin(e.target.value.toUpperCase())} placeholder="27XXXXX0000X1Z5" className="mt-1.5" maxLength={15} />
-                  <p className="text-xs text-muted-foreground mt-1">GSTIN nahi hai? Koi baat nahi — baad mein add kar sakte hain</p>
+                  <p className="text-xs text-muted-foreground mt-1">Don't have a GSTIN? No worries — you can add it later</p>
                 </div>
                 <div>
                   <Label htmlFor="address">Business Address</Label>
-                  <Textarea id="address" value={address} onChange={(e) => setAddress(e.target.value)} placeholder="Dukaan ka poora address, jaise: Shop No. 5, Main Market, Indore, MP" className="mt-1.5" rows={3} />
+                  <Textarea id="address" value={address} onChange={(e) => setAddress(e.target.value)} placeholder="Full business address, e.g.: Shop No. 5, Main Market, Indore, MP" className="mt-1.5" rows={3} />
                 </div>
                 <div className="p-3 bg-muted/30 rounded-lg border border-border/50">
                   <p className="text-xs text-muted-foreground">
                     <Sparkles className="w-3 h-3 inline mr-1" />
-                    <span className="font-medium text-foreground">Pro tip:</span> GST ke liye composition scheme mein ho toh bhi yeh kaam karega. Tax rates har item pe set kar sakte ho (0%, 5%, 12%, 18%, 28%).
+                    <span className="font-medium text-foreground">Pro tip:</span> Works with GST composition scheme too. You can set tax rates per item (0%, 5%, 12%, 18%, 28%).
                   </p>
                 </div>
               </div>
@@ -234,20 +234,20 @@ export default function OnboardingPage() {
               <div className="space-y-4">
                 <div>
                   <Label htmlFor="upi">UPI ID (GPay / PhonePe / Paytm)</Label>
-                  <Input id="upi" value={upiVpa} onChange={(e) => setUpiVpa(e.target.value)} placeholder="yourname@upi ya 9876543210@paytm" className="mt-1.5" />
-                  <p className="text-xs text-muted-foreground mt-1">Invoice pe QR code automatic ban jayega — customer scan karke pay karega</p>
+                  <Input id="upi" value={upiVpa} onChange={(e) => setUpiVpa(e.target.value)} placeholder="yourname@upi or 9876543210@paytm" className="mt-1.5" />
+                  <p className="text-xs text-muted-foreground mt-1">A QR code will automatically appear on your invoices — customers can scan and pay</p>
                 </div>
                 <div className="p-4 bg-muted/30 rounded-lg border border-border/50">
-                  <p className="text-sm font-medium mb-2">💡 UPI se payment jaldi aata hai</p>
+                  <p className="text-sm font-medium mb-2">💡 UPI payments are faster</p>
                   <ul className="text-xs text-muted-foreground space-y-1">
-                    <li>• Customer ko invoice mein QR code dikhega</li>
-                    <li>• Phone se scan karke seedha payment ho jayega</li>
-                    <li>• Udhar / credit ka tension khatam!</li>
+                    <li>• Customers will see a QR code on the invoice</li>
+                    <li>• They can scan and pay directly from their phone</li>
+                    <li>• No more chasing credit payments!</li>
                   </ul>
                 </div>
                 <div className="p-3 bg-primary/5 rounded-lg border border-primary/10">
                   <p className="text-xs text-muted-foreground">
-                    <span className="font-medium text-foreground">Bank account details:</span> Baad mein Settings se add kar sakte hain
+                    <span className="font-medium text-foreground">Bank account details:</span> You can add these later in Settings
                   </p>
                 </div>
               </div>
@@ -266,7 +266,7 @@ export default function OnboardingPage() {
                 <div>
                   <Label htmlFor="nextNum">Starting Number</Label>
                   <Input id="nextNum" type="number" value={nextNumber} onChange={(e) => setNextNumber(parseInt(e.target.value) || 1)} className="mt-1.5" min={1} />
-                  <p className="text-xs text-muted-foreground mt-1">Pehle se invoices banaye hain? Woh number se start karein</p>
+                  <p className="text-xs text-muted-foreground mt-1">Already have existing invoices? Start from that number</p>
                 </div>
                 <div className="p-4 bg-primary/5 rounded-lg border border-primary/10">
                   <p className="text-sm text-muted-foreground">
@@ -277,7 +277,7 @@ export default function OnboardingPage() {
                 <div className="p-3 bg-success/5 rounded-lg border border-success/10">
                   <p className="text-xs text-muted-foreground">
                     <Check className="w-3 h-3 inline mr-1 text-success" />
-                    Sab set hai! Ab aap invoice bana sakte hain — client aur product add karna bhi invoice se seedha ho jayega.
+                    All set! You can now create invoices — adding clients and products can also be done directly from the invoice editor.
                   </p>
                 </div>
               </div>
