@@ -12,6 +12,7 @@ import { Button } from '@/components/ui/button';
 import { StatCard } from '@/components/dashboard/StatCard';
 import { RecentInvoices } from '@/components/dashboard/RecentInvoices';
 import { LowStockAlert } from '@/components/dashboard/LowStockAlert';
+import { ActivityFeed } from '@/components/dashboard/ActivityFeed';
 import { formatINR } from '@/hooks/useInvoiceCalculations';
 import { useInvoices } from '@/hooks/useInvoices';
 import { useProducts } from '@/hooks/useProducts';
@@ -138,8 +139,9 @@ export default function Dashboard() {
 
       {/* Main Content Grid */}
       <div className="grid gap-6 lg:grid-cols-3">
-        <div className="lg:col-span-2">
+        <div className="lg:col-span-2 space-y-6">
           <RecentInvoices invoices={invoices.slice(0, 5)} />
+          <ActivityFeed />
         </div>
         <div>
           <LowStockAlert products={lowStockProducts} />
