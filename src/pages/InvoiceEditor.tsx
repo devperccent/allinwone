@@ -734,7 +734,7 @@ export default function InvoiceEditor() {
                       const { data, error } = await supabase.rpc('generate_share_token');
                       if (error) { console.error(error); return; }
                       token = data;
-                      await supabase.from('invoices').update({ share_token: token } as any).eq('id', id);
+                      await supabase.from('invoices').update({ share_token: token }).eq('id', id);
                     }
                   }
                   const link = token ? `${window.location.origin}/invoice/view?token=${token}` : '';

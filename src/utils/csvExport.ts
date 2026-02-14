@@ -26,7 +26,7 @@ export function exportInvoicesToCSV(invoices: Invoice[]) {
     Number(inv.grand_total).toFixed(2),
     inv.status,
     inv.payment_mode || '',
-    (inv as any).payment_date || '',
+    inv.payment_date || '',
   ]);
 
   const csvContent = [
