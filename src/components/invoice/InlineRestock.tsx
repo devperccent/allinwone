@@ -77,16 +77,15 @@ export function InlineRestock({ product, onRestocked }: InlineRestockProps) {
     return (
       <button
         type="button"
-        className="text-[11px] text-primary hover:underline font-medium"
+        className="inline-flex items-center gap-1 text-[10px] font-medium text-primary bg-primary/10 hover:bg-primary/20 px-2 py-0.5 rounded-full transition-colors"
+        onPointerDown={(e) => e.stopPropagation()}
         onClick={(e) => {
           e.stopPropagation();
           e.preventDefault();
           setExpanded(true);
         }}
       >
-        <span className="inline-flex items-center gap-0.5">
-          <Plus className="w-3 h-3" /> Add stock
-        </span>
+        <Plus className="w-3 h-3" /> Restock
       </button>
     );
   }
@@ -94,6 +93,7 @@ export function InlineRestock({ product, onRestocked }: InlineRestockProps) {
   return (
     <div
       className="flex items-center gap-1.5 mt-1"
+      onPointerDown={(e) => e.stopPropagation()}
       onClick={(e) => e.stopPropagation()}
     >
       <Input

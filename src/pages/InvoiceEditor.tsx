@@ -243,35 +243,37 @@ function SortableLineItem({
                                   {product.type === 'goods' && ` • Stock: ${product.stock_quantity}`}
                                 </p>
                                 {(isZeroStock || isLowStockProduct) && (
-                                  <div className="flex items-center gap-2 mt-1 flex-wrap">
+                                  <div
+                                    className="flex items-center gap-1.5 mt-1.5 flex-wrap"
+                                    onPointerDown={(e) => e.stopPropagation()}
+                                    onClick={(e) => { e.stopPropagation(); e.preventDefault(); }}
+                                    onKeyDown={(e) => e.stopPropagation()}
+                                  >
                                     <InlineRestock product={product} />
-                                    <span className="text-[10px] text-muted-foreground">•</span>
                                     <button
                                       type="button"
-                                      className="text-[11px] text-primary hover:underline font-medium"
+                                      className="inline-flex items-center gap-1 text-[10px] font-medium text-primary bg-primary/10 hover:bg-primary/20 px-2 py-0.5 rounded-full transition-colors"
                                       onClick={(e) => {
                                         e.stopPropagation();
                                         e.preventDefault();
                                         navigate('/products');
                                       }}
                                     >
-                                      Manage stock →
+                                      <Package className="w-3 h-3" />
+                                      Manage stock
                                     </button>
                                     {isZeroStock && (
-                                      <>
-                                        <span className="text-[10px] text-muted-foreground">•</span>
-                                        <button
-                                          type="button"
-                                          className="text-[11px] text-muted-foreground hover:text-foreground hover:underline font-medium"
-                                          onClick={(e) => {
-                                            e.stopPropagation();
-                                            e.preventDefault();
-                                            handleProductSelect(product);
-                                          }}
-                                        >
-                                          Use anyway
-                                        </button>
-                                      </>
+                                      <button
+                                        type="button"
+                                        className="inline-flex items-center gap-1 text-[10px] font-medium text-muted-foreground bg-muted hover:bg-muted/80 px-2 py-0.5 rounded-full transition-colors"
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          e.preventDefault();
+                                          handleProductSelect(product);
+                                        }}
+                                      >
+                                        Use anyway
+                                      </button>
                                     )}
                                   </div>
                                 )}
