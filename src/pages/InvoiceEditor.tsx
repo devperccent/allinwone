@@ -1038,6 +1038,8 @@ export default function InvoiceEditor() {
                     calculations={calculations}
                     profileStateCode={profileStateCode}
                     notes={notes}
+                    profile={profile}
+                    status={currentInvoice?.status || 'draft'}
                   />
                 </div>
               </div>
