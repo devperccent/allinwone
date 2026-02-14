@@ -33,6 +33,10 @@ export default function SettingsPage() {
   const [stateCode, setStateCode] = useState('27');
   const [address, setAddress] = useState('');
   const [upiVpa, setUpiVpa] = useState('');
+  const [panNumber, setPanNumber] = useState('');
+  const [bankAccountName, setBankAccountName] = useState('');
+  const [bankAccountNumber, setBankAccountNumber] = useState('');
+  const [bankIfsc, setBankIfsc] = useState('');
 
   // Invoice form state
   const [invoicePrefix, setInvoicePrefix] = useState('INW-');
@@ -48,6 +52,10 @@ export default function SettingsPage() {
       setStateCode(authProfile.state_code || '27');
       setAddress(authProfile.address || '');
       setUpiVpa(authProfile.upi_vpa || '');
+      setPanNumber(authProfile.pan_number || '');
+      setBankAccountName(authProfile.bank_account_name || '');
+      setBankAccountNumber(authProfile.bank_account_number || '');
+      setBankIfsc(authProfile.bank_ifsc || '');
       setInvoicePrefix(authProfile.invoice_prefix || 'INW-');
       setNextNumber(authProfile.next_invoice_number || 1);
     }
@@ -66,6 +74,10 @@ export default function SettingsPage() {
         state_code: stateCode,
         address: address || null,
         upi_vpa: upiVpa || null,
+        pan_number: panNumber || null,
+        bank_account_name: bankAccountName || null,
+        bank_account_number: bankAccountNumber || null,
+        bank_ifsc: bankIfsc || null,
       });
 
       await refreshProfile();
@@ -197,6 +209,16 @@ export default function SettingsPage() {
                   />
                 </div>
                 <div>
+                  <Label htmlFor="pan">PAN Number</Label>
+                  <Input
+                    id="pan"
+                    value={panNumber}
+                    onChange={(e) => setPanNumber(e.target.value)}
+                    placeholder="ABCDE1234F"
+                    className="mt-1.5"
+                  />
+                </div>
+                <div>
                   <Label htmlFor="state">State</Label>
                   <Select value={stateCode} onValueChange={setStateCode}>
                     <SelectTrigger className="mt-1.5">
@@ -238,6 +260,33 @@ export default function SettingsPage() {
                     <p className="text-xs text-muted-foreground mt-1">
                       This will be used to generate payment QR codes
                     </p>
+                  </div>
+                  <div>
+                    <Label htmlFor="bank_name">Bank Account Name</Label>
+                    <Input
+                      id="bank_name"
+                      value={bankAccountName}
+                      onChange={(e) => setBankAccountName(e.target.value)}
+                      className="mt-1.5"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="bank_number">Bank Account Number</Label>
+                    <Input
+                      id="bank_number"
+                      value={bankAccountNumber}
+                      onChange={(e) => setBankAccountNumber(e.target.value)}
+                      className="mt-1.5"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="bank_ifsc">IFSC Code</Label>
+                    <Input
+                      id="bank_ifsc"
+                      value={bankIfsc}
+                      onChange={(e) => setBankIfsc(e.target.value)}
+                      className="mt-1.5"
+                    />
                   </div>
                 </div>
               </div>
