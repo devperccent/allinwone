@@ -1,4 +1,4 @@
-import { Search, Plus, Moon, Sun, Menu, Settings, LogOut } from 'lucide-react';
+import { Search, Plus, Moon, Sun, Menu, Settings, LogOut, Keyboard } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { NotificationBell } from './NotificationBell';
 import { Link, useNavigate } from 'react-router-dom';
@@ -16,6 +16,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface AppHeaderProps {
   searchOpen: boolean;
@@ -79,14 +80,22 @@ export function AppHeader({ searchOpen, onSearchOpenChange }: AppHeaderProps) {
           </Button>
         )}
 
-        <Button
-          onClick={() => navigate('/invoices/new')}
-          size={isMobile ? 'icon' : 'default'}
-          className="gap-2"
-        >
-          <Plus className="w-4 h-4" />
-          {!isMobile && 'New Invoice'}
-        </Button>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              onClick={() => navigate('/invoices/new')}
+              size={isMobile ? 'icon' : 'default'}
+              className="gap-2"
+            >
+              <Plus className="w-4 h-4" />
+              {!isMobile && 'New Invoice'}
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent side="bottom">
+            <span>New Invoice</span>
+            <kbd className="ml-2 inline-flex h-5 min-w-[20px] items-center justify-center rounded border bg-muted px-1.5 font-mono text-[11px] font-medium text-muted-foreground">N</kbd>
+          </TooltipContent>
+        </Tooltip>
 
         <Button
           variant="ghost"
