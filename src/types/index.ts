@@ -7,6 +7,7 @@ export type GSTType = 'intra-state' | 'inter-state';
 
 export interface Profile {
   id: string;
+  user_id: string;
   org_name: string;
   email: string;
   phone: string | null;
@@ -69,6 +70,8 @@ export interface Invoice {
   total_discount: number;
   grand_total: number;
   payment_mode: PaymentMode | null;
+  payment_date: string | null;
+  share_token: string | null;
   notes: string | null;
   created_at: string;
   updated_at: string;

@@ -49,8 +49,8 @@ export function useKeyboardShortcuts({ onSearch, onHelp }: ShortcutCallbacks = {
         gPressed.current = false;
         clearTimeout(gTimeout.current);
         const routes: Record<string, string> = {
-          d: '/dashboard',
-          h: '/dashboard',
+          d: '/',
+          h: '/',
           i: '/invoices',
           c: '/clients',
           p: '/products',

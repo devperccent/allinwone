@@ -131,12 +131,12 @@ function InvoiceActions({
               Get Shareable Link
             </DropdownMenuItem>
             <DropdownMenuItem onClick={async () => {
-              let token = (invoice as any).share_token;
+              let token = invoice.share_token;
               if (!token) {
                 const { data, error } = await supabase.rpc('generate_share_token');
                 if (error) { console.error(error); return; }
                 token = data;
-                await supabase.from('invoices').update({ share_token: token } as any).eq('id', invoice.id);
+                await supabase.from('invoices').update({ share_token: token }).eq('id', invoice.id);
               }
               const link = `${window.location.origin}/invoice/view?token=${token}`;
               const text = `Hi! Here's your invoice ${invoice.invoice_number} for ${formatINR(Number(invoice.grand_total))}. View it here: ${link}`;
@@ -290,7 +290,7 @@ export default function InvoicesPage() {
           // Also update payment_date
           await supabase
             .from('invoices')
-            .update({ payment_date: paymentDate } as any)
+            .update({ payment_date: paymentDate })
             .eq('id', paidInvoice.id);
           setPaidDialogOpen(false);
         },
@@ -304,7 +304,7 @@ export default function InvoicesPage() {
     setLinkCopied(false);
 
     try {
-      let token = (invoice as any).share_token;
+      let token = invoice.share_token;
       if (!token) {
         // Generate a share token
         const { data, error } = await supabase.rpc('generate_share_token');
@@ -313,7 +313,7 @@ export default function InvoicesPage() {
 
         await supabase
           .from('invoices')
-          .update({ share_token: token } as any)
+          .update({ share_token: token })
           .eq('id', invoice.id);
       }
 
