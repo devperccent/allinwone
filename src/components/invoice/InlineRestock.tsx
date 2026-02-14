@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Package, Loader2, Plus } from 'lucide-react';
+import { Package, Loader2, Plus, CheckCircle2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { supabase } from '@/integrations/supabase/client';
@@ -16,6 +16,8 @@ export function InlineRestock({ product, onRestocked }: InlineRestockProps) {
   const [expanded, setExpanded] = useState(false);
   const [qty, setQty] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [restockedAmount, setRestockedAmount] = useState(0);
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
@@ -50,14 +52,26 @@ export function InlineRestock({ product, onRestocked }: InlineRestockProps) {
       queryClient.invalidateQueries({ queryKey: ['inventory_logs', product.id] });
       toast({ title: 'Restocked', description: `Added ${amount} units to ${product.name}.` });
       onRestocked?.(newQty);
+      setRestockedAmount(amount);
+      setShowSuccess(true);
       setExpanded(false);
       setQty('');
+      setTimeout(() => setShowSuccess(false), 2200);
     } catch (err: any) {
       toast({ title: 'Error', description: err.message, variant: 'destructive' });
     } finally {
       setIsLoading(false);
     }
   };
+
+  if (showSuccess) {
+    return (
+      <span className="inline-flex items-center gap-1 text-[11px] text-green-600 dark:text-green-400 font-medium animate-fade-in">
+        <CheckCircle2 className="w-3.5 h-3.5" />
+        +{restockedAmount} restocked
+      </span>
+    );
+  }
 
   if (!expanded) {
     return (
