@@ -8,7 +8,9 @@ import {
   TrendingUp,
   LogOut,
   ChevronLeft,
+  ShieldCheck,
 } from 'lucide-react';
+import { useIsAdmin } from '@/hooks/useAdmin';
 import inwLogo from '@/assets/inw-logomark.png';
 import inwWideLogo from '@/assets/inw-wide.png';
 import { cn } from '@/lib/utils';
@@ -43,6 +45,7 @@ export function AppSidebar({ onNavigate }: AppSidebarProps) {
   const isMobile = useIsMobile();
   const [collapsed, setCollapsed] = useState(false);
   const { profile, signOut } = useAuth();
+  const { data: isAdmin } = useIsAdmin();
 
   // On mobile (used inside Sheet), always show expanded
   const isCollapsed = isMobile ? false : collapsed;
@@ -79,7 +82,7 @@ export function AppSidebar({ onNavigate }: AppSidebarProps) {
 
       {/* Navigation */}
       <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
-        {navigation.map((item) => {
+        {[...navigation, ...(isAdmin ? [{ name: 'Admin', href: '/admin', icon: ShieldCheck }] : [])].map((item) => {
           const isActive = location.pathname === item.href || 
             (item.href !== '/' && location.pathname.startsWith(item.href));
           

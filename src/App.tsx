@@ -6,6 +6,9 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { AppLayout } from "@/components/layout/AppLayout";
+import { AdminRoute } from "@/components/auth/AdminRoute";
+import AdminDashboard from "./pages/admin/AdminDashboard";
+import AdminUserDetail from "./pages/admin/AdminUserDetail";
 import Dashboard from "./pages/Dashboard";
 import InvoicesPage from "./pages/InvoicesPage";
 import InvoiceEditor from "./pages/InvoiceEditor";
@@ -54,6 +57,8 @@ const App = () => (
               <Route path="/clients" element={<ClientsPage />} />
               <Route path="/reports" element={<ReportsPage />} />
               <Route path="/settings" element={<SettingsPage />} />
+              <Route path="/admin" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
+              <Route path="/admin/users/:profileId" element={<AdminRoute><AdminUserDetail /></AdminRoute>} />
             </Route>
             
             <Route path="*" element={<NotFound />} />
