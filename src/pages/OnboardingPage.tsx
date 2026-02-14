@@ -1,6 +1,10 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Building2, MapPin, CreditCard, FileText, ArrowRight, ArrowLeft, Check, Loader2, ImageIcon, Sparkles } from 'lucide-react';
+import {
+  Building2, MapPin, CreditCard, FileText, ArrowRight, ArrowLeft, Check, Loader2,
+  Sparkles, Users, Package, Rocket, Store, Briefcase, ShoppingBag, Wrench, Utensils,
+  Cpu, Heart, Wheat, MoreHorizontal, Truck, Scissors,
+} from 'lucide-react';
 import inwWideLogo from '@/assets/inw-wide.png';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -11,50 +15,74 @@ import { Progress } from '@/components/ui/progress';
 import { INDIAN_STATES } from '@/types';
 import { useAuth } from '@/contexts/AuthContext';
 import { useProfile } from '@/hooks/useProfile';
+import { useClients } from '@/hooks/useClients';
+import { useProducts } from '@/hooks/useProducts';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { LogoUpload } from '@/components/LogoUpload';
 
 const steps = [
-  { id: 'business', label: 'Business Info', icon: Building2, description: 'Enter your business name and contact details' },
-  { id: 'location', label: 'Location & Tax', icon: MapPin, description: 'Set your state and GSTIN — GST will auto-calculate' },
-  { id: 'payment', label: 'Payment', icon: CreditCard, description: 'Add your UPI — a QR code will appear on invoices' },
-  { id: 'invoice', label: 'Invoice Setup', icon: FileText, description: 'Customize your invoice number format' },
+  { id: 'business', label: 'Business', icon: Building2, description: 'Tell us about your business' },
+  { id: 'location', label: 'Tax & Address', icon: MapPin, description: 'Location, GSTIN, and PAN details' },
+  { id: 'payment', label: 'Payment', icon: CreditCard, description: 'UPI and bank account details' },
+  { id: 'invoice', label: 'Invoicing', icon: FileText, description: 'Customize your invoice format' },
+  { id: 'client', label: 'First Client', icon: Users, description: 'Add your first client to get started' },
+  { id: 'product', label: 'First Product', icon: Package, description: 'Add a product or service you sell' },
+  { id: 'welcome', label: 'Ready!', icon: Rocket, description: "You're all set to go" },
 ];
 
 const BUSINESS_TYPES = [
-  'Retail / Shop',
-  'Wholesale / Distributor',
-  'Manufacturing',
-  'Service Provider',
-  'Freelancer / Consultant',
-  'Restaurant / Food',
-  'Hardware / Building Materials',
-  'Textile / Garments',
-  'Electronics',
-  'Medical / Pharmacy',
-  'Agriculture',
-  'Other',
+  { value: 'retail', label: 'Retail / Shop', icon: Store },
+  { value: 'wholesale', label: 'Wholesale / Distributor', icon: Truck },
+  { value: 'manufacturing', label: 'Manufacturing', icon: Wrench },
+  { value: 'service', label: 'Service Provider', icon: Briefcase },
+  { value: 'freelancer', label: 'Freelancer / Consultant', icon: Briefcase },
+  { value: 'restaurant', label: 'Restaurant / Food', icon: Utensils },
+  { value: 'hardware', label: 'Hardware / Building', icon: ShoppingBag },
+  { value: 'textile', label: 'Textile / Garments', icon: Scissors },
+  { value: 'electronics', label: 'Electronics', icon: Cpu },
+  { value: 'medical', label: 'Medical / Pharmacy', icon: Heart },
+  { value: 'agriculture', label: 'Agriculture', icon: Wheat },
+  { value: 'other', label: 'Other', icon: MoreHorizontal },
 ];
 
 export default function OnboardingPage() {
   const navigate = useNavigate();
   const { profile, refreshProfile } = useAuth();
   const { updateProfile, isUpdating } = useProfile();
+  const { createClient } = useClients();
+  const { createProduct } = useProducts();
   const { toast } = useToast();
 
   const [currentStep, setCurrentStep] = useState(0);
 
-  // Form state
+  // Profile form state
   const [orgName, setOrgName] = useState(profile?.org_name || '');
   const [email, setEmail] = useState(profile?.email || '');
   const [phone, setPhone] = useState(profile?.phone || '');
+  const [businessType, setBusinessType] = useState(profile?.business_type || '');
   const [address, setAddress] = useState(profile?.address || '');
   const [stateCode, setStateCode] = useState(profile?.state_code || '27');
   const [gstin, setGstin] = useState(profile?.gstin || '');
+  const [panNumber, setPanNumber] = useState(profile?.pan_number || '');
   const [upiVpa, setUpiVpa] = useState(profile?.upi_vpa || '');
+  const [bankAccountName, setBankAccountName] = useState(profile?.bank_account_name || '');
+  const [bankAccountNumber, setBankAccountNumber] = useState(profile?.bank_account_number || '');
+  const [bankIfsc, setBankIfsc] = useState(profile?.bank_ifsc || '');
   const [invoicePrefix, setInvoicePrefix] = useState(profile?.invoice_prefix || 'INV-');
   const [nextNumber, setNextNumber] = useState(profile?.next_invoice_number || 1);
+
+  // First client state
+  const [clientName, setClientName] = useState('');
+  const [clientPhone, setClientPhone] = useState('');
+  const [clientEmail, setClientEmail] = useState('');
+  const [clientCreated, setClientCreated] = useState(false);
+
+  // First product state
+  const [productName, setProductName] = useState('');
+  const [productPrice, setProductPrice] = useState('');
+  const [productType, setProductType] = useState<'goods' | 'service'>('goods');
+  const [productCreated, setProductCreated] = useState(false);
 
   const progress = ((currentStep + 1) / steps.length) * 100;
 
@@ -64,6 +92,9 @@ export default function OnboardingPage() {
       case 1: return stateCode.length > 0;
       case 2: return true;
       case 3: return invoicePrefix.trim().length > 0;
+      case 4: return true; // client is optional
+      case 5: return true; // product is optional
+      case 6: return true;
       default: return true;
     }
   };
@@ -80,6 +111,41 @@ export default function OnboardingPage() {
     }
   };
 
+  const handleCreateClient = () => {
+    if (!clientName.trim()) return;
+    createClient.mutate(
+      { name: clientName, phone: clientPhone || undefined, email: clientEmail || undefined, state_code: stateCode },
+      {
+        onSuccess: () => {
+          setClientCreated(true);
+          toast({ title: 'Client added! 🎉', description: `${clientName} is ready for invoicing.` });
+        },
+      }
+    );
+  };
+
+  const handleCreateProduct = () => {
+    if (!productName.trim()) return;
+    const prefix = productName.trim().substring(0, 3).toUpperCase() || 'PRD';
+    const sku = `${prefix}-${Date.now().toString(36).toUpperCase().slice(-4)}`;
+    createProduct.mutate(
+      {
+        name: productName,
+        sku,
+        type: productType,
+        selling_price: parseFloat(productPrice) || 0,
+        stock_quantity: 0,
+        low_stock_limit: 10,
+      },
+      {
+        onSuccess: () => {
+          setProductCreated(true);
+          toast({ title: 'Product added! 🎉', description: `${productName} is ready to use.` });
+        },
+      }
+    );
+  };
+
   const handleFinish = async () => {
     if (!profile) return;
 
@@ -92,7 +158,12 @@ export default function OnboardingPage() {
         address: address || null,
         state_code: stateCode,
         gstin: gstin || null,
+        pan_number: panNumber || null,
         upi_vpa: upiVpa || null,
+        bank_account_name: bankAccountName || null,
+        bank_account_number: bankAccountNumber || null,
+        bank_ifsc: bankIfsc || null,
+        business_type: businessType || null,
         invoice_prefix: invoicePrefix,
         next_invoice_number: nextNumber,
         onboarding_completed: true,
@@ -137,7 +208,7 @@ export default function OnboardingPage() {
                 <div key={step.id} className="flex items-center">
                   <div
                     className={cn(
-                      'w-8 h-8 rounded-full flex items-center justify-center text-xs font-semibold transition-all',
+                      'w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-xs font-semibold transition-all',
                       i < currentStep
                         ? 'bg-primary text-primary-foreground'
                         : i === currentStep
@@ -145,10 +216,10 @@ export default function OnboardingPage() {
                         : 'bg-muted text-muted-foreground'
                     )}
                   >
-                    {i < currentStep ? <Check className="w-4 h-4" /> : i + 1}
+                    {i < currentStep ? <Check className="w-3.5 h-3.5" /> : i + 1}
                   </div>
                   {i < steps.length - 1 && (
-                    <div className={cn('h-0.5 w-8 sm:w-16 mx-1', i < currentStep ? 'bg-primary' : 'bg-border')} />
+                    <div className={cn('h-0.5 w-4 sm:w-8 mx-0.5', i < currentStep ? 'bg-primary' : 'bg-border')} />
                   )}
                 </div>
               ))}
@@ -157,7 +228,7 @@ export default function OnboardingPage() {
           </div>
 
           {/* Card */}
-          <div className="bg-card rounded-2xl border border-border shadow-xl p-8 animate-fade-in">
+          <div className="bg-card rounded-2xl border border-border shadow-xl p-6 sm:p-8 animate-fade-in">
             <div className="flex items-center gap-3 mb-6">
               <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
                 <StepIcon className="w-5 h-5 text-primary" />
@@ -173,28 +244,52 @@ export default function OnboardingPage() {
               <div className="space-y-4">
                 <div>
                   <Label htmlFor="orgName">Business Name *</Label>
-                  <Input id="orgName" value={orgName} onChange={(e) => setOrgName(e.target.value)} placeholder="e.g., Sharma Traders, Gupta Electronics" className="mt-1.5" />
+                  <Input id="orgName" value={orgName} onChange={(e) => setOrgName(e.target.value)} placeholder="e.g., Sharma Traders" className="mt-1.5" />
                   <p className="text-xs text-muted-foreground mt-1">This name will appear on your invoices</p>
                 </div>
                 <div>
-                  <Label htmlFor="email">Business Email</Label>
-                  <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="hello@example.com" className="mt-1.5" />
-                  <p className="text-xs text-muted-foreground mt-1">Optional — for sending invoices via email</p>
+                  <Label>Business Type</Label>
+                  <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 mt-1.5">
+                    {BUSINESS_TYPES.map((bt) => {
+                      const BtIcon = bt.icon;
+                      return (
+                        <button
+                          key={bt.value}
+                          type="button"
+                          onClick={() => setBusinessType(bt.value)}
+                          className={cn(
+                            'flex flex-col items-center gap-1 p-2.5 rounded-lg border text-xs font-medium transition-all',
+                            businessType === bt.value
+                              ? 'border-primary bg-primary/10 text-primary'
+                              : 'border-border bg-card text-muted-foreground hover:border-primary/40'
+                          )}
+                        >
+                          <BtIcon className="w-4 h-4" />
+                          <span className="text-center leading-tight">{bt.label}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
-                <div>
-                  <Label htmlFor="phone">Phone / WhatsApp Number</Label>
-                  <Input id="phone" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+91 98765 43210" className="mt-1.5" />
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <Label htmlFor="email">Email</Label>
+                    <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="hello@example.com" className="mt-1.5" />
+                  </div>
+                  <div>
+                    <Label htmlFor="phone">Phone</Label>
+                    <Input id="phone" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="98765 43210" className="mt-1.5" />
+                  </div>
                 </div>
-                {/* Logo Upload */}
                 <div>
                   <Label>Business Logo (Optional)</Label>
-                  <p className="text-xs text-muted-foreground mb-2">Your logo will appear on invoices for a professional look</p>
+                  <p className="text-xs text-muted-foreground mb-2">Appears on your invoices</p>
                   <LogoUpload currentLogoUrl={profile?.logo_url || null} />
                 </div>
               </div>
             )}
 
-            {/* Step 1: Location & Tax */}
+            {/* Step 1: Tax & Address */}
             {currentStep === 1 && (
               <div className="space-y-4">
                 <div>
@@ -209,21 +304,26 @@ export default function OnboardingPage() {
                       ))}
                     </SelectContent>
                   </Select>
-                  <p className="text-xs text-muted-foreground mt-1">GST auto-calculates — same state = CGST+SGST, different state = IGST</p>
+                  <p className="text-xs text-muted-foreground mt-1">Same state = CGST+SGST, different = IGST</p>
                 </div>
-                <div>
-                  <Label htmlFor="gstin">GSTIN (if registered)</Label>
-                  <Input id="gstin" value={gstin} onChange={(e) => setGstin(e.target.value.toUpperCase())} placeholder="27XXXXX0000X1Z5" className="mt-1.5" maxLength={15} />
-                  <p className="text-xs text-muted-foreground mt-1">Don't have a GSTIN? No worries — you can add it later</p>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <Label htmlFor="gstin">GSTIN</Label>
+                    <Input id="gstin" value={gstin} onChange={(e) => setGstin(e.target.value.toUpperCase())} placeholder="27XXXXX0000X1Z5" className="mt-1.5" maxLength={15} />
+                  </div>
+                  <div>
+                    <Label htmlFor="pan">PAN Number</Label>
+                    <Input id="pan" value={panNumber} onChange={(e) => setPanNumber(e.target.value.toUpperCase())} placeholder="ABCDE1234F" className="mt-1.5" maxLength={10} />
+                  </div>
                 </div>
                 <div>
                   <Label htmlFor="address">Business Address</Label>
-                  <Textarea id="address" value={address} onChange={(e) => setAddress(e.target.value)} placeholder="Full business address, e.g.: Shop No. 5, Main Market, Indore, MP" className="mt-1.5" rows={3} />
+                  <Textarea id="address" value={address} onChange={(e) => setAddress(e.target.value)} placeholder="Full business address" className="mt-1.5" rows={3} />
                 </div>
                 <div className="p-3 bg-muted/30 rounded-lg border border-border/50">
                   <p className="text-xs text-muted-foreground">
                     <Sparkles className="w-3 h-3 inline mr-1" />
-                    <span className="font-medium text-foreground">Pro tip:</span> Works with GST composition scheme too. You can set tax rates per item (0%, 5%, 12%, 18%, 28%).
+                    <span className="font-medium text-foreground">Pro tip:</span> Don't have GSTIN/PAN? No worries — add them later in Settings.
                   </p>
                 </div>
               </div>
@@ -234,20 +334,31 @@ export default function OnboardingPage() {
               <div className="space-y-4">
                 <div>
                   <Label htmlFor="upi">UPI ID (GPay / PhonePe / Paytm)</Label>
-                  <Input id="upi" value={upiVpa} onChange={(e) => setUpiVpa(e.target.value)} placeholder="yourname@upi or 9876543210@paytm" className="mt-1.5" />
-                  <p className="text-xs text-muted-foreground mt-1">A QR code will automatically appear on your invoices — customers can scan and pay</p>
+                  <Input id="upi" value={upiVpa} onChange={(e) => setUpiVpa(e.target.value)} placeholder="yourname@upi" className="mt-1.5" />
+                  <p className="text-xs text-muted-foreground mt-1">A QR code will appear on invoices</p>
                 </div>
-                <div className="p-4 bg-muted/30 rounded-lg border border-border/50">
-                  <p className="text-sm font-medium mb-2">💡 UPI payments are faster</p>
-                  <ul className="text-xs text-muted-foreground space-y-1">
-                    <li>• Customers will see a QR code on the invoice</li>
-                    <li>• They can scan and pay directly from their phone</li>
-                    <li>• No more chasing credit payments!</li>
-                  </ul>
+                <div className="border-t border-border pt-4">
+                  <p className="text-sm font-medium mb-3">Bank Account Details (Optional)</p>
+                  <div className="space-y-3">
+                    <div>
+                      <Label htmlFor="bankName">Account Holder Name</Label>
+                      <Input id="bankName" value={bankAccountName} onChange={(e) => setBankAccountName(e.target.value)} placeholder="As per bank records" className="mt-1.5" />
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <Label htmlFor="bankAccount">Account Number</Label>
+                        <Input id="bankAccount" value={bankAccountNumber} onChange={(e) => setBankAccountNumber(e.target.value)} placeholder="1234567890" className="mt-1.5" />
+                      </div>
+                      <div>
+                        <Label htmlFor="bankIfsc">IFSC Code</Label>
+                        <Input id="bankIfsc" value={bankIfsc} onChange={(e) => setBankIfsc(e.target.value.toUpperCase())} placeholder="SBIN0001234" className="mt-1.5" maxLength={11} />
+                      </div>
+                    </div>
+                  </div>
                 </div>
                 <div className="p-3 bg-primary/5 rounded-lg border border-primary/10">
                   <p className="text-xs text-muted-foreground">
-                    <span className="font-medium text-foreground">Bank account details:</span> You can add these later in Settings
+                    <span className="font-medium text-foreground">💡 Tip:</span> Bank details show on invoices alongside the UPI QR code for direct transfers.
                   </p>
                 </div>
               </div>
@@ -274,11 +385,133 @@ export default function OnboardingPage() {
                     <span className="font-mono font-semibold text-primary">{invoicePrefix}{String(nextNumber).padStart(4, '0')}</span>
                   </p>
                 </div>
-                <div className="p-3 bg-success/5 rounded-lg border border-success/10">
-                  <p className="text-xs text-muted-foreground">
-                    <Check className="w-3 h-3 inline mr-1 text-success" />
-                    All set! You can now create invoices — adding clients and products can also be done directly from the invoice editor.
-                  </p>
+              </div>
+            )}
+
+            {/* Step 4: First Client */}
+            {currentStep === 4 && (
+              <div className="space-y-4">
+                {clientCreated ? (
+                  <div className="text-center py-6 space-y-3">
+                    <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mx-auto">
+                      <Check className="w-7 h-7 text-primary" />
+                    </div>
+                    <div>
+                      <p className="font-semibold text-lg">{clientName} added!</p>
+                      <p className="text-sm text-muted-foreground">You can add more clients later from the Clients page.</p>
+                    </div>
+                  </div>
+                ) : (
+                  <>
+                    <div>
+                      <Label htmlFor="clientName">Client / Customer Name</Label>
+                      <Input id="clientName" value={clientName} onChange={(e) => setClientName(e.target.value)} placeholder="e.g., Gupta Electronics" className="mt-1.5" autoFocus />
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <Label htmlFor="clientPhone">Phone</Label>
+                        <Input id="clientPhone" value={clientPhone} onChange={(e) => setClientPhone(e.target.value)} placeholder="98765 43210" className="mt-1.5" />
+                      </div>
+                      <div>
+                        <Label htmlFor="clientEmail">Email</Label>
+                        <Input id="clientEmail" type="email" value={clientEmail} onChange={(e) => setClientEmail(e.target.value)} placeholder="client@email.com" className="mt-1.5" />
+                      </div>
+                    </div>
+                    <div className="flex gap-2">
+                      <Button onClick={handleCreateClient} disabled={!clientName.trim() || createClient.isPending} className="flex-1">
+                        {createClient.isPending ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Users className="w-4 h-4 mr-2" />}
+                        Add Client
+                      </Button>
+                    </div>
+                    <p className="text-xs text-muted-foreground text-center">
+                      You can also skip this and add clients later, or create them inline while making an invoice.
+                    </p>
+                  </>
+                )}
+              </div>
+            )}
+
+            {/* Step 5: First Product */}
+            {currentStep === 5 && (
+              <div className="space-y-4">
+                {productCreated ? (
+                  <div className="text-center py-6 space-y-3">
+                    <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mx-auto">
+                      <Check className="w-7 h-7 text-primary" />
+                    </div>
+                    <div>
+                      <p className="font-semibold text-lg">{productName} added!</p>
+                      <p className="text-sm text-muted-foreground">You can add more products later from the Products page.</p>
+                    </div>
+                  </div>
+                ) : (
+                  <>
+                    <div>
+                      <Label htmlFor="productName">Product / Service Name</Label>
+                      <Input id="productName" value={productName} onChange={(e) => setProductName(e.target.value)} placeholder="e.g., Wireless Mouse, Web Design" className="mt-1.5" autoFocus />
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <Label htmlFor="productPrice">Selling Price (₹)</Label>
+                        <Input id="productPrice" type="number" value={productPrice} onChange={(e) => setProductPrice(e.target.value)} placeholder="0.00" className="mt-1.5" />
+                      </div>
+                      <div>
+                        <Label>Type</Label>
+                        <Select value={productType} onValueChange={(v) => setProductType(v as 'goods' | 'service')}>
+                          <SelectTrigger className="mt-1.5">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="goods">Goods (with inventory)</SelectItem>
+                            <SelectItem value="service">Service (no stock)</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+                    <Button onClick={handleCreateProduct} disabled={!productName.trim() || createProduct.isPending} className="w-full">
+                      {createProduct.isPending ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Package className="w-4 h-4 mr-2" />}
+                      Add Product
+                    </Button>
+                    <p className="text-xs text-muted-foreground text-center">
+                      SKU is auto-generated. You can skip and add products later or inline during invoicing.
+                    </p>
+                  </>
+                )}
+              </div>
+            )}
+
+            {/* Step 6: Welcome / Ready */}
+            {currentStep === 6 && (
+              <div className="text-center py-4 space-y-5">
+                <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto">
+                  <Rocket className="w-8 h-8 text-primary" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold mb-1">You're all set, {orgName || 'there'}!</h3>
+                  <p className="text-muted-foreground text-sm">Here's what you can do next:</p>
+                </div>
+                <div className="grid gap-3 text-left">
+                  <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/30 border border-border/50">
+                    <FileText className="w-5 h-5 text-primary mt-0.5 shrink-0" />
+                    <div>
+                      <p className="text-sm font-medium">Create your first invoice</p>
+                      <p className="text-xs text-muted-foreground">Click "+ New Invoice" from the dashboard or sidebar</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/30 border border-border/50">
+                    <Package className="w-5 h-5 text-primary mt-0.5 shrink-0" />
+                    <div>
+                      <p className="text-sm font-medium">Manage your inventory</p>
+                      <p className="text-xs text-muted-foreground">Track stock levels and get low-stock alerts</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/30 border border-border/50">
+                    <Users className="w-5 h-5 text-primary mt-0.5 shrink-0" />
+                    <div>
+                      <p className="text-sm font-medium">Track client credit (Udhaar)</p>
+                      <p className="text-xs text-muted-foreground">Keep tabs on outstanding payments</p>
+                    </div>
+                  </div>
                 </div>
               </div>
             )}
@@ -292,11 +525,11 @@ export default function OnboardingPage() {
 
               {currentStep < steps.length - 1 ? (
                 <Button onClick={handleNext} disabled={!canProceed()}>
-                  Next
+                  {currentStep === 4 && !clientCreated ? 'Skip' : currentStep === 5 && !productCreated ? 'Skip' : 'Next'}
                   <ArrowRight className="w-4 h-4 ml-2" />
                 </Button>
               ) : (
-                <Button onClick={handleFinish} disabled={!canProceed() || isUpdating}>
+                <Button onClick={handleFinish} disabled={!canProceed() || isUpdating} size="lg">
                   {isUpdating ? (
                     <>
                       <Loader2 className="w-4 h-4 mr-2 animate-spin" />
@@ -304,8 +537,8 @@ export default function OnboardingPage() {
                     </>
                   ) : (
                     <>
-                      Finish Setup
-                      <Check className="w-4 h-4 ml-2" />
+                      Go to Dashboard
+                      <Rocket className="w-4 h-4 ml-2" />
                     </>
                   )}
                 </Button>

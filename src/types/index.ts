@@ -18,6 +18,11 @@ export interface Profile {
   invoice_prefix: string;
   next_invoice_number: number;
   onboarding_completed: boolean;
+  business_type: string | null;
+  pan_number: string | null;
+  bank_account_name: string | null;
+  bank_account_number: string | null;
+  bank_ifsc: string | null;
   created_at: string;
   updated_at: string;
 }

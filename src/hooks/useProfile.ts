@@ -17,6 +17,11 @@ interface UpdateProfileData {
   next_invoice_number?: number;
   logo_url?: string | null;
   onboarding_completed?: boolean;
+  business_type?: string | null;
+  pan_number?: string | null;
+  bank_account_name?: string | null;
+  bank_account_number?: string | null;
+  bank_ifsc?: string | null;
 }
 
 export function useProfile() {
