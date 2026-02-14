@@ -4,29 +4,22 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTheme } from '@/hooks/useTheme';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { AppSidebar } from './AppSidebar';
 import { GlobalSearch } from './GlobalSearch';
 
-export function AppHeader() {
+interface AppHeaderProps {
+  searchOpen: boolean;
+  onSearchOpenChange: (open: boolean) => void;
+}
+
+export function AppHeader({ searchOpen, onSearchOpenChange }: AppHeaderProps) {
   const navigate = useNavigate();
   const { profile } = useAuth();
   const { theme, setTheme } = useTheme();
   const isMobile = useIsMobile();
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [searchOpen, setSearchOpen] = useState(false);
-
-  useEffect(() => {
-    const down = (e: KeyboardEvent) => {
-      if (e.key === 'k' && (e.metaKey || e.ctrlKey)) {
-        e.preventDefault();
-        setSearchOpen((open) => !open);
-      }
-    };
-    document.addEventListener('keydown', down);
-    return () => document.removeEventListener('keydown', down);
-  }, []);
 
   const initials = profile?.org_name
     ?.split(' ')
@@ -54,7 +47,7 @@ export function AppHeader() {
           </Sheet>
         )}
         <button
-          onClick={() => setSearchOpen(true)}
+          onClick={() => onSearchOpenChange(true)}
           className="relative flex-1 max-w-sm hidden sm:flex items-center gap-2 h-9 rounded-md border border-transparent bg-muted/30 px-3 text-sm text-muted-foreground hover:bg-muted/50 transition-colors cursor-pointer"
         >
           <Search className="w-4 h-4 shrink-0" />
@@ -68,7 +61,7 @@ export function AppHeader() {
       {/* Actions */}
       <div className="flex items-center gap-1.5 md:gap-3 shrink-0">
         {isMobile && (
-          <Button variant="ghost" size="icon" onClick={() => setSearchOpen(true)}>
+          <Button variant="ghost" size="icon" onClick={() => onSearchOpenChange(true)}>
             <Search className="w-5 h-5" />
           </Button>
         )}
@@ -105,7 +98,7 @@ export function AppHeader() {
         )}
       </div>
 
-      <GlobalSearch open={searchOpen} onOpenChange={setSearchOpen} />
+      <GlobalSearch open={searchOpen} onOpenChange={onSearchOpenChange} />
     </header>
   );
 }
