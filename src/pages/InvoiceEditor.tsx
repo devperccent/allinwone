@@ -144,7 +144,7 @@ function SortableLineItem({
       product_id: product.id,
       description: product.name,
       rate: product.selling_price,
-      tax_rate: 18,
+      tax_rate: Number(product.tax_rate) || 18,
     });
     setProductOpen(false);
   };
@@ -225,6 +225,19 @@ function SortableLineItem({
                           </CommandItem>
                         ))}
                       </CommandGroup>
+                      <div className="border-t border-border p-1">
+                        <InlineProductCreate
+                          onCreated={(product) => {
+                            onUpdate(item.id, {
+                              product_id: product.id,
+                              description: product.name,
+                              rate: product.selling_price,
+                              tax_rate: Number(product.tax_rate) || 18,
+                            });
+                            setProductOpen(false);
+                          }}
+                        />
+                      </div>
                     </CommandList>
                   </Command>
                 </PopoverContent>
@@ -840,6 +853,14 @@ export default function InvoiceEditor() {
                                     </CommandItem>
                                   ))}
                                 </CommandGroup>
+                                <div className="border-t border-border p-1">
+                                  <InlineClientCreate
+                                    onCreated={(client) => {
+                                      setSelectedClient(client);
+                                      setClientOpen(false);
+                                    }}
+                                  />
+                                </div>
                               </CommandList>
                             </Command>
                           </PopoverContent>
@@ -1076,6 +1097,14 @@ export default function InvoiceEditor() {
                                 </CommandItem>
                               ))}
                             </CommandGroup>
+                            <div className="border-t border-border p-1">
+                              <InlineClientCreate
+                                onCreated={(client) => {
+                                  setSelectedClient(client);
+                                  setClientOpen(false);
+                                }}
+                              />
+                            </div>
                           </CommandList>
                         </Command>
                       </PopoverContent>
