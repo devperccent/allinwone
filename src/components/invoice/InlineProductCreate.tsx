@@ -2,16 +2,6 @@ import { useState } from 'react';
 import { Plus, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog';
 import { useProducts } from '@/hooks/useProducts';
 import type { Product } from '@/types';
 
@@ -22,7 +12,7 @@ interface InlineProductCreateProps {
 
 export function InlineProductCreate({ onCreated, triggerLabel }: InlineProductCreateProps) {
   const { createProduct } = useProducts();
-  const [open, setOpen] = useState(false);
+  const [expanded, setExpanded] = useState(false);
   const [name, setName] = useState('');
   const [price, setPrice] = useState('');
 
@@ -31,7 +21,9 @@ export function InlineProductCreate({ onCreated, triggerLabel }: InlineProductCr
     return `${prefix}-${Date.now().toString(36).toUpperCase().slice(-4)}`;
   };
 
-  const handleCreate = () => {
+  const handleCreate = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
     createProduct.mutate(
       {
         name,
@@ -44,7 +36,7 @@ export function InlineProductCreate({ onCreated, triggerLabel }: InlineProductCr
       {
         onSuccess: (data) => {
           onCreated(data as Product);
-          setOpen(false);
+          setExpanded(false);
           setName('');
           setPrice('');
         },
@@ -52,50 +44,74 @@ export function InlineProductCreate({ onCreated, triggerLabel }: InlineProductCr
     );
   };
 
+  if (!expanded) {
+    return (
+      <Button
+        variant="ghost"
+        size="sm"
+        className="gap-1 w-full justify-start text-primary"
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          setExpanded(true);
+        }}
+      >
+        <Plus className="w-4 h-4" />
+        {triggerLabel || 'Quick Add Product'}
+      </Button>
+    );
+  }
+
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button variant="ghost" size="sm" className="gap-1 w-full justify-start text-primary">
-          <Plus className="w-4 h-4" />
-          {triggerLabel || 'Quick Add Product'}
+    <div className="space-y-2 p-1" onClick={(e) => e.stopPropagation()}>
+      <Input
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+        placeholder="Product name *"
+        autoFocus
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' && name.trim()) {
+            handleCreate(e as any);
+          }
+          e.stopPropagation();
+        }}
+      />
+      <Input
+        type="number"
+        value={price}
+        onChange={(e) => setPrice(e.target.value)}
+        placeholder="Selling price (₹)"
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' && name.trim()) {
+            handleCreate(e as any);
+          }
+          e.stopPropagation();
+        }}
+      />
+      <div className="flex gap-2">
+        <Button
+          size="sm"
+          onClick={handleCreate}
+          disabled={!name.trim() || createProduct.isPending}
+          className="flex-1"
+        >
+          {createProduct.isPending ? <Loader2 className="w-3 h-3 animate-spin mr-1" /> : <Plus className="w-3 h-3 mr-1" />}
+          Add
         </Button>
-      </DialogTrigger>
-      <DialogContent className="sm:max-w-sm">
-        <DialogHeader>
-          <DialogTitle>Quick Add Product</DialogTitle>
-          <DialogDescription>Name and price is all you need. SKU is auto-generated.</DialogDescription>
-        </DialogHeader>
-        <div className="space-y-3 py-2">
-          <div>
-            <Label htmlFor="quick-product-name">Product Name *</Label>
-            <Input
-              id="quick-product-name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="e.g., Wireless Mouse"
-              className="mt-1"
-              autoFocus
-            />
-          </div>
-          <div>
-            <Label htmlFor="quick-product-price">Selling Price (₹) *</Label>
-            <Input
-              id="quick-product-price"
-              type="number"
-              value={price}
-              onChange={(e) => setPrice(e.target.value)}
-              placeholder="0.00"
-              className="mt-1"
-            />
-          </div>
-        </div>
-        <DialogFooter>
-          <Button onClick={handleCreate} disabled={!name.trim() || createProduct.isPending}>
-            {createProduct.isPending ? <Loader2 className="w-4 h-4 animate-spin mr-1" /> : <Plus className="w-4 h-4 mr-1" />}
-            Add Product
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+        <Button
+          size="sm"
+          variant="ghost"
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            setExpanded(false);
+            setName('');
+            setPrice('');
+          }}
+        >
+          Cancel
+        </Button>
+      </div>
+    </div>
   );
 }

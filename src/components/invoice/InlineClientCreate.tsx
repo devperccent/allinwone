@@ -2,16 +2,6 @@ import { useState } from 'react';
 import { Plus, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog';
 import { useClients } from '@/hooks/useClients';
 import type { Client } from '@/types';
 
@@ -22,17 +12,19 @@ interface InlineClientCreateProps {
 
 export function InlineClientCreate({ onCreated, triggerLabel }: InlineClientCreateProps) {
   const { createClient } = useClients();
-  const [open, setOpen] = useState(false);
+  const [expanded, setExpanded] = useState(false);
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
 
-  const handleCreate = () => {
+  const handleCreate = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
     createClient.mutate(
       { name, phone: phone || undefined, state_code: '27' },
       {
         onSuccess: (data) => {
           onCreated(data as Client);
-          setOpen(false);
+          setExpanded(false);
           setName('');
           setPhone('');
         },
@@ -40,49 +32,73 @@ export function InlineClientCreate({ onCreated, triggerLabel }: InlineClientCrea
     );
   };
 
+  if (!expanded) {
+    return (
+      <Button
+        variant="ghost"
+        size="sm"
+        className="gap-1 w-full justify-start text-primary"
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          setExpanded(true);
+        }}
+      >
+        <Plus className="w-4 h-4" />
+        {triggerLabel || 'Quick Add Client'}
+      </Button>
+    );
+  }
+
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button variant="ghost" size="sm" className="gap-1 w-full justify-start text-primary">
-          <Plus className="w-4 h-4" />
-          {triggerLabel || 'Quick Add Client'}
+    <div className="space-y-2 p-1" onClick={(e) => e.stopPropagation()}>
+      <Input
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+        placeholder="Client name *"
+        autoFocus
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' && name.trim()) {
+            handleCreate(e as any);
+          }
+          e.stopPropagation();
+        }}
+      />
+      <Input
+        value={phone}
+        onChange={(e) => setPhone(e.target.value)}
+        placeholder="Phone (optional)"
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' && name.trim()) {
+            handleCreate(e as any);
+          }
+          e.stopPropagation();
+        }}
+      />
+      <div className="flex gap-2">
+        <Button
+          size="sm"
+          onClick={handleCreate}
+          disabled={!name.trim() || createClient.isPending}
+          className="flex-1"
+        >
+          {createClient.isPending ? <Loader2 className="w-3 h-3 animate-spin mr-1" /> : <Plus className="w-3 h-3 mr-1" />}
+          Add
         </Button>
-      </DialogTrigger>
-      <DialogContent className="sm:max-w-sm">
-        <DialogHeader>
-          <DialogTitle>Quick Add Client</DialogTitle>
-          <DialogDescription>Just a name is enough to get started. You can add details later.</DialogDescription>
-        </DialogHeader>
-        <div className="space-y-3 py-2">
-          <div>
-            <Label htmlFor="quick-client-name">Client Name *</Label>
-            <Input
-              id="quick-client-name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="e.g., Sharma Electronics"
-              className="mt-1"
-              autoFocus
-            />
-          </div>
-          <div>
-            <Label htmlFor="quick-client-phone">Phone (optional)</Label>
-            <Input
-              id="quick-client-phone"
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-              placeholder="9876543210"
-              className="mt-1"
-            />
-          </div>
-        </div>
-        <DialogFooter>
-          <Button onClick={handleCreate} disabled={!name.trim() || createClient.isPending}>
-            {createClient.isPending ? <Loader2 className="w-4 h-4 animate-spin mr-1" /> : <Plus className="w-4 h-4 mr-1" />}
-            Add Client
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+        <Button
+          size="sm"
+          variant="ghost"
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            setExpanded(false);
+            setName('');
+            setPhone('');
+          }}
+        >
+          Cancel
+        </Button>
+      </div>
+    </div>
   );
 }
