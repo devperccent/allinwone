@@ -535,18 +535,32 @@ export function InvoicePdfDocument({
         <View style={s.paymentFooter}>
           <View style={s.bankBox}>
             <Text style={s.sectionLabel}>Payment Information</Text>
-            <View style={{ flexDirection: 'row', gap: 20, marginTop: 4 }}>
-              <View>
-                <Text style={s.bankLabel}>Account Name</Text>
-                <Text style={s.bankValue}>{profile.org_name}</Text>
-              </View>
+            <View style={{ flexDirection: 'row', gap: 20, marginTop: 4, flexWrap: 'wrap' }}>
+              {profile.bank_account_name && (
+                <View>
+                  <Text style={s.bankLabel}>Account Name</Text>
+                  <Text style={s.bankValue}>{profile.bank_account_name}</Text>
+                </View>
+              )}
+              {profile.bank_account_number && (
+                <View>
+                  <Text style={s.bankLabel}>Account No.</Text>
+                  <Text style={s.bankValue}>{profile.bank_account_number}</Text>
+                </View>
+              )}
+              {profile.bank_ifsc && (
+                <View>
+                  <Text style={s.bankLabel}>IFSC</Text>
+                  <Text style={s.bankValue}>{profile.bank_ifsc}</Text>
+                </View>
+              )}
               {profile.upi_vpa && (
                 <View>
                   <Text style={s.bankLabel}>UPI ID</Text>
                   <Text style={s.bankValue}>{profile.upi_vpa}</Text>
                 </View>
               )}
-              {profile.email && (
+              {profile.email && !profile.bank_account_name && (
                 <View>
                   <Text style={s.bankLabel}>Email</Text>
                   <Text style={s.bankValue}>{profile.email}</Text>
