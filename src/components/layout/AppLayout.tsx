@@ -5,15 +5,23 @@ import { AppHeader } from './AppHeader';
 import { KeyboardShortcutsDialog } from './KeyboardShortcutsDialog';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
+import { useTheme } from '@/hooks/useTheme';
 
 export function AppLayout() {
   const isMobile = useIsMobile();
   const [searchOpen, setSearchOpen] = useState(false);
   const [shortcutsOpen, setShortcutsOpen] = useState(false);
+  const { theme, setTheme } = useTheme();
+
+  const toggleTheme = () => {
+    const isDark = theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+    setTheme(isDark ? 'light' : 'dark');
+  };
 
   useKeyboardShortcuts({
     onSearch: () => setSearchOpen((o) => !o),
     onHelp: () => setShortcutsOpen((o) => !o),
+    onToggleTheme: toggleTheme,
   });
 
   return (

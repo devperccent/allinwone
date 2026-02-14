@@ -4,9 +4,10 @@ import { useNavigate } from 'react-router-dom';
 interface ShortcutCallbacks {
   onSearch?: () => void;
   onHelp?: () => void;
+  onToggleTheme?: () => void;
 }
 
-export function useKeyboardShortcuts({ onSearch, onHelp }: ShortcutCallbacks = {}) {
+export function useKeyboardShortcuts({ onSearch, onHelp, onToggleTheme }: ShortcutCallbacks = {}) {
   const navigate = useNavigate();
   const gPressed = useRef(false);
   const gTimeout = useRef<ReturnType<typeof setTimeout>>();
@@ -71,6 +72,21 @@ export function useKeyboardShortcuts({ onSearch, onHelp }: ShortcutCallbacks = {
         navigate('/invoices/new');
         return;
       }
+
+      // Escape to blur focused element
+      if (e.key === 'Escape') {
+        if (document.activeElement && document.activeElement !== document.body) {
+          (document.activeElement as HTMLElement).blur?.();
+        }
+        return;
+      }
+
+      // Toggle theme with T
+      if (e.key === 't' && !e.metaKey && !e.ctrlKey && !e.altKey) {
+        e.preventDefault();
+        onToggleTheme?.();
+        return;
+      }
     };
 
     document.addEventListener('keydown', handler);
@@ -78,7 +94,7 @@ export function useKeyboardShortcuts({ onSearch, onHelp }: ShortcutCallbacks = {
       document.removeEventListener('keydown', handler);
       clearTimeout(gTimeout.current);
     };
-  }, [navigate, onSearch, onHelp, isInputFocused]);
+  }, [navigate, onSearch, onHelp, onToggleTheme, isInputFocused]);
 }
 
 export const SHORTCUT_GROUPS = [
@@ -88,6 +104,8 @@ export const SHORTCUT_GROUPS = [
       { keys: ['⌘', 'K'], description: 'Open search' },
       { keys: ['?'], description: 'Show keyboard shortcuts' },
       { keys: ['N'], description: 'New invoice' },
+      { keys: ['T'], description: 'Toggle dark/light mode' },
+      { keys: ['Esc'], description: 'Blur / dismiss' },
     ],
   },
   {
