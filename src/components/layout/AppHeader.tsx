@@ -1,5 +1,6 @@
-import { Bell, Search, Plus, Moon, Sun, Menu } from 'lucide-react';
+import { Search, Plus, Moon, Sun, Menu } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { NotificationBell } from './NotificationBell';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTheme } from '@/hooks/useTheme';
@@ -84,10 +85,7 @@ export function AppHeader({ searchOpen, onSearchOpenChange }: AppHeaderProps) {
           {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
         </Button>
         
-        <Button variant="ghost" size="icon" className="relative">
-          <Bell className="w-5 h-5" />
-          <span className="absolute top-1 right-1 w-2 h-2 bg-destructive rounded-full" />
-        </Button>
+        <NotificationBell />
         
         {!isMobile && (
           <div className="flex items-center gap-3 pl-3 border-l border-border">
