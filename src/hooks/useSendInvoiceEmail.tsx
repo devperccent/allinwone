@@ -12,6 +12,7 @@ interface SendInvoiceEmailOptions {
   client: Client | null;
   profile: Profile;
   recipientEmail: string;
+  showPaymentInfo?: boolean;
 }
 
 export function useSendInvoiceEmail() {
@@ -24,6 +25,7 @@ export function useSendInvoiceEmail() {
     client,
     profile,
     recipientEmail,
+    showPaymentInfo = true,
   }: SendInvoiceEmailOptions) => {
     setIsSending(true);
 
@@ -50,6 +52,7 @@ export function useSendInvoiceEmail() {
           client={client}
           profile={profile}
           qrCodeDataUrl={qrCodeDataUrl}
+          showPaymentInfo={showPaymentInfo}
         />
       );
       

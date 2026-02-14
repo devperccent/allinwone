@@ -9,6 +9,7 @@ interface UsePdfDownloadOptions {
   items: InvoiceItem[];
   client: Client | null;
   profile: Profile;
+  showPaymentInfo?: boolean;
 }
 
 export function usePdfDownload() {
@@ -19,6 +20,7 @@ export function usePdfDownload() {
     items,
     client,
     profile,
+    showPaymentInfo = true,
   }: UsePdfDownloadOptions) => {
     setIsGenerating(true);
     
@@ -45,6 +47,7 @@ export function usePdfDownload() {
           client={client}
           profile={profile}
           qrCodeDataUrl={qrCodeDataUrl}
+          showPaymentInfo={showPaymentInfo}
         />
       );
       

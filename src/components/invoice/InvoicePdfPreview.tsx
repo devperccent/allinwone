@@ -15,6 +15,7 @@ interface InvoicePdfPreviewProps {
   notes: string;
   profile?: Profile | null;
   status?: string;
+  showPaymentInfo?: boolean;
 }
 
 const TEAL = '#03556E';
@@ -54,6 +55,7 @@ export function InvoicePdfPreview({
   notes,
   profile,
   status = 'draft',
+  showPaymentInfo = true,
 }: InvoicePdfPreviewProps) {
   const [qrCodeUrl, setQrCodeUrl] = useState<string>('');
 
@@ -311,50 +313,52 @@ export function InvoicePdfPreview({
       )}
 
       {/* ═══ PAYMENT FOOTER ═══ */}
-      <div className="px-6 py-3 flex justify-between items-end" style={{ borderTop: `1px solid ${BORDER}` }}>
-        <div className="flex-1">
-          <h4 className="text-[7.5px] font-bold uppercase tracking-widest mb-1" style={{ color: TEAL }}>Payment Information</h4>
-          <div className="flex gap-5 mt-1">
-            {orgBankName && (
-              <div>
-                <p className="text-[8px]" style={{ color: GRAY_LIGHT }}>Account Name</p>
-                <p className="text-[9px]">{orgBankName}</p>
-              </div>
-            )}
-            {orgBankAccount && (
-              <div>
-                <p className="text-[8px]" style={{ color: GRAY_LIGHT }}>Account No.</p>
-                <p className="text-[9px]">{orgBankAccount}</p>
-              </div>
-            )}
-            {orgBankIfsc && (
-              <div>
-                <p className="text-[8px]" style={{ color: GRAY_LIGHT }}>IFSC</p>
-                <p className="text-[9px]">{orgBankIfsc}</p>
-              </div>
-            )}
-            {orgUpi && (
-              <div>
-                <p className="text-[8px]" style={{ color: GRAY_LIGHT }}>UPI ID</p>
-                <p className="text-[9px]">{orgUpi}</p>
-              </div>
-            )}
-            {orgEmail && !orgBankName && (
-              <div>
-                <p className="text-[8px]" style={{ color: GRAY_LIGHT }}>Email</p>
-                <p className="text-[9px]">{orgEmail}</p>
-              </div>
-            )}
+      {showPaymentInfo && (
+        <div className="px-6 py-3 flex justify-between items-end" style={{ borderTop: `1px solid ${BORDER}` }}>
+          <div className="flex-1">
+            <h4 className="text-[7.5px] font-bold uppercase tracking-widest mb-1" style={{ color: TEAL }}>Payment Information</h4>
+            <div className="flex gap-5 mt-1">
+              {orgBankName && (
+                <div>
+                  <p className="text-[8px]" style={{ color: GRAY_LIGHT }}>Account Name</p>
+                  <p className="text-[9px]">{orgBankName}</p>
+                </div>
+              )}
+              {orgBankAccount && (
+                <div>
+                  <p className="text-[8px]" style={{ color: GRAY_LIGHT }}>Account No.</p>
+                  <p className="text-[9px]">{orgBankAccount}</p>
+                </div>
+              )}
+              {orgBankIfsc && (
+                <div>
+                  <p className="text-[8px]" style={{ color: GRAY_LIGHT }}>IFSC</p>
+                  <p className="text-[9px]">{orgBankIfsc}</p>
+                </div>
+              )}
+              {orgUpi && (
+                <div>
+                  <p className="text-[8px]" style={{ color: GRAY_LIGHT }}>UPI ID</p>
+                  <p className="text-[9px]">{orgUpi}</p>
+                </div>
+              )}
+              {orgEmail && !orgBankName && (
+                <div>
+                  <p className="text-[8px]" style={{ color: GRAY_LIGHT }}>Email</p>
+                  <p className="text-[9px]">{orgEmail}</p>
+                </div>
+              )}
+            </div>
           </div>
+          {qrCodeUrl && (
+            <div className="text-center ml-4">
+              <p className="text-[7px] font-bold uppercase tracking-wider mb-0.5" style={{ color: TEAL }}>Scan to Pay</p>
+              <img src={qrCodeUrl} alt="UPI QR Code" className="w-16 h-16" />
+              <p className="text-[7.5px] mt-0.5" style={{ color: GRAY }}>UPI Payment</p>
+            </div>
+          )}
         </div>
-        {qrCodeUrl && (
-          <div className="text-center ml-4">
-            <p className="text-[7px] font-bold uppercase tracking-wider mb-0.5" style={{ color: TEAL }}>Scan to Pay</p>
-            <img src={qrCodeUrl} alt="UPI QR Code" className="w-16 h-16" />
-            <p className="text-[7.5px] mt-0.5" style={{ color: GRAY }}>UPI Payment</p>
-          </div>
-        )}
-      </div>
+      )}
 
       {/* ═══ THANK YOU ═══ */}
       <div className="py-2.5 text-center" style={{ backgroundColor: TEAL_LIGHT }}>

@@ -60,6 +60,7 @@ import { InlineClientCreate } from '@/components/invoice/InlineClientCreate';
 import { InlineProductCreate } from '@/components/invoice/InlineProductCreate';
 import { InlineRestock } from '@/components/invoice/InlineRestock';
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/components/ui/resizable';
+import { Switch } from '@/components/ui/switch';
 import { useAuth } from '@/contexts/AuthContext';
 import { useClients } from '@/hooks/useClients';
 import { useProducts } from '@/hooks/useProducts';
@@ -403,6 +404,7 @@ export default function InvoiceEditor() {
   const [dateDue, setDateDue] = useState('');
   const [notes, setNotes] = useState('');
   const [items, setItems] = useState<InvoiceItemFormData[]>([createEmptyItem()]);
+  const [showPaymentInfo, setShowPaymentInfo] = useState(true);
   const [clientOpen, setClientOpen] = useState(false);
   const [invoiceNumber, setInvoiceNumber] = useState('');
   const [currentInvoice, setCurrentInvoice] = useState<Invoice | null>(null);
@@ -665,6 +667,7 @@ export default function InvoiceEditor() {
       items: invoiceItems,
       client: selectedClient,
       profile,
+      showPaymentInfo,
     });
   };
 
@@ -695,6 +698,7 @@ export default function InvoiceEditor() {
       client: selectedClient,
       profile,
       recipientEmail: emailRecipient,
+      showPaymentInfo,
     });
 
     if (success) {
@@ -1073,6 +1077,19 @@ export default function InvoiceEditor() {
                       rows={3}
                     />
                   </div>
+
+                  {/* Payment Info Toggle */}
+                  <div className="rounded-xl border border-border bg-card p-5 flex items-center justify-between">
+                    <div>
+                      <Label htmlFor="paymentToggle" className="text-sm font-semibold">Show Payment Info</Label>
+                      <p className="text-xs text-muted-foreground mt-0.5">Include bank details & UPI QR on the invoice</p>
+                    </div>
+                    <Switch
+                      id="paymentToggle"
+                      checked={showPaymentInfo}
+                      onCheckedChange={setShowPaymentInfo}
+                    />
+                  </div>
                 </div>
               </div>
             </ResizablePanel>
@@ -1094,6 +1111,7 @@ export default function InvoiceEditor() {
                     notes={notes}
                     profile={profile}
                     status={currentInvoice?.status || 'draft'}
+                    showPaymentInfo={showPaymentInfo}
                   />
                 </div>
               </div>
@@ -1317,6 +1335,19 @@ export default function InvoiceEditor() {
                   placeholder="Payment terms, bank details, etc."
                   className="mt-1.5"
                   rows={3}
+                />
+              </div>
+
+              {/* Payment Info Toggle */}
+              <div className="rounded-xl border border-border bg-card p-5 flex items-center justify-between">
+                <div>
+                  <Label htmlFor="paymentToggleMobile" className="text-sm font-semibold">Show Payment Info</Label>
+                  <p className="text-xs text-muted-foreground mt-0.5">Include bank details & UPI QR on the invoice</p>
+                </div>
+                <Switch
+                  id="paymentToggleMobile"
+                  checked={showPaymentInfo}
+                  onCheckedChange={setShowPaymentInfo}
                 />
               </div>
             </div>
