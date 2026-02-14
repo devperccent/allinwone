@@ -58,6 +58,7 @@ import type { Client, Product, InvoiceItemFormData, Invoice, InvoiceItem } from 
 import { InvoicePdfPreview } from '@/components/invoice/InvoicePdfPreview';
 import { InlineClientCreate } from '@/components/invoice/InlineClientCreate';
 import { InlineProductCreate } from '@/components/invoice/InlineProductCreate';
+import { InlineRestock } from '@/components/invoice/InlineRestock';
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/components/ui/resizable';
 import { useAuth } from '@/contexts/AuthContext';
 import { useClients } from '@/hooks/useClients';
@@ -240,8 +241,10 @@ function SortableLineItem({
                                   {product.sku} • {formatINR(product.selling_price)}
                                   {product.type === 'goods' && ` • Stock: ${product.stock_quantity}`}
                                 </p>
-                                {isZeroStock && (
-                                  <div className="flex items-center gap-2 mt-1">
+                                {(isZeroStock || isLowStockProduct) && (
+                                  <div className="flex items-center gap-2 mt-1 flex-wrap">
+                                    <InlineRestock product={product} />
+                                    <span className="text-[10px] text-muted-foreground">•</span>
                                     <button
                                       type="button"
                                       className="text-[11px] text-primary hover:underline font-medium"
@@ -253,18 +256,22 @@ function SortableLineItem({
                                     >
                                       Manage stock →
                                     </button>
-                                    <span className="text-[10px] text-muted-foreground">or</span>
-                                    <button
-                                      type="button"
-                                      className="text-[11px] text-primary hover:underline font-medium"
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        e.preventDefault();
-                                        handleProductSelect(product);
-                                      }}
-                                    >
-                                      Use anyway
-                                    </button>
+                                    {isZeroStock && (
+                                      <>
+                                        <span className="text-[10px] text-muted-foreground">•</span>
+                                        <button
+                                          type="button"
+                                          className="text-[11px] text-muted-foreground hover:text-foreground hover:underline font-medium"
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            e.preventDefault();
+                                            handleProductSelect(product);
+                                          }}
+                                        >
+                                          Use anyway
+                                        </button>
+                                      </>
+                                    )}
                                   </div>
                                 )}
                               </div>
