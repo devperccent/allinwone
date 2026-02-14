@@ -1,13 +1,13 @@
 import { Bell, Search, Plus, Moon, Sun, Menu } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTheme } from '@/hooks/useTheme';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { AppSidebar } from './AppSidebar';
+import { GlobalSearch } from './GlobalSearch';
 
 export function AppHeader() {
   const navigate = useNavigate();
@@ -15,6 +15,18 @@ export function AppHeader() {
   const { theme, setTheme } = useTheme();
   const isMobile = useIsMobile();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
+
+  useEffect(() => {
+    const down = (e: KeyboardEvent) => {
+      if (e.key === 'k' && (e.metaKey || e.ctrlKey)) {
+        e.preventDefault();
+        setSearchOpen((open) => !open);
+      }
+    };
+    document.addEventListener('keydown', down);
+    return () => document.removeEventListener('keydown', down);
+  }, []);
 
   const initials = profile?.org_name
     ?.split(' ')
@@ -41,18 +53,26 @@ export function AppHeader() {
             </SheetContent>
           </Sheet>
         )}
-        <div className="relative flex-1 max-w-sm hidden sm:block">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-          <Input
-            type="search"
-            placeholder="Search invoices, clients..."
-            className="pl-10 bg-muted/30 border-transparent focus:border-primary focus:bg-background"
-          />
-        </div>
+        <button
+          onClick={() => setSearchOpen(true)}
+          className="relative flex-1 max-w-sm hidden sm:flex items-center gap-2 h-9 rounded-md border border-transparent bg-muted/30 px-3 text-sm text-muted-foreground hover:bg-muted/50 transition-colors cursor-pointer"
+        >
+          <Search className="w-4 h-4 shrink-0" />
+          <span>Search invoices, clients...</span>
+          <kbd className="ml-auto pointer-events-none hidden md:inline-flex h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground">
+            <span className="text-xs">⌘</span>K
+          </kbd>
+        </button>
       </div>
 
       {/* Actions */}
       <div className="flex items-center gap-1.5 md:gap-3 shrink-0">
+        {isMobile && (
+          <Button variant="ghost" size="icon" onClick={() => setSearchOpen(true)}>
+            <Search className="w-5 h-5" />
+          </Button>
+        )}
+
         <Button
           onClick={() => navigate('/invoices/new')}
           size={isMobile ? 'icon' : 'default'}
@@ -84,6 +104,8 @@ export function AppHeader() {
           </div>
         )}
       </div>
+
+      <GlobalSearch open={searchOpen} onOpenChange={setSearchOpen} />
     </header>
   );
 }
