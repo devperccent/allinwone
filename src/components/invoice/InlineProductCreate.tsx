@@ -2,7 +2,11 @@ import { useState } from 'react';
 import { Plus, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Switch } from '@/components/ui/switch';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useProducts } from '@/hooks/useProducts';
+import { GST_RATES } from '@/types';
 import type { Product } from '@/types';
 
 interface InlineProductCreateProps {
@@ -15,6 +19,8 @@ export function InlineProductCreate({ onCreated, triggerLabel }: InlineProductCr
   const [expanded, setExpanded] = useState(false);
   const [name, setName] = useState('');
   const [price, setPrice] = useState('');
+  const [useCustomGst, setUseCustomGst] = useState(false);
+  const [taxRate, setTaxRate] = useState('18');
 
   const generateSku = () => {
     const prefix = name.trim().substring(0, 3).toUpperCase() || 'PRD';
@@ -30,6 +36,7 @@ export function InlineProductCreate({ onCreated, triggerLabel }: InlineProductCr
         sku: generateSku(),
         type: 'goods',
         selling_price: parseFloat(price) || 0,
+        tax_rate: useCustomGst ? parseFloat(taxRate) || 18 : 18,
         stock_quantity: 0,
         low_stock_limit: 10,
       },
@@ -39,6 +46,8 @@ export function InlineProductCreate({ onCreated, triggerLabel }: InlineProductCr
           setExpanded(false);
           setName('');
           setPrice('');
+          setUseCustomGst(false);
+          setTaxRate('18');
         },
       }
     );
@@ -88,6 +97,27 @@ export function InlineProductCreate({ onCreated, triggerLabel }: InlineProductCr
           e.stopPropagation();
         }}
       />
+      <div className="flex items-center justify-between py-1">
+        <Label htmlFor="inlineCustomGst" className="text-xs cursor-pointer">Custom GST</Label>
+        <Switch 
+          id="inlineCustomGst"
+          checked={useCustomGst} 
+          onCheckedChange={setUseCustomGst}
+          className="scale-75"
+        />
+      </div>
+      {useCustomGst && (
+        <Select value={taxRate} onValueChange={setTaxRate}>
+          <SelectTrigger className="h-8 text-xs">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {GST_RATES.map((rate) => (
+              <SelectItem key={rate} value={String(rate)}>{rate}% GST</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      )}
       <div className="flex gap-2">
         <Button
           size="sm"
@@ -107,6 +137,8 @@ export function InlineProductCreate({ onCreated, triggerLabel }: InlineProductCr
             setExpanded(false);
             setName('');
             setPrice('');
+            setUseCustomGst(false);
+            setTaxRate('18');
           }}
         >
           Cancel

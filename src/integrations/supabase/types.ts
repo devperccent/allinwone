@@ -328,6 +328,7 @@ export type Database = {
           selling_price: number
           sku: string
           stock_quantity: number
+          tax_rate: number
           type: string
           updated_at: string
         }
@@ -342,6 +343,7 @@ export type Database = {
           selling_price?: number
           sku: string
           stock_quantity?: number
+          tax_rate?: number
           type?: string
           updated_at?: string
         }
@@ -356,6 +358,7 @@ export type Database = {
           selling_price?: number
           sku?: string
           stock_quantity?: number
+          tax_rate?: number
           type?: string
           updated_at?: string
         }

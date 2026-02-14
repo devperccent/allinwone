@@ -53,6 +53,7 @@ import { cn } from '@/lib/utils';
 import { Skeleton } from '@/components/ui/skeleton';
 import type { Product, ProductType } from '@/types';
 import { GST_RATES } from '@/types';
+import { Switch } from '@/components/ui/switch';
 import { format } from 'date-fns';
 
 export default function ProductsPage() {
@@ -71,6 +72,8 @@ export default function ProductsPage() {
     hsn_code: '',
     stock_quantity: '',
     low_stock_limit: '10',
+    useCustomGst: false,
+    tax_rate: '18',
   });
 
   const filteredProducts = products.filter((product) =>
@@ -88,6 +91,7 @@ export default function ProductsPage() {
       type: formData.type,
       selling_price: parseFloat(formData.selling_price) || 0,
       hsn_code: formData.hsn_code || undefined,
+      tax_rate: formData.useCustomGst ? parseFloat(formData.tax_rate) || 18 : 18,
       stock_quantity: parseInt(formData.stock_quantity) || 0,
       low_stock_limit: parseInt(formData.low_stock_limit) || 10,
     }, {
@@ -101,6 +105,8 @@ export default function ProductsPage() {
           hsn_code: '',
           stock_quantity: '',
           low_stock_limit: '10',
+          useCustomGst: false,
+          tax_rate: '18',
         });
       },
     });
@@ -203,6 +209,35 @@ export default function ProductsPage() {
                   />
                 </div>
               </div>
+              <div className="flex items-center justify-between p-3 rounded-lg border border-border bg-muted/30">
+                <div>
+                  <Label htmlFor="customGst" className="text-sm font-medium cursor-pointer">Custom GST Rate</Label>
+                  <p className="text-xs text-muted-foreground">Default is 18%. Toggle to set a different rate.</p>
+                </div>
+                <Switch 
+                  id="customGst"
+                  checked={formData.useCustomGst} 
+                  onCheckedChange={(checked) => setFormData(prev => ({ ...prev, useCustomGst: checked }))} 
+                />
+              </div>
+              {formData.useCustomGst && (
+                <div className="grid gap-2">
+                  <Label htmlFor="taxRate">GST Rate (%)</Label>
+                  <Select 
+                    value={formData.tax_rate} 
+                    onValueChange={(v) => setFormData(prev => ({ ...prev, tax_rate: v }))}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {GST_RATES.map((rate) => (
+                        <SelectItem key={rate} value={String(rate)}>{rate}%</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
               {formData.type === 'goods' && (
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="grid gap-2">

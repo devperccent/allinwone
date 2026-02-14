@@ -37,6 +37,7 @@ export interface Product {
   type: ProductType;
   hsn_code: string | null;
   selling_price: number;
+  tax_rate: number;
   stock_quantity: number;
   low_stock_limit: number;
   created_at: string;
