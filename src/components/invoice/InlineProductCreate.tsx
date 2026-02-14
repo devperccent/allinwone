@@ -19,6 +19,8 @@ export function InlineProductCreate({ onCreated, triggerLabel }: InlineProductCr
   const [expanded, setExpanded] = useState(false);
   const [name, setName] = useState('');
   const [price, setPrice] = useState('');
+  const [stockQty, setStockQty] = useState('');
+  const [lowStockLimit, setLowStockLimit] = useState('10');
   const [useCustomGst, setUseCustomGst] = useState(false);
   const [taxRate, setTaxRate] = useState('18');
 
@@ -37,8 +39,8 @@ export function InlineProductCreate({ onCreated, triggerLabel }: InlineProductCr
         type: 'goods',
         selling_price: parseFloat(price) || 0,
         tax_rate: useCustomGst ? parseFloat(taxRate) || 18 : 18,
-        stock_quantity: 0,
-        low_stock_limit: 10,
+        stock_quantity: parseInt(stockQty) || 0,
+        low_stock_limit: parseInt(lowStockLimit) || 10,
       },
       {
         onSuccess: (data) => {
@@ -46,6 +48,8 @@ export function InlineProductCreate({ onCreated, triggerLabel }: InlineProductCr
           setExpanded(false);
           setName('');
           setPrice('');
+          setStockQty('');
+          setLowStockLimit('10');
           setUseCustomGst(false);
           setTaxRate('18');
         },
@@ -97,6 +101,22 @@ export function InlineProductCreate({ onCreated, triggerLabel }: InlineProductCr
           e.stopPropagation();
         }}
       />
+      <div className="grid grid-cols-2 gap-2">
+        <Input
+          type="number"
+          value={stockQty}
+          onChange={(e) => setStockQty(e.target.value)}
+          placeholder="Stock qty"
+          onKeyDown={(e) => e.stopPropagation()}
+        />
+        <Input
+          type="number"
+          value={lowStockLimit}
+          onChange={(e) => setLowStockLimit(e.target.value)}
+          placeholder="Low stock alert"
+          onKeyDown={(e) => e.stopPropagation()}
+        />
+      </div>
       <div className="flex items-center justify-between py-1">
         <Label htmlFor="inlineCustomGst" className="text-xs cursor-pointer">Custom GST</Label>
         <Switch 
@@ -137,6 +157,8 @@ export function InlineProductCreate({ onCreated, triggerLabel }: InlineProductCr
             setExpanded(false);
             setName('');
             setPrice('');
+            setStockQty('');
+            setLowStockLimit('10');
             setUseCustomGst(false);
             setTaxRate('18');
           }}
