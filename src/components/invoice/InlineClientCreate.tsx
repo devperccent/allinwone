@@ -14,18 +14,20 @@ export function InlineClientCreate({ onCreated, triggerLabel }: InlineClientCrea
   const { createClient } = useClients();
   const [expanded, setExpanded] = useState(false);
   const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
 
   const handleCreate = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     createClient.mutate(
-      { name, phone: phone || undefined, state_code: '27' },
+      { name, email: email || undefined, phone: phone || undefined, state_code: '27' },
       {
         onSuccess: (data) => {
           onCreated(data as Client);
           setExpanded(false);
           setName('');
+          setEmail('');
           setPhone('');
         },
       }
@@ -58,9 +60,17 @@ export function InlineClientCreate({ onCreated, triggerLabel }: InlineClientCrea
         placeholder="Client name *"
         autoFocus
         onKeyDown={(e) => {
-          if (e.key === 'Enter' && name.trim()) {
-            handleCreate(e as any);
-          }
+          if (e.key === 'Enter' && name.trim()) handleCreate(e as any);
+          e.stopPropagation();
+        }}
+      />
+      <Input
+        type="email"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+        placeholder="Email (optional)"
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' && name.trim()) handleCreate(e as any);
           e.stopPropagation();
         }}
       />
@@ -69,9 +79,7 @@ export function InlineClientCreate({ onCreated, triggerLabel }: InlineClientCrea
         onChange={(e) => setPhone(e.target.value)}
         placeholder="Phone (optional)"
         onKeyDown={(e) => {
-          if (e.key === 'Enter' && name.trim()) {
-            handleCreate(e as any);
-          }
+          if (e.key === 'Enter' && name.trim()) handleCreate(e as any);
           e.stopPropagation();
         }}
       />
@@ -93,6 +101,7 @@ export function InlineClientCreate({ onCreated, triggerLabel }: InlineClientCrea
             e.stopPropagation();
             setExpanded(false);
             setName('');
+            setEmail('');
             setPhone('');
           }}
         >
