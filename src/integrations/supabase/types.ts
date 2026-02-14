@@ -328,6 +328,10 @@ export type Database = {
       profiles: {
         Row: {
           address: string | null
+          bank_account_name: string | null
+          bank_account_number: string | null
+          bank_ifsc: string | null
+          business_type: string | null
           created_at: string
           email: string | null
           gstin: string | null
@@ -337,6 +341,7 @@ export type Database = {
           next_invoice_number: number
           onboarding_completed: boolean
           org_name: string
+          pan_number: string | null
           phone: string | null
           state_code: string
           updated_at: string
@@ -345,6 +350,10 @@ export type Database = {
         }
         Insert: {
           address?: string | null
+          bank_account_name?: string | null
+          bank_account_number?: string | null
+          bank_ifsc?: string | null
+          business_type?: string | null
           created_at?: string
           email?: string | null
           gstin?: string | null
@@ -354,6 +363,7 @@ export type Database = {
           next_invoice_number?: number
           onboarding_completed?: boolean
           org_name: string
+          pan_number?: string | null
           phone?: string | null
           state_code?: string
           updated_at?: string
@@ -362,6 +372,10 @@ export type Database = {
         }
         Update: {
           address?: string | null
+          bank_account_name?: string | null
+          bank_account_number?: string | null
+          bank_ifsc?: string | null
+          business_type?: string | null
           created_at?: string
           email?: string | null
           gstin?: string | null
@@ -371,6 +385,7 @@ export type Database = {
           next_invoice_number?: number
           onboarding_completed?: boolean
           org_name?: string
+          pan_number?: string | null
           phone?: string | null
           state_code?: string
           updated_at?: string
