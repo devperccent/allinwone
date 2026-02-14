@@ -119,6 +119,7 @@ function SortableLineItem({
   products: Product[];
   canRemove: boolean;
 }) {
+  const navigate = useNavigate();
   const {
     attributes,
     listeners,
@@ -209,21 +210,67 @@ function SortableLineItem({
                         </div>
                       </CommandEmpty>
                       <CommandGroup>
-                        {products.map((product) => (
-                          <CommandItem
-                            key={product.id}
-                            value={product.name}
-                            onSelect={() => handleProductSelect(product)}
-                          >
-                            <div className="flex-1">
-                              <p className="font-medium">{product.name}</p>
-                              <p className="text-xs text-muted-foreground">
-                                {product.sku} • {formatINR(product.selling_price)}
-                                {product.type === 'goods' && ` • Stock: ${product.stock_quantity}`}
-                              </p>
-                            </div>
-                          </CommandItem>
-                        ))}
+                        {products.map((product) => {
+                          const isZeroStock = product.type === 'goods' && product.stock_quantity <= 0;
+                          const isLowStockProduct = product.type === 'goods' && product.stock_quantity > 0 && product.stock_quantity <= product.low_stock_limit;
+                          return (
+                            <CommandItem
+                              key={product.id}
+                              value={product.name}
+                              onSelect={() => handleProductSelect(product)}
+                              className={cn(
+                                isZeroStock && 'opacity-70'
+                              )}
+                            >
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center gap-2">
+                                  <p className="font-medium truncate">{product.name}</p>
+                                  {isZeroStock && (
+                                    <span className="shrink-0 text-[10px] font-semibold uppercase tracking-wider text-destructive bg-destructive/10 px-1.5 py-0.5 rounded">
+                                      Zero Stock
+                                    </span>
+                                  )}
+                                  {isLowStockProduct && (
+                                    <span className="shrink-0 text-[10px] font-semibold uppercase tracking-wider text-warning bg-warning/10 px-1.5 py-0.5 rounded">
+                                      Low Stock
+                                    </span>
+                                  )}
+                                </div>
+                                <p className="text-xs text-muted-foreground">
+                                  {product.sku} • {formatINR(product.selling_price)}
+                                  {product.type === 'goods' && ` • Stock: ${product.stock_quantity}`}
+                                </p>
+                                {isZeroStock && (
+                                  <div className="flex items-center gap-2 mt-1">
+                                    <button
+                                      type="button"
+                                      className="text-[11px] text-primary hover:underline font-medium"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        e.preventDefault();
+                                        navigate('/products');
+                                      }}
+                                    >
+                                      Manage stock →
+                                    </button>
+                                    <span className="text-[10px] text-muted-foreground">or</span>
+                                    <button
+                                      type="button"
+                                      className="text-[11px] text-primary hover:underline font-medium"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        e.preventDefault();
+                                        handleProductSelect(product);
+                                      }}
+                                    >
+                                      Use anyway
+                                    </button>
+                                  </div>
+                                )}
+                              </div>
+                            </CommandItem>
+                          );
+                        })}
                       </CommandGroup>
                       <div className="border-t border-border p-1">
                         <InlineProductCreate
