@@ -235,6 +235,7 @@ interface InvoicePdfDocumentProps {
   client: Client | null;
   profile: Profile;
   qrCodeDataUrl?: string;
+  showPaymentInfo?: boolean;
 }
 
 // ── Helpers ──
@@ -293,6 +294,7 @@ export function InvoicePdfDocument({
   client,
   profile,
   qrCodeDataUrl,
+  showPaymentInfo = true,
 }: InvoicePdfDocumentProps) {
   const isIntraState = !client || profile.state_code === client.state_code;
   const statusStyle = getStatusStyle(invoice.status);
@@ -532,50 +534,52 @@ export function InvoicePdfDocument({
         </View>
 
         {/* ═══ PAYMENT FOOTER (Bank + QR) ═══ */}
-        <View style={s.paymentFooter}>
-          <View style={s.bankBox}>
-            <Text style={s.sectionLabel}>Payment Information</Text>
-            <View style={{ flexDirection: 'row', gap: 20, marginTop: 4, flexWrap: 'wrap' }}>
-              {profile.bank_account_name && (
-                <View>
-                  <Text style={s.bankLabel}>Account Name</Text>
-                  <Text style={s.bankValue}>{profile.bank_account_name}</Text>
-                </View>
-              )}
-              {profile.bank_account_number && (
-                <View>
-                  <Text style={s.bankLabel}>Account No.</Text>
-                  <Text style={s.bankValue}>{profile.bank_account_number}</Text>
-                </View>
-              )}
-              {profile.bank_ifsc && (
-                <View>
-                  <Text style={s.bankLabel}>IFSC</Text>
-                  <Text style={s.bankValue}>{profile.bank_ifsc}</Text>
-                </View>
-              )}
-              {profile.upi_vpa && (
-                <View>
-                  <Text style={s.bankLabel}>UPI ID</Text>
-                  <Text style={s.bankValue}>{profile.upi_vpa}</Text>
-                </View>
-              )}
-              {profile.email && !profile.bank_account_name && (
-                <View>
-                  <Text style={s.bankLabel}>Email</Text>
-                  <Text style={s.bankValue}>{profile.email}</Text>
-                </View>
-              )}
+        {showPaymentInfo && (
+          <View style={s.paymentFooter}>
+            <View style={s.bankBox}>
+              <Text style={s.sectionLabel}>Payment Information</Text>
+              <View style={{ flexDirection: 'row', gap: 20, marginTop: 4, flexWrap: 'wrap' }}>
+                {profile.bank_account_name && (
+                  <View>
+                    <Text style={s.bankLabel}>Account Name</Text>
+                    <Text style={s.bankValue}>{profile.bank_account_name}</Text>
+                  </View>
+                )}
+                {profile.bank_account_number && (
+                  <View>
+                    <Text style={s.bankLabel}>Account No.</Text>
+                    <Text style={s.bankValue}>{profile.bank_account_number}</Text>
+                  </View>
+                )}
+                {profile.bank_ifsc && (
+                  <View>
+                    <Text style={s.bankLabel}>IFSC</Text>
+                    <Text style={s.bankValue}>{profile.bank_ifsc}</Text>
+                  </View>
+                )}
+                {profile.upi_vpa && (
+                  <View>
+                    <Text style={s.bankLabel}>UPI ID</Text>
+                    <Text style={s.bankValue}>{profile.upi_vpa}</Text>
+                  </View>
+                )}
+                {profile.email && !profile.bank_account_name && (
+                  <View>
+                    <Text style={s.bankLabel}>Email</Text>
+                    <Text style={s.bankValue}>{profile.email}</Text>
+                  </View>
+                )}
+              </View>
             </View>
+            {qrCodeDataUrl && (
+              <View style={s.qrBox}>
+                <Text style={s.qrLabel}>Scan to Pay</Text>
+                <Image src={qrCodeDataUrl} style={{ width: 76, height: 76, borderRadius: 4 }} />
+                <Text style={s.qrCaption}>UPI Payment</Text>
+              </View>
+            )}
           </View>
-          {qrCodeDataUrl && (
-            <View style={s.qrBox}>
-              <Text style={s.qrLabel}>Scan to Pay</Text>
-              <Image src={qrCodeDataUrl} style={{ width: 76, height: 76, borderRadius: 4 }} />
-              <Text style={s.qrCaption}>UPI Payment</Text>
-            </View>
-          )}
-        </View>
+        )}
 
         {/* ═══ THANK YOU BANNER ═══ */}
         <View style={s.thankYou}>
