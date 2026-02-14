@@ -15,8 +15,6 @@ import { Progress } from '@/components/ui/progress';
 import { INDIAN_STATES } from '@/types';
 import { useAuth } from '@/contexts/AuthContext';
 import { useProfile } from '@/hooks/useProfile';
-import { useClients } from '@/hooks/useClients';
-import { useProducts } from '@/hooks/useProducts';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { LogoUpload } from '@/components/LogoUpload';
@@ -26,8 +24,6 @@ const steps = [
   { id: 'location', label: 'Tax & Address', icon: MapPin, description: 'Location, GSTIN, and PAN details' },
   { id: 'payment', label: 'Payment', icon: CreditCard, description: 'UPI and bank account details' },
   { id: 'invoice', label: 'Invoicing', icon: FileText, description: 'Customize your invoice format' },
-  { id: 'client', label: 'First Client', icon: Users, description: 'Add your first client to get started' },
-  { id: 'product', label: 'First Product', icon: Package, description: 'Add a product or service you sell' },
   { id: 'welcome', label: 'Ready!', icon: Rocket, description: "You're all set to go" },
 ];
 
@@ -50,8 +46,6 @@ export default function OnboardingPage() {
   const navigate = useNavigate();
   const { profile, refreshProfile } = useAuth();
   const { updateProfile, isUpdating } = useProfile();
-  const { createClient } = useClients();
-  const { createProduct } = useProducts();
   const { toast } = useToast();
 
   const [currentStep, setCurrentStep] = useState(0);
@@ -72,17 +66,6 @@ export default function OnboardingPage() {
   const [invoicePrefix, setInvoicePrefix] = useState(profile?.invoice_prefix || 'INV-');
   const [nextNumber, setNextNumber] = useState(profile?.next_invoice_number || 1);
 
-  // First client state
-  const [clientName, setClientName] = useState('');
-  const [clientPhone, setClientPhone] = useState('');
-  const [clientEmail, setClientEmail] = useState('');
-  const [clientCreated, setClientCreated] = useState(false);
-
-  // First product state
-  const [productName, setProductName] = useState('');
-  const [productPrice, setProductPrice] = useState('');
-  const [productType, setProductType] = useState<'goods' | 'service'>('goods');
-  const [productCreated, setProductCreated] = useState(false);
 
   const progress = ((currentStep + 1) / steps.length) * 100;
 
@@ -92,9 +75,7 @@ export default function OnboardingPage() {
       case 1: return stateCode.length > 0;
       case 2: return true;
       case 3: return invoicePrefix.trim().length > 0;
-      case 4: return true; // client is optional
-      case 5: return true; // product is optional
-      case 6: return true;
+      case 4: return true;
       default: return true;
     }
   };
@@ -111,40 +92,6 @@ export default function OnboardingPage() {
     }
   };
 
-  const handleCreateClient = () => {
-    if (!clientName.trim()) return;
-    createClient.mutate(
-      { name: clientName, phone: clientPhone || undefined, email: clientEmail || undefined, state_code: stateCode },
-      {
-        onSuccess: () => {
-          setClientCreated(true);
-          toast({ title: 'Client added! 🎉', description: `${clientName} is ready for invoicing.` });
-        },
-      }
-    );
-  };
-
-  const handleCreateProduct = () => {
-    if (!productName.trim()) return;
-    const prefix = productName.trim().substring(0, 3).toUpperCase() || 'PRD';
-    const sku = `${prefix}-${Date.now().toString(36).toUpperCase().slice(-4)}`;
-    createProduct.mutate(
-      {
-        name: productName,
-        sku,
-        type: productType,
-        selling_price: parseFloat(productPrice) || 0,
-        stock_quantity: 0,
-        low_stock_limit: 10,
-      },
-      {
-        onSuccess: () => {
-          setProductCreated(true);
-          toast({ title: 'Product added! 🎉', description: `${productName} is ready to use.` });
-        },
-      }
-    );
-  };
 
   const handleFinish = async () => {
     if (!profile) return;
@@ -388,100 +335,8 @@ export default function OnboardingPage() {
               </div>
             )}
 
-            {/* Step 4: First Client */}
+            {/* Step 4: Welcome / Ready */}
             {currentStep === 4 && (
-              <div className="space-y-4">
-                {clientCreated ? (
-                  <div className="text-center py-6 space-y-3">
-                    <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mx-auto">
-                      <Check className="w-7 h-7 text-primary" />
-                    </div>
-                    <div>
-                      <p className="font-semibold text-lg">{clientName} added!</p>
-                      <p className="text-sm text-muted-foreground">You can add more clients later from the Clients page.</p>
-                    </div>
-                  </div>
-                ) : (
-                  <>
-                    <div>
-                      <Label htmlFor="clientName">Client / Customer Name</Label>
-                      <Input id="clientName" value={clientName} onChange={(e) => setClientName(e.target.value)} placeholder="e.g., Gupta Electronics" className="mt-1.5" autoFocus />
-                    </div>
-                    <div className="grid grid-cols-2 gap-3">
-                      <div>
-                        <Label htmlFor="clientPhone">Phone</Label>
-                        <Input id="clientPhone" value={clientPhone} onChange={(e) => setClientPhone(e.target.value)} placeholder="98765 43210" className="mt-1.5" />
-                      </div>
-                      <div>
-                        <Label htmlFor="clientEmail">Email</Label>
-                        <Input id="clientEmail" type="email" value={clientEmail} onChange={(e) => setClientEmail(e.target.value)} placeholder="client@email.com" className="mt-1.5" />
-                      </div>
-                    </div>
-                    <div className="flex gap-2">
-                      <Button onClick={handleCreateClient} disabled={!clientName.trim() || createClient.isPending} className="flex-1">
-                        {createClient.isPending ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Users className="w-4 h-4 mr-2" />}
-                        Add Client
-                      </Button>
-                    </div>
-                    <p className="text-xs text-muted-foreground text-center">
-                      You can also skip this and add clients later, or create them inline while making an invoice.
-                    </p>
-                  </>
-                )}
-              </div>
-            )}
-
-            {/* Step 5: First Product */}
-            {currentStep === 5 && (
-              <div className="space-y-4">
-                {productCreated ? (
-                  <div className="text-center py-6 space-y-3">
-                    <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mx-auto">
-                      <Check className="w-7 h-7 text-primary" />
-                    </div>
-                    <div>
-                      <p className="font-semibold text-lg">{productName} added!</p>
-                      <p className="text-sm text-muted-foreground">You can add more products later from the Products page.</p>
-                    </div>
-                  </div>
-                ) : (
-                  <>
-                    <div>
-                      <Label htmlFor="productName">Product / Service Name</Label>
-                      <Input id="productName" value={productName} onChange={(e) => setProductName(e.target.value)} placeholder="e.g., Wireless Mouse, Web Design" className="mt-1.5" autoFocus />
-                    </div>
-                    <div className="grid grid-cols-2 gap-3">
-                      <div>
-                        <Label htmlFor="productPrice">Selling Price (₹)</Label>
-                        <Input id="productPrice" type="number" value={productPrice} onChange={(e) => setProductPrice(e.target.value)} placeholder="0.00" className="mt-1.5" />
-                      </div>
-                      <div>
-                        <Label>Type</Label>
-                        <Select value={productType} onValueChange={(v) => setProductType(v as 'goods' | 'service')}>
-                          <SelectTrigger className="mt-1.5">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="goods">Goods (with inventory)</SelectItem>
-                            <SelectItem value="service">Service (no stock)</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    </div>
-                    <Button onClick={handleCreateProduct} disabled={!productName.trim() || createProduct.isPending} className="w-full">
-                      {createProduct.isPending ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Package className="w-4 h-4 mr-2" />}
-                      Add Product
-                    </Button>
-                    <p className="text-xs text-muted-foreground text-center">
-                      SKU is auto-generated. You can skip and add products later or inline during invoicing.
-                    </p>
-                  </>
-                )}
-              </div>
-            )}
-
-            {/* Step 6: Welcome / Ready */}
-            {currentStep === 6 && (
               <div className="text-center py-4 space-y-5">
                 <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto">
                   <Rocket className="w-8 h-8 text-primary" />
@@ -525,7 +380,7 @@ export default function OnboardingPage() {
 
               {currentStep < steps.length - 1 ? (
                 <Button onClick={handleNext} disabled={!canProceed()}>
-                  {currentStep === 4 && !clientCreated ? 'Skip' : currentStep === 5 && !productCreated ? 'Skip' : 'Next'}
+                  Next
                   <ArrowRight className="w-4 h-4 ml-2" />
                 </Button>
               ) : (

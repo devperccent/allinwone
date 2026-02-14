@@ -1,0 +1,1 @@
+ALTER TABLE public.products ADD COLUMN tax_rate numeric NOT NULL DEFAULT 18;
