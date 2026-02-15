@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, Loader2, CheckCircle } from 'lucide-react';
 import inwWideLogo from '@/assets/inw-wide.png';
@@ -7,6 +7,19 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+
+function getPasswordStrength(password: string) {
+  let score = 0;
+  if (password.length >= 6) score++;
+  if (password.length >= 10) score++;
+  if (/[A-Z]/.test(password)) score++;
+  if (/[0-9]/.test(password)) score++;
+  if (/[^A-Za-z0-9]/.test(password)) score++;
+
+  if (score <= 1) return { label: 'Weak' as const, value: 20, color: 'hsl(0 84% 60%)' };
+  if (score <= 3) return { label: 'Medium' as const, value: 55, color: 'hsl(45 93% 47%)' };
+  return { label: 'Strong' as const, value: 100, color: 'hsl(142 71% 45%)' };
+}
 
 export default function ResetPasswordPage() {
   const navigate = useNavigate();
@@ -18,6 +31,7 @@ export default function ResetPasswordPage() {
   const [success, setSuccess] = useState(false);
   const [sessionReady, setSessionReady] = useState(false);
 
+  const strength = useMemo(() => getPasswordStrength(password), [password]);
   useEffect(() => {
     // Supabase sets session from the URL hash automatically
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
@@ -142,6 +156,21 @@ export default function ResetPasswordPage() {
                       {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                     </button>
                   </div>
+                  {password && (
+                    <div className="mt-2 space-y-1">
+                      <div className="relative h-1.5 w-full overflow-hidden rounded-full bg-secondary">
+                        <div
+                          className="h-full transition-all duration-300"
+                          style={{ width: `${strength.value}%`, backgroundColor: strength.color }}
+                        />
+                      </div>
+                      <p className={`text-xs font-medium ${
+                        strength.label === 'Weak' ? 'text-destructive' :
+                        strength.label === 'Medium' ? 'text-yellow-600 dark:text-yellow-400' :
+                        'text-green-600 dark:text-green-400'
+                      }`}>{strength.label}</p>
+                    </div>
+                  )}
                 </div>
 
                 <div>
