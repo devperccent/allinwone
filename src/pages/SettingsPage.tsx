@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
-import { Building2, CreditCard, Bell, Loader2, ImageIcon } from 'lucide-react';
+import { useOutletContext } from 'react-router-dom';
+import { Building2, CreditCard, Bell, Loader2, RotateCcw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -20,11 +21,17 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useProfile } from '@/hooks/useProfile';
 import { usePageShortcuts } from '@/hooks/usePageShortcuts';
 import { LogoUpload } from '@/components/LogoUpload';
+import { resetWalkthrough } from '@/components/onboarding/WalkthroughTutorial';
+
+interface LayoutContext {
+  setWalkthroughOpen: (open: boolean) => void;
+}
 
 export default function SettingsPage() {
   const { toast } = useToast();
   const { profile: authProfile, refreshProfile } = useAuth();
   const { updateProfile, isUpdating } = useProfile();
+  const { setWalkthroughOpen } = useOutletContext<LayoutContext>();
 
   // Business form state
   const [orgName, setOrgName] = useState('');
@@ -416,7 +423,31 @@ export default function SettingsPage() {
             </CardContent>
           </Card>
         </TabsContent>
+
+        {/* Restart Tour Card - below tabs */}
       </Tabs>
+
+      <Card className="border-dashed">
+        <CardContent className="flex items-center justify-between py-5">
+          <div>
+            <p className="font-medium">Platform Walkthrough</p>
+            <p className="text-sm text-muted-foreground">
+              Replay the guided tour to rediscover features and shortcuts
+            </p>
+          </div>
+          <Button
+            variant="outline"
+            className="gap-2 shrink-0"
+            onClick={() => {
+              resetWalkthrough();
+              setWalkthroughOpen(true);
+            }}
+          >
+            <RotateCcw className="w-4 h-4" />
+            Restart Tour
+          </Button>
+        </CardContent>
+      </Card>
     </div>
   );
 }

@@ -13,6 +13,7 @@ export function AppLayout() {
   const isMobile = useIsMobile();
   const [searchOpen, setSearchOpen] = useState(false);
   const [shortcutsOpen, setShortcutsOpen] = useState(false);
+  const [walkthroughOpen, setWalkthroughOpen] = useState(false);
   const { theme, setTheme } = useTheme();
 
   const toggleTheme = () => {
@@ -32,12 +33,16 @@ export function AppLayout() {
       <div className="flex flex-col flex-1 overflow-hidden">
         <AppHeader searchOpen={searchOpen} onSearchOpenChange={setSearchOpen} />
         <main className="flex-1 overflow-y-auto p-4 md:p-6">
-          <Outlet />
+          <Outlet context={{ setWalkthroughOpen }} />
         </main>
       </div>
       <KeyboardShortcutsDialog open={shortcutsOpen} onOpenChange={setShortcutsOpen} />
       <KeyboardShortcutsHint onOpenShortcuts={() => setShortcutsOpen(true)} />
-      <WalkthroughTutorial onComplete={() => {}} />
+      <WalkthroughTutorial
+        onComplete={() => {}}
+        externalOpen={walkthroughOpen}
+        onOpenChange={setWalkthroughOpen}
+      />
     </div>
   );
 }

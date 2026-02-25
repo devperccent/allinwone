@@ -1,23 +1,19 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import {
   FileText,
   Users,
   Package,
-  LayoutDashboard,
-  Settings,
-  TrendingUp,
   Keyboard,
   Rocket,
   ChevronRight,
   ChevronLeft,
-  X,
+  TrendingUp,
   Sparkles,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { modKey } from '@/lib/platform';
-import { useIsMobile } from '@/hooks/use-mobile';
 import { cn } from '@/lib/utils';
 
 const STORAGE_KEY = 'inw-walkthrough-completed';
@@ -112,40 +108,69 @@ const STEPS: TutorialStep[] = [
 
 interface WalkthroughTutorialProps {
   onComplete: () => void;
+  externalOpen?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }
 
-export function WalkthroughTutorial({ onComplete }: WalkthroughTutorialProps) {
+export function WalkthroughTutorial({ onComplete, externalOpen, onOpenChange }: WalkthroughTutorialProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
+  const [direction, setDirection] = useState<'next' | 'prev'>('next');
+  const [animating, setAnimating] = useState(false);
+  const [stepKey, setStepKey] = useState(0); // forces re-mount for animation
   const navigate = useNavigate();
   const location = useLocation();
-  const isMobile = useIsMobile();
 
+  // Auto-open for first-time users
   useEffect(() => {
     const completed = localStorage.getItem(STORAGE_KEY);
     const started = localStorage.getItem(STORAGE_KEY_SEEN);
     if (!completed && !started) {
-      // Show walkthrough prompt after a short delay for first-time users
-      const timer = setTimeout(() => setIsOpen(true), 3500);
+      const timer = setTimeout(() => {
+        setIsOpen(true);
+        onOpenChange?.(true);
+      }, 3500);
       localStorage.setItem(STORAGE_KEY_SEEN, 'true');
       return () => clearTimeout(timer);
     }
   }, []);
 
+  // Handle external open (restart tour from settings)
+  useEffect(() => {
+    if (externalOpen !== undefined) {
+      setIsOpen(externalOpen);
+      if (externalOpen) {
+        setCurrentStep(0);
+        setDirection('next');
+        setStepKey((k) => k + 1);
+      }
+    }
+  }, [externalOpen]);
+
   const step = STEPS[currentStep];
   const progress = ((currentStep + 1) / STEPS.length) * 100;
 
-  const goToStep = (index: number) => {
-    setCurrentStep(index);
-    const targetStep = STEPS[index];
-    if (targetStep.route && location.pathname !== targetStep.route) {
-      navigate(targetStep.route);
-    }
+  const animateToStep = (index: number, dir: 'next' | 'prev') => {
+    if (animating) return;
+    setAnimating(true);
+    setDirection(dir);
+
+    // Short exit delay, then switch step
+    setTimeout(() => {
+      setCurrentStep(index);
+      setStepKey((k) => k + 1);
+      const targetStep = STEPS[index];
+      if (targetStep.route && location.pathname !== targetStep.route) {
+        navigate(targetStep.route);
+      }
+      // Allow enter animation to play
+      setTimeout(() => setAnimating(false), 300);
+    }, 150);
   };
 
   const next = () => {
     if (currentStep < STEPS.length - 1) {
-      goToStep(currentStep + 1);
+      animateToStep(currentStep + 1, 'next');
     } else {
       complete();
     }
@@ -153,35 +178,42 @@ export function WalkthroughTutorial({ onComplete }: WalkthroughTutorialProps) {
 
   const prev = () => {
     if (currentStep > 0) {
-      goToStep(currentStep - 1);
+      animateToStep(currentStep - 1, 'prev');
     }
   };
 
-  const complete = () => {
+  const goToStep = (index: number) => {
+    if (index === currentStep) return;
+    animateToStep(index, index > currentStep ? 'next' : 'prev');
+  };
+
+  const close = (markComplete: boolean) => {
     setIsOpen(false);
-    localStorage.setItem(STORAGE_KEY, 'true');
+    onOpenChange?.(false);
+    if (markComplete) {
+      localStorage.setItem(STORAGE_KEY, 'true');
+    }
     onComplete();
   };
 
-  const skip = () => {
-    setIsOpen(false);
-    localStorage.setItem(STORAGE_KEY, 'true');
-  };
+  const complete = () => close(true);
+  const skip = () => close(true);
 
   if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center">
       {/* Backdrop */}
-      <div className="absolute inset-0 bg-background/60 backdrop-blur-sm" onClick={skip} />
+      <div
+        className="absolute inset-0 bg-background/60 backdrop-blur-sm animate-in fade-in duration-300"
+        onClick={skip}
+      />
 
       {/* Modal */}
-      <div className={cn(
-        'relative w-full sm:max-w-lg mx-4 mb-4 sm:mb-0 rounded-2xl border border-border bg-card shadow-2xl overflow-hidden animate-in zoom-in-95 fade-in duration-300',
-      )}>
+      <div className="relative w-full sm:max-w-lg mx-4 mb-4 sm:mb-0 rounded-2xl border border-border bg-card shadow-2xl overflow-hidden animate-in zoom-in-95 fade-in duration-300">
         {/* Progress bar */}
         <div className="px-6 pt-5">
-          <Progress value={progress} className="h-1.5" />
+          <Progress value={progress} className="h-1.5 transition-all duration-500" />
           <div className="flex items-center justify-between mt-2">
             <span className="text-[11px] text-muted-foreground font-medium">
               Step {currentStep + 1} of {STEPS.length}
@@ -197,34 +229,50 @@ export function WalkthroughTutorial({ onComplete }: WalkthroughTutorialProps) {
           </div>
         </div>
 
-        {/* Content */}
-        <div className="px-6 py-5">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="p-2.5 rounded-xl bg-primary/10">
-              <step.icon className="w-6 h-6 text-primary" />
-            </div>
-            <div>
-              <h3 className="text-lg font-bold">{step.title}</h3>
-              {step.shortcutHint && (
-                <div className="flex items-center gap-1 mt-0.5">
-                  <Sparkles className="w-3 h-3 text-primary" />
-                  <span className="text-[11px] font-medium text-primary">{step.shortcutHint}</span>
-                </div>
-              )}
-            </div>
-          </div>
-
-          <p className="text-sm text-muted-foreground mb-4">{step.description}</p>
-
-          <div className="space-y-2.5">
-            {step.tips.map((tip, i) => (
-              <div key={i} className="flex items-start gap-2.5 text-sm">
-                <div className="w-5 h-5 rounded-full bg-primary/10 flex items-center justify-center shrink-0 mt-0.5">
-                  <span className="text-[10px] font-bold text-primary">{i + 1}</span>
-                </div>
-                <span className="text-foreground/80">{tip}</span>
+        {/* Animated content area */}
+        <div className="relative overflow-hidden">
+          <div
+            key={stepKey}
+            className={cn(
+              'px-6 py-5 transition-all duration-300 ease-out',
+              direction === 'next'
+                ? 'animate-in slide-in-from-right-4 fade-in duration-300'
+                : 'animate-in slide-in-from-left-4 fade-in duration-300'
+            )}
+          >
+            {/* Icon + Title */}
+            <div className="flex items-center gap-3 mb-4">
+              <div className="p-2.5 rounded-xl bg-primary/10 transition-transform duration-500 ease-out animate-in zoom-in-50 duration-500">
+                <step.icon className="w-6 h-6 text-primary" />
               </div>
-            ))}
+              <div>
+                <h3 className="text-lg font-bold">{step.title}</h3>
+                {step.shortcutHint && (
+                  <div className="flex items-center gap-1 mt-0.5 animate-in fade-in slide-in-from-left-2 duration-500 delay-150">
+                    <Sparkles className="w-3 h-3 text-primary" />
+                    <span className="text-[11px] font-medium text-primary">{step.shortcutHint}</span>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <p className="text-sm text-muted-foreground mb-4">{step.description}</p>
+
+            {/* Tips with staggered animations */}
+            <div className="space-y-2.5">
+              {step.tips.map((tip, i) => (
+                <div
+                  key={`${stepKey}-${i}`}
+                  className="flex items-start gap-2.5 text-sm animate-in fade-in slide-in-from-bottom-2 duration-300"
+                  style={{ animationDelay: `${100 + i * 75}ms`, animationFillMode: 'both' }}
+                >
+                  <div className="w-5 h-5 rounded-full bg-primary/10 flex items-center justify-center shrink-0 mt-0.5">
+                    <span className="text-[10px] font-bold text-primary">{i + 1}</span>
+                  </div>
+                  <span className="text-foreground/80">{tip}</span>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
 
@@ -235,12 +283,12 @@ export function WalkthroughTutorial({ onComplete }: WalkthroughTutorialProps) {
               key={i}
               onClick={() => goToStep(i)}
               className={cn(
-                'w-2 h-2 rounded-full transition-all duration-200',
+                'h-2 rounded-full transition-all duration-500 ease-out',
                 i === currentStep
                   ? 'bg-primary w-6'
                   : i < currentStep
-                    ? 'bg-primary/40'
-                    : 'bg-muted-foreground/20'
+                    ? 'bg-primary/40 w-2'
+                    : 'bg-muted-foreground/20 w-2'
               )}
             />
           ))}
@@ -252,8 +300,8 @@ export function WalkthroughTutorial({ onComplete }: WalkthroughTutorialProps) {
             variant="ghost"
             size="sm"
             onClick={prev}
-            disabled={currentStep === 0}
-            className="gap-1"
+            disabled={currentStep === 0 || animating}
+            className="gap-1 transition-opacity duration-200"
           >
             <ChevronLeft className="w-4 h-4" />
             Back
@@ -261,7 +309,8 @@ export function WalkthroughTutorial({ onComplete }: WalkthroughTutorialProps) {
           <Button
             size="sm"
             onClick={next}
-            className="gap-1"
+            disabled={animating}
+            className="gap-1 transition-all duration-200"
           >
             {currentStep === STEPS.length - 1 ? (
               <>
@@ -279,4 +328,10 @@ export function WalkthroughTutorial({ onComplete }: WalkthroughTutorialProps) {
       </div>
     </div>
   );
+}
+
+/** Utility to reset walkthrough so it can be replayed */
+export function resetWalkthrough() {
+  localStorage.removeItem(STORAGE_KEY);
+  localStorage.removeItem(STORAGE_KEY_SEEN);
 }
