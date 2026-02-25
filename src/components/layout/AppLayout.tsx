@@ -3,6 +3,8 @@ import { Outlet } from 'react-router-dom';
 import { AppSidebar } from './AppSidebar';
 import { AppHeader } from './AppHeader';
 import { KeyboardShortcutsDialog } from './KeyboardShortcutsDialog';
+import { KeyboardShortcutsHint } from '@/components/onboarding/KeyboardShortcutsHint';
+import { WalkthroughTutorial } from '@/components/onboarding/WalkthroughTutorial';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 import { useTheme } from '@/hooks/useTheme';
@@ -34,6 +36,8 @@ export function AppLayout() {
         </main>
       </div>
       <KeyboardShortcutsDialog open={shortcutsOpen} onOpenChange={setShortcutsOpen} />
+      <KeyboardShortcutsHint onOpenShortcuts={() => setShortcutsOpen(true)} />
+      <WalkthroughTutorial onComplete={() => {}} />
     </div>
   );
 }

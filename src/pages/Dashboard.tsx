@@ -109,7 +109,7 @@ export default function Dashboard() {
             <p className="font-semibold">New Invoice</p>
             <p className="text-sm text-muted-foreground">Create a new invoice</p>
           </div>
-          <kbd className="inline-flex h-6 min-w-[24px] items-center justify-center rounded border bg-muted px-1.5 font-mono text-[11px] font-medium text-muted-foreground">N</kbd>
+          <kbd className="hidden sm:inline-flex h-6 min-w-[24px] items-center justify-center rounded border bg-muted px-1.5 font-mono text-[11px] font-medium text-muted-foreground">N</kbd>
         </Link>
         
         <Link
@@ -123,7 +123,7 @@ export default function Dashboard() {
             <p className="font-semibold">Add Product</p>
             <p className="text-sm text-muted-foreground">Add to inventory</p>
           </div>
-          <div className="flex items-center gap-0.5">
+          <div className="hidden sm:flex items-center gap-0.5">
             <kbd className="inline-flex h-6 min-w-[24px] items-center justify-center rounded border bg-muted px-1.5 font-mono text-[11px] font-medium text-muted-foreground">{modKey}</kbd>
             <kbd className="inline-flex h-6 min-w-[24px] items-center justify-center rounded border bg-muted px-1.5 font-mono text-[11px] font-medium text-muted-foreground">⇧</kbd>
             <kbd className="inline-flex h-6 min-w-[24px] items-center justify-center rounded border bg-muted px-1.5 font-mono text-[11px] font-medium text-muted-foreground">P</kbd>
@@ -141,7 +141,7 @@ export default function Dashboard() {
             <p className="font-semibold">Add Client</p>
             <p className="text-sm text-muted-foreground">Add a new client</p>
           </div>
-          <div className="flex items-center gap-0.5">
+          <div className="hidden sm:flex items-center gap-0.5">
             <kbd className="inline-flex h-6 min-w-[24px] items-center justify-center rounded border bg-muted px-1.5 font-mono text-[11px] font-medium text-muted-foreground">{modKey}</kbd>
             <kbd className="inline-flex h-6 min-w-[24px] items-center justify-center rounded border bg-muted px-1.5 font-mono text-[11px] font-medium text-muted-foreground">⇧</kbd>
             <kbd className="inline-flex h-6 min-w-[24px] items-center justify-center rounded border bg-muted px-1.5 font-mono text-[11px] font-medium text-muted-foreground">C</kbd>

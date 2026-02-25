@@ -151,7 +151,7 @@ export default function ProductsPage() {
             <Button className="gap-2">
               <Plus className="w-4 h-4" />
               Add Product
-              <kbd className="ml-1 inline-flex h-5 min-w-[20px] items-center justify-center rounded border bg-primary-foreground/20 px-1.5 font-mono text-[10px] font-medium text-primary-foreground/70">A</kbd>
+              <kbd className="ml-1 hidden sm:inline-flex h-5 min-w-[20px] items-center justify-center rounded border bg-primary-foreground/20 px-1.5 font-mono text-[10px] font-medium text-primary-foreground/70">A</kbd>
             </Button>
           </DialogTrigger>
           <DialogContent className="sm:max-w-lg">
@@ -306,7 +306,7 @@ export default function ProductsPage() {
             onChange={(e) => setSearchQuery(e.target.value)}
             className="pl-10 pr-10"
           />
-          <kbd className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none inline-flex h-5 min-w-[20px] items-center justify-center rounded border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground">/</kbd>
+          <kbd className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none hidden sm:inline-flex h-5 min-w-[20px] items-center justify-center rounded border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground">/</kbd>
         </div>
       </div>
 
