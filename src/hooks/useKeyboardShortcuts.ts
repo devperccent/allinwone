@@ -1,4 +1,4 @@
-import { useEffect, useRef, useCallback } from 'react';
+import { useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 interface ShortcutCallbacks {
@@ -9,8 +9,6 @@ interface ShortcutCallbacks {
 
 export function useKeyboardShortcuts({ onSearch, onHelp, onToggleTheme }: ShortcutCallbacks = {}) {
   const navigate = useNavigate();
-  const gPressed = useRef(false);
-  const gTimeout = useRef<ReturnType<typeof setTimeout>>();
 
   const isInputFocused = useCallback(() => {
     const el = document.activeElement;
@@ -38,17 +36,8 @@ export function useKeyboardShortcuts({ onSearch, onHelp, onToggleTheme }: Shortc
         return;
       }
 
-      // "g" prefix navigation (g then letter)
-      if (e.key === 'g' && !e.metaKey && !e.ctrlKey && !e.altKey && !gPressed.current) {
-        gPressed.current = true;
-        clearTimeout(gTimeout.current);
-        gTimeout.current = setTimeout(() => { gPressed.current = false; }, 800);
-        return;
-      }
-
-      if (gPressed.current) {
-        gPressed.current = false;
-        clearTimeout(gTimeout.current);
+      // Mod-key navigation shortcuts (⌘/Ctrl + Shift + letter)
+      if ((e.metaKey || e.ctrlKey) && e.shiftKey) {
         const routes: Record<string, string> = {
           d: '/',
           h: '/',
@@ -64,13 +53,6 @@ export function useKeyboardShortcuts({ onSearch, onHelp, onToggleTheme }: Shortc
           navigate(path);
           return;
         }
-      }
-
-      // Direct shortcuts (no modifier)
-      if (e.key === 'n' && !e.metaKey && !e.ctrlKey && !e.altKey) {
-        e.preventDefault();
-        navigate('/invoices/new');
-        return;
       }
 
       // Escape to blur focused element
@@ -92,7 +74,6 @@ export function useKeyboardShortcuts({ onSearch, onHelp, onToggleTheme }: Shortc
     document.addEventListener('keydown', handler);
     return () => {
       document.removeEventListener('keydown', handler);
-      clearTimeout(gTimeout.current);
     };
   }, [navigate, onSearch, onHelp, onToggleTheme, isInputFocused]);
 }
@@ -107,7 +88,7 @@ export const SHORTCUT_GROUPS = [
       { keys: [modKey, 'S'], description: 'Save (in editor / settings)', separator: '+' },
       { keys: ['?'], description: 'Show keyboard shortcuts' },
       { keys: ['N'], description: 'New invoice' },
-      { keys: ['T'], description: 'Toggle dark/light mode' },
+      { keys: ['T'], description: 'Toggle dark / light mode' },
       { keys: ['Esc'], description: 'Blur / dismiss' },
     ],
   },
@@ -119,14 +100,14 @@ export const SHORTCUT_GROUPS = [
     ],
   },
   {
-    title: 'Navigation (press G then…)',
+    title: 'Navigation',
     shortcuts: [
-      { keys: ['G', 'D'], description: 'Go to Dashboard', separator: 'then' },
-      { keys: ['G', 'I'], description: 'Go to Invoices', separator: 'then' },
-      { keys: ['G', 'C'], description: 'Go to Clients', separator: 'then' },
-      { keys: ['G', 'P'], description: 'Go to Products', separator: 'then' },
-      { keys: ['G', 'R'], description: 'Go to Reports', separator: 'then' },
-      { keys: ['G', 'S'], description: 'Go to Settings', separator: 'then' },
+      { keys: [modKey, '⇧', 'D'], description: 'Go to Dashboard', separator: '+' },
+      { keys: [modKey, '⇧', 'I'], description: 'Go to Invoices', separator: '+' },
+      { keys: [modKey, '⇧', 'C'], description: 'Go to Clients', separator: '+' },
+      { keys: [modKey, '⇧', 'P'], description: 'Go to Products', separator: '+' },
+      { keys: [modKey, '⇧', 'R'], description: 'Go to Reports', separator: '+' },
+      { keys: [modKey, '⇧', 'S'], description: 'Go to Settings', separator: '+' },
     ],
   },
   {
