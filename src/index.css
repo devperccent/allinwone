@@ -149,6 +149,16 @@
     font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
   }
 
+  /* Keyboard-friendly focus styles */
+  :focus-visible {
+    @apply outline-2 outline-offset-2 outline-ring rounded-sm;
+  }
+
+  /* Remove default focus ring for mouse users */
+  :focus:not(:focus-visible) {
+    outline: none;
+  }
+
   /* Scrollbar Styling */
   ::-webkit-scrollbar {
     @apply w-2 h-2;
