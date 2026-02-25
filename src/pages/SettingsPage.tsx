@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useOutletContext } from 'react-router-dom';
-import { Building2, CreditCard, Bell, Loader2, RotateCcw } from 'lucide-react';
+import { Building2, CreditCard, Bell, Loader2, RotateCcw, BellRing } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -22,6 +22,11 @@ import { useProfile } from '@/hooks/useProfile';
 import { usePageShortcuts } from '@/hooks/usePageShortcuts';
 import { LogoUpload } from '@/components/LogoUpload';
 import { resetWalkthrough } from '@/components/onboarding/WalkthroughTutorial';
+import {
+  getNotificationPreferences,
+  saveNotificationPreferences,
+  type NotificationPreferences,
+} from '@/hooks/useNotifications';
 
 interface LayoutContext {
   setWalkthroughOpen: (open: boolean) => void;
@@ -49,6 +54,15 @@ export default function SettingsPage() {
   // Invoice form state
   const [invoicePrefix, setInvoicePrefix] = useState('INW-');
   const [nextNumber, setNextNumber] = useState(1);
+
+  // Notification preferences
+  const [notifPrefs, setNotifPrefs] = useState<NotificationPreferences>(getNotificationPreferences);
+
+  const updateNotifPref = (key: keyof NotificationPreferences, value: boolean) => {
+    const updated = { ...notifPrefs, [key]: value };
+    setNotifPrefs(updated);
+    saveNotificationPreferences(updated);
+  };
 
   // Load profile data
   useEffect(() => {
@@ -370,58 +384,80 @@ export default function SettingsPage() {
         </TabsContent>
 
         <TabsContent value="notifications">
-          <Card>
-            <CardHeader>
-              <CardTitle>Notification Preferences</CardTitle>
-              <CardDescription>
-                Choose what notifications you want to receive.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="space-y-4">
+          <div className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <BellRing className="w-5 h-5" />
+                  Popup Notifications
+                </CardTitle>
+                <CardDescription>
+                  Control how notifications appear while you work.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="font-medium">Toast Popups</p>
+                    <p className="text-sm text-muted-foreground">
+                      Show a toast when a new notification arrives in real-time
+                    </p>
+                  </div>
+                  <Switch
+                    checked={notifPrefs.toastPopups}
+                    onCheckedChange={(v) => updateNotifPref('toastPopups', v)}
+                  />
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Notification Types</CardTitle>
+                <CardDescription>
+                  Choose which categories of notifications you receive.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="font-medium">Low Stock Alerts</p>
                     <p className="text-sm text-muted-foreground">
-                      Get notified when products are running low
+                      Get notified when products fall below their stock limit
                     </p>
                   </div>
-                  <Switch defaultChecked />
+                  <Switch
+                    checked={notifPrefs.lowStockAlerts}
+                    onCheckedChange={(v) => updateNotifPref('lowStockAlerts', v)}
+                  />
                 </div>
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="font-medium">Payment Reminders</p>
+                    <p className="font-medium">Invoice Events</p>
                     <p className="text-sm text-muted-foreground">
-                      Send automatic payment reminders to clients
+                      Created, finalized, paid, and cancelled invoice updates
                     </p>
                   </div>
-                  <Switch defaultChecked />
+                  <Switch
+                    checked={notifPrefs.invoiceEvents}
+                    onCheckedChange={(v) => updateNotifPref('invoiceEvents', v)}
+                  />
                 </div>
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="font-medium">Invoice Sent Confirmation</p>
+                    <p className="font-medium">Client Events</p>
                     <p className="text-sm text-muted-foreground">
-                      Receive confirmation when invoices are sent
+                      New client added notifications
                     </p>
                   </div>
-                  <Switch />
+                  <Switch
+                    checked={notifPrefs.clientEvents}
+                    onCheckedChange={(v) => updateNotifPref('clientEvents', v)}
+                  />
                 </div>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="font-medium">Weekly Summary</p>
-                    <p className="text-sm text-muted-foreground">
-                      Receive a weekly summary of your business
-                    </p>
-                  </div>
-                  <Switch defaultChecked />
-                </div>
-              </div>
-
-              <div className="flex justify-end">
-                <Button>Save Changes</Button>
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          </div>
         </TabsContent>
 
         {/* Restart Tour Card - below tabs */}
