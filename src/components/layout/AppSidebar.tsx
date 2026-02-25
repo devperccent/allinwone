@@ -110,7 +110,7 @@ export function AppSidebar({ onNavigate }: AppSidebarProps) {
               {!isCollapsed && (
                 <>
                   <span className="flex-1">{item.name}</span>
-                  {item.shortcut && (
+                  {item.shortcut && !isMobile && (
                     <span className="flex items-center gap-0.5">
                       <kbd className="inline-flex h-5 min-w-[20px] items-center justify-center rounded border bg-sidebar-accent/60 px-1 font-mono text-[10px] font-medium text-sidebar-foreground/50">
                         {modKey}
