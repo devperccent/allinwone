@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Building2, CreditCard, Bell, Loader2, ImageIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -18,6 +18,7 @@ import { INDIAN_STATES } from '@/types';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
 import { useProfile } from '@/hooks/useProfile';
+import { usePageShortcuts } from '@/hooks/usePageShortcuts';
 import { LogoUpload } from '@/components/LogoUpload';
 
 export default function SettingsPage() {
@@ -60,6 +61,8 @@ export default function SettingsPage() {
       setNextNumber(authProfile.next_invoice_number || 1);
     }
   }, [authProfile]);
+
+  
 
   const handleSaveBusiness = async () => {
     if (!authProfile) return;
@@ -119,6 +122,11 @@ export default function SettingsPage() {
       });
     }
   };
+
+  // ⌘S → save settings
+  usePageShortcuts(useMemo(() => [
+    { key: 's', mod: true, handler: () => handleSaveBusiness() },
+  ], [orgName, email, phone, gstin, stateCode, address, upiVpa, panNumber, bankAccountName, bankAccountNumber, bankIfsc]));
 
   if (!authProfile) {
     return (

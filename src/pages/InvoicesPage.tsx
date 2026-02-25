@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useState, useRef, useMemo } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import {
   Plus,
   Search,
@@ -58,6 +58,8 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { exportInvoicesToCSV } from '@/utils/csvExport';
+import { usePageShortcuts } from '@/hooks/usePageShortcuts';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import type { Invoice, InvoiceStatus, PaymentMode } from '@/types';
 
 const statusConfig: Record<InvoiceStatus, { label: string; className: string }> = {
@@ -193,9 +195,11 @@ function InvoiceActions({
 export default function InvoicesPage() {
   const { profile } = useAuth();
   const { toast } = useToast();
+  const navigate = useNavigate();
   const { invoices, isLoading, finalizeInvoiceMutation, markAsPaid, deleteInvoice, getInvoiceWithItems } = useInvoices();
   const { generatePdf, isGenerating } = usePdfDownload();
   const { sendInvoiceEmail, isSending } = useSendInvoiceEmail();
+  const searchRef = useRef<HTMLInputElement>(null);
 
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
@@ -216,6 +220,11 @@ export default function InvoicesPage() {
   const [shareLink, setShareLink] = useState('');
   const [linkCopied, setLinkCopied] = useState(false);
   const [isGeneratingLink, setIsGeneratingLink] = useState(false);
+
+  // Page shortcuts: / → focus search, N → new invoice
+  usePageShortcuts(useMemo(() => [
+    { key: '/', handler: () => searchRef.current?.focus() },
+  ], []));
 
   const filteredInvoices = invoices.filter((invoice) => {
     const matchesSearch =
@@ -391,8 +400,9 @@ export default function InvoicesPage() {
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input
+            ref={searchRef}
             type="search"
-            placeholder="Search by invoice # or client..."
+            placeholder="Search by invoice # or client...  ( / )"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="pl-10"

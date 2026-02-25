@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef, useMemo } from 'react';
 import {
   Plus,
   Search,
@@ -55,10 +55,12 @@ import type { Product, ProductType } from '@/types';
 import { GST_RATES } from '@/types';
 import { Switch } from '@/components/ui/switch';
 import { format } from 'date-fns';
+import { usePageShortcuts } from '@/hooks/usePageShortcuts';
 
 export default function ProductsPage() {
   const { products, isLoading, createProduct, deleteProduct } = useProducts();
   const [searchQuery, setSearchQuery] = useState('');
+  const searchRef = useRef<HTMLInputElement>(null);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [stockSheetOpen, setStockSheetOpen] = useState(false);
@@ -80,6 +82,12 @@ export default function ProductsPage() {
     product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     product.sku.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  // Page shortcuts: / → focus search, A → add product
+  usePageShortcuts(useMemo(() => [
+    { key: '/', handler: () => searchRef.current?.focus() },
+    { key: 'a', handler: () => setIsAddDialogOpen(true) },
+  ], []));
 
   const isLowStock = (product: Product) =>
     product.type === 'goods' && product.stock_quantity <= product.low_stock_limit;
@@ -290,8 +298,9 @@ export default function ProductsPage() {
         <div className="relative flex-1 max-w-sm">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input
+            ref={searchRef}
             type="search"
-            placeholder="Search products..."
+            placeholder="Search products...  ( / )"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="pl-10"

@@ -29,7 +29,11 @@ export function KeyboardShortcutsDialog({ open, onOpenChange }: Props) {
                     <div className="flex items-center gap-1">
                       {shortcut.keys.map((key, i) => (
                         <span key={i}>
-                          {i > 0 && <span className="text-xs text-muted-foreground mx-0.5">then</span>}
+                          {i > 0 && (
+                            <span className="text-[10px] text-muted-foreground mx-0.5">
+                              {(shortcut as any).separator || '+'}
+                            </span>
+                          )}
                           <kbd className="inline-flex h-6 min-w-[24px] items-center justify-center rounded border bg-muted px-1.5 font-mono text-[11px] font-medium text-muted-foreground shadow-sm">
                             {key}
                           </kbd>

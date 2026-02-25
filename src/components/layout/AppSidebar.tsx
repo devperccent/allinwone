@@ -9,6 +9,7 @@ import {
   LogOut,
   ChevronLeft,
   ShieldCheck,
+  Keyboard,
 } from 'lucide-react';
 import { useIsAdmin } from '@/hooks/useAdmin';
 import inwLogo from '@/assets/inw-logomark.png';
@@ -25,14 +26,15 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
 const navigation = [
-  { name: 'Dashboard', href: '/', icon: LayoutDashboard },
-  { name: 'Invoices', href: '/invoices', icon: FileText },
-  { name: 'Products', href: '/products', icon: Package },
-  { name: 'Clients', href: '/clients', icon: Users },
-  { name: 'Reports', href: '/reports', icon: TrendingUp },
-  { name: 'Settings', href: '/settings', icon: Settings },
+  { name: 'Dashboard', href: '/', icon: LayoutDashboard, shortcut: 'D' },
+  { name: 'Invoices', href: '/invoices', icon: FileText, shortcut: 'I' },
+  { name: 'Products', href: '/products', icon: Package, shortcut: 'P' },
+  { name: 'Clients', href: '/clients', icon: Users, shortcut: 'C' },
+  { name: 'Reports', href: '/reports', icon: TrendingUp, shortcut: 'R' },
+  { name: 'Settings', href: '/settings', icon: Settings, shortcut: 'S' },
 ];
 
 interface AppSidebarProps {
@@ -62,6 +64,11 @@ export function AppSidebar({ onNavigate }: AppSidebarProps) {
     .slice(0, 2)
     .toUpperCase() || 'IN';
 
+  const allNavItems = [
+    ...navigation,
+    ...(isAdmin ? [{ name: 'Admin', href: '/admin', icon: ShieldCheck, shortcut: '' }] : []),
+  ];
+
   return (
     <aside
       className={cn(
@@ -82,11 +89,11 @@ export function AppSidebar({ onNavigate }: AppSidebarProps) {
 
       {/* Navigation */}
       <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
-        {[...navigation, ...(isAdmin ? [{ name: 'Admin', href: '/admin', icon: ShieldCheck }] : [])].map((item) => {
+        {allNavItems.map((item) => {
           const isActive = location.pathname === item.href || 
             (item.href !== '/' && location.pathname.startsWith(item.href));
           
-          return (
+          const linkContent = (
             <Link
               key={item.name}
               to={item.href}
@@ -99,11 +106,54 @@ export function AppSidebar({ onNavigate }: AppSidebarProps) {
               )}
             >
               <item.icon className={cn('w-5 h-5 flex-shrink-0', isActive && 'text-primary')} />
-              {!isCollapsed && <span>{item.name}</span>}
+              {!isCollapsed && (
+                <>
+                  <span className="flex-1">{item.name}</span>
+                  {item.shortcut && (
+                    <span className="flex items-center gap-0.5 opacity-0 group-hover/nav:opacity-100 transition-opacity">
+                      <kbd className="inline-flex h-5 min-w-[20px] items-center justify-center rounded border bg-sidebar-accent/60 px-1 font-mono text-[10px] font-medium text-sidebar-foreground/60">
+                        G
+                      </kbd>
+                      <kbd className="inline-flex h-5 min-w-[20px] items-center justify-center rounded border bg-sidebar-accent/60 px-1 font-mono text-[10px] font-medium text-sidebar-foreground/60">
+                        {item.shortcut}
+                      </kbd>
+                    </span>
+                  )}
+                </>
+              )}
             </Link>
           );
+
+          if (isCollapsed && item.shortcut) {
+            return (
+              <Tooltip key={item.name}>
+                <TooltipTrigger asChild>
+                  {linkContent}
+                </TooltipTrigger>
+                <TooltipContent side="right" className="flex items-center gap-2">
+                  <span>{item.name}</span>
+                  <span className="flex items-center gap-0.5">
+                    <kbd className="inline-flex h-5 min-w-[20px] items-center justify-center rounded border bg-muted px-1 font-mono text-[10px] font-medium text-muted-foreground">G</kbd>
+                    <kbd className="inline-flex h-5 min-w-[20px] items-center justify-center rounded border bg-muted px-1 font-mono text-[10px] font-medium text-muted-foreground">{item.shortcut}</kbd>
+                  </span>
+                </TooltipContent>
+              </Tooltip>
+            );
+          }
+
+          return <div key={item.name} className="group/nav">{linkContent}</div>;
         })}
       </nav>
+
+      {/* Keyboard shortcut hint */}
+      {!isCollapsed && (
+        <div className="px-3 pb-1">
+          <div className="flex items-center gap-2 px-3 py-1.5 text-[11px] text-sidebar-foreground/40">
+            <Keyboard className="w-3.5 h-3.5" />
+            <span>Press <kbd className="font-mono font-medium">?</kbd> for all shortcuts</span>
+          </div>
+        </div>
+      )}
 
       {/* User section */}
       <div className="p-3 border-t border-sidebar-border space-y-2">

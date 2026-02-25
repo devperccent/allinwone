@@ -103,8 +103,8 @@ export const SHORTCUT_GROUPS = [
   {
     title: 'General',
     shortcuts: [
-      { keys: [modKey, 'K'], description: 'Open search' },
-      { keys: [modKey, 'S'], description: 'Save (in editor)' },
+      { keys: [modKey, 'K'], description: 'Open search', separator: '+' },
+      { keys: [modKey, 'S'], description: 'Save (in editor / settings)', separator: '+' },
       { keys: ['?'], description: 'Show keyboard shortcuts' },
       { keys: ['N'], description: 'New invoice' },
       { keys: ['T'], description: 'Toggle dark/light mode' },
@@ -112,23 +112,30 @@ export const SHORTCUT_GROUPS = [
     ],
   },
   {
+    title: 'List Pages',
+    shortcuts: [
+      { keys: ['/'], description: 'Focus search field' },
+      { keys: ['A'], description: 'Add new item (client / product)' },
+    ],
+  },
+  {
     title: 'Navigation (press G then…)',
     shortcuts: [
-      { keys: ['G', 'D'], description: 'Go to Dashboard' },
-      { keys: ['G', 'I'], description: 'Go to Invoices' },
-      { keys: ['G', 'C'], description: 'Go to Clients' },
-      { keys: ['G', 'P'], description: 'Go to Products' },
-      { keys: ['G', 'R'], description: 'Go to Reports' },
-      { keys: ['G', 'S'], description: 'Go to Settings' },
+      { keys: ['G', 'D'], description: 'Go to Dashboard', separator: 'then' },
+      { keys: ['G', 'I'], description: 'Go to Invoices', separator: 'then' },
+      { keys: ['G', 'C'], description: 'Go to Clients', separator: 'then' },
+      { keys: ['G', 'P'], description: 'Go to Products', separator: 'then' },
+      { keys: ['G', 'R'], description: 'Go to Reports', separator: 'then' },
+      { keys: ['G', 'S'], description: 'Go to Settings', separator: 'then' },
     ],
   },
   {
     title: 'Invoice Editor',
     shortcuts: [
-      { keys: [modKey, 'S'], description: 'Save invoice' },
-      { keys: [modKey, 'Enter'], description: 'Finalize invoice' },
-      { keys: [modKey, 'P'], description: 'Toggle preview' },
-      { keys: [modKey, 'I'], description: 'Add line item' },
+      { keys: [modKey, 'S'], description: 'Save invoice', separator: '+' },
+      { keys: [modKey, '↩'], description: 'Finalize invoice', separator: '+' },
+      { keys: [modKey, 'P'], description: 'Toggle preview', separator: '+' },
+      { keys: [modKey, 'I'], description: 'Add line item', separator: '+' },
     ],
   },
 ];
