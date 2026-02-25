@@ -111,14 +111,14 @@ export function AppSidebar({ onNavigate }: AppSidebarProps) {
                 <>
                   <span className="flex-1">{item.name}</span>
                   {item.shortcut && (
-                    <span className="flex items-center gap-0.5 opacity-0 group-hover/nav:opacity-100 transition-opacity">
-                      <kbd className="inline-flex h-5 min-w-[20px] items-center justify-center rounded border bg-sidebar-accent/60 px-1 font-mono text-[10px] font-medium text-sidebar-foreground/60">
+                    <span className="flex items-center gap-0.5">
+                      <kbd className="inline-flex h-5 min-w-[20px] items-center justify-center rounded border bg-sidebar-accent/60 px-1 font-mono text-[10px] font-medium text-sidebar-foreground/50">
                         {modKey}
                       </kbd>
-                      <kbd className="inline-flex h-5 min-w-[20px] items-center justify-center rounded border bg-sidebar-accent/60 px-1 font-mono text-[10px] font-medium text-sidebar-foreground/60">
+                      <kbd className="inline-flex h-5 min-w-[20px] items-center justify-center rounded border bg-sidebar-accent/60 px-1 font-mono text-[10px] font-medium text-sidebar-foreground/50">
                         ⇧
                       </kbd>
-                      <kbd className="inline-flex h-5 min-w-[20px] items-center justify-center rounded border bg-sidebar-accent/60 px-1 font-mono text-[10px] font-medium text-sidebar-foreground/60">
+                      <kbd className="inline-flex h-5 min-w-[20px] items-center justify-center rounded border bg-sidebar-accent/60 px-1 font-mono text-[10px] font-medium text-sidebar-foreground/50">
                         {item.shortcut}
                       </kbd>
                     </span>
@@ -146,7 +146,7 @@ export function AppSidebar({ onNavigate }: AppSidebarProps) {
             );
           }
 
-          return <div key={item.name} className="group/nav">{linkContent}</div>;
+          return <div key={item.name}>{linkContent}</div>;
         })}
       </nav>
 
