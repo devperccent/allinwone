@@ -19,6 +19,7 @@ import { Button } from '@/components/ui/button';
 import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { modKey } from '@/lib/platform';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -112,7 +113,10 @@ export function AppSidebar({ onNavigate }: AppSidebarProps) {
                   {item.shortcut && (
                     <span className="flex items-center gap-0.5 opacity-0 group-hover/nav:opacity-100 transition-opacity">
                       <kbd className="inline-flex h-5 min-w-[20px] items-center justify-center rounded border bg-sidebar-accent/60 px-1 font-mono text-[10px] font-medium text-sidebar-foreground/60">
-                        G
+                        {modKey}
+                      </kbd>
+                      <kbd className="inline-flex h-5 min-w-[20px] items-center justify-center rounded border bg-sidebar-accent/60 px-1 font-mono text-[10px] font-medium text-sidebar-foreground/60">
+                        ⇧
                       </kbd>
                       <kbd className="inline-flex h-5 min-w-[20px] items-center justify-center rounded border bg-sidebar-accent/60 px-1 font-mono text-[10px] font-medium text-sidebar-foreground/60">
                         {item.shortcut}
@@ -133,7 +137,8 @@ export function AppSidebar({ onNavigate }: AppSidebarProps) {
                 <TooltipContent side="right" className="flex items-center gap-2">
                   <span>{item.name}</span>
                   <span className="flex items-center gap-0.5">
-                    <kbd className="inline-flex h-5 min-w-[20px] items-center justify-center rounded border bg-muted px-1 font-mono text-[10px] font-medium text-muted-foreground">G</kbd>
+                    <kbd className="inline-flex h-5 min-w-[20px] items-center justify-center rounded border bg-muted px-1 font-mono text-[10px] font-medium text-muted-foreground">{modKey}</kbd>
+                    <kbd className="inline-flex h-5 min-w-[20px] items-center justify-center rounded border bg-muted px-1 font-mono text-[10px] font-medium text-muted-foreground">⇧</kbd>
                     <kbd className="inline-flex h-5 min-w-[20px] items-center justify-center rounded border bg-muted px-1 font-mono text-[10px] font-medium text-muted-foreground">{item.shortcut}</kbd>
                   </span>
                 </TooltipContent>
