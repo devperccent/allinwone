@@ -7,6 +7,7 @@ import {
   Package,
   Plus,
 } from 'lucide-react';
+import { modKey } from '@/lib/platform';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { StatCard } from '@/components/dashboard/StatCard';
@@ -104,10 +105,11 @@ export default function Dashboard() {
           <div className="p-3 rounded-xl bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
             <FileText className="w-6 h-6" />
           </div>
-          <div>
+          <div className="flex-1">
             <p className="font-semibold">New Invoice</p>
             <p className="text-sm text-muted-foreground">Create a new invoice</p>
           </div>
+          <kbd className="inline-flex h-6 min-w-[24px] items-center justify-center rounded border bg-muted px-1.5 font-mono text-[11px] font-medium text-muted-foreground">N</kbd>
         </Link>
         
         <Link
@@ -117,9 +119,14 @@ export default function Dashboard() {
           <div className="p-3 rounded-xl bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
             <Package className="w-6 h-6" />
           </div>
-          <div>
+          <div className="flex-1">
             <p className="font-semibold">Add Product</p>
             <p className="text-sm text-muted-foreground">Add to inventory</p>
+          </div>
+          <div className="flex items-center gap-0.5">
+            <kbd className="inline-flex h-6 min-w-[24px] items-center justify-center rounded border bg-muted px-1.5 font-mono text-[11px] font-medium text-muted-foreground">{modKey}</kbd>
+            <kbd className="inline-flex h-6 min-w-[24px] items-center justify-center rounded border bg-muted px-1.5 font-mono text-[11px] font-medium text-muted-foreground">⇧</kbd>
+            <kbd className="inline-flex h-6 min-w-[24px] items-center justify-center rounded border bg-muted px-1.5 font-mono text-[11px] font-medium text-muted-foreground">P</kbd>
           </div>
         </Link>
         
@@ -130,9 +137,14 @@ export default function Dashboard() {
           <div className="p-3 rounded-xl bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
             <Users className="w-6 h-6" />
           </div>
-          <div>
+          <div className="flex-1">
             <p className="font-semibold">Add Client</p>
             <p className="text-sm text-muted-foreground">Add a new client</p>
+          </div>
+          <div className="flex items-center gap-0.5">
+            <kbd className="inline-flex h-6 min-w-[24px] items-center justify-center rounded border bg-muted px-1.5 font-mono text-[11px] font-medium text-muted-foreground">{modKey}</kbd>
+            <kbd className="inline-flex h-6 min-w-[24px] items-center justify-center rounded border bg-muted px-1.5 font-mono text-[11px] font-medium text-muted-foreground">⇧</kbd>
+            <kbd className="inline-flex h-6 min-w-[24px] items-center justify-center rounded border bg-muted px-1.5 font-mono text-[11px] font-medium text-muted-foreground">C</kbd>
           </div>
         </Link>
       </div>
