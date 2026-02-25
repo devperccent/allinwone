@@ -1,4 +1,5 @@
-import { Search, Plus, Moon, Sun, Menu, Settings, LogOut, Keyboard } from 'lucide-react';
+import { Search, Plus, Moon, Sun, Menu, Settings, LogOut } from 'lucide-react';
+import { modKey } from '@/lib/platform';
 import { Button } from '@/components/ui/button';
 import { NotificationBell } from './NotificationBell';
 import { Link, useNavigate } from 'react-router-dom';
@@ -67,7 +68,7 @@ export function AppHeader({ searchOpen, onSearchOpenChange }: AppHeaderProps) {
           <Search className="w-4 h-4 shrink-0" />
           <span>Search invoices, clients...</span>
           <kbd className="ml-auto pointer-events-none hidden md:inline-flex h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground">
-            <span className="text-xs">⌘</span>K
+            <span className="text-xs">{modKey}</span>K
           </kbd>
         </button>
       </div>
@@ -97,14 +98,21 @@ export function AppHeader({ searchOpen, onSearchOpenChange }: AppHeaderProps) {
           </TooltipContent>
         </Tooltip>
 
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => setTheme(isDark ? 'light' : 'dark')}
-          title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
-        >
-          {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
-        </Button>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setTheme(isDark ? 'light' : 'dark')}
+            >
+              {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent side="bottom">
+            <span>{isDark ? 'Light mode' : 'Dark mode'}</span>
+            <kbd className="ml-2 inline-flex h-5 min-w-[20px] items-center justify-center rounded border bg-muted px-1.5 font-mono text-[11px] font-medium text-muted-foreground">T</kbd>
+          </TooltipContent>
+        </Tooltip>
         
         <NotificationBell />
         

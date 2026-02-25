@@ -97,11 +97,14 @@ export function useKeyboardShortcuts({ onSearch, onHelp, onToggleTheme }: Shortc
   }, [navigate, onSearch, onHelp, onToggleTheme, isInputFocused]);
 }
 
+import { modKey } from '@/lib/platform';
+
 export const SHORTCUT_GROUPS = [
   {
     title: 'General',
     shortcuts: [
-      { keys: ['⌘', 'K'], description: 'Open search' },
+      { keys: [modKey, 'K'], description: 'Open search' },
+      { keys: [modKey, 'S'], description: 'Save (in editor)' },
       { keys: ['?'], description: 'Show keyboard shortcuts' },
       { keys: ['N'], description: 'New invoice' },
       { keys: ['T'], description: 'Toggle dark/light mode' },
@@ -109,7 +112,7 @@ export const SHORTCUT_GROUPS = [
     ],
   },
   {
-    title: 'Navigation (press G then...)',
+    title: 'Navigation (press G then…)',
     shortcuts: [
       { keys: ['G', 'D'], description: 'Go to Dashboard' },
       { keys: ['G', 'I'], description: 'Go to Invoices' },
@@ -117,6 +120,15 @@ export const SHORTCUT_GROUPS = [
       { keys: ['G', 'P'], description: 'Go to Products' },
       { keys: ['G', 'R'], description: 'Go to Reports' },
       { keys: ['G', 'S'], description: 'Go to Settings' },
+    ],
+  },
+  {
+    title: 'Invoice Editor',
+    shortcuts: [
+      { keys: [modKey, 'S'], description: 'Save invoice' },
+      { keys: [modKey, 'Enter'], description: 'Finalize invoice' },
+      { keys: [modKey, 'P'], description: 'Toggle preview' },
+      { keys: [modKey, 'I'], description: 'Add line item' },
     ],
   },
 ];
