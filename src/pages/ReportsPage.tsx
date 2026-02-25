@@ -1,11 +1,13 @@
 import { useMemo } from 'react';
-import { BarChart3, FileText, TrendingUp, Calendar, Download } from 'lucide-react';
+import { BarChart3, FileText, TrendingUp, Calendar, Download, Receipt } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { formatINR } from '@/hooks/useInvoiceCalculations';
 import { useInvoices } from '@/hooks/useInvoices';
 import { Skeleton } from '@/components/ui/skeleton';
 import { exportInvoicesToCSV } from '@/utils/csvExport';
+import { GSTReport } from '@/components/reports/GSTReport';
 import {
   BarChart,
   Bar,
@@ -47,15 +49,6 @@ export default function ReportsPage() {
       ? ((thisMonthRevenue - lastMonthRevenue) / lastMonthRevenue) * 100
       : 0;
 
-    // GST from paid invoices
-    let cgst = 0, sgst = 0, igst = 0;
-    paidInvoices.forEach((inv) => {
-      // Approximate split: assume all intra-state for simplicity
-      const tax = Number(inv.total_tax);
-      cgst += tax / 2;
-      sgst += tax / 2;
-    });
-
     // Outstanding
     const totalOutstanding = finalizedInvoices.reduce(
       (s, i) => s + Number(i.grand_total), 0
@@ -85,10 +78,16 @@ export default function ReportsPage() {
           return d.getMonth() === m.getMonth() && d.getFullYear() === m.getFullYear();
         })
         .reduce((s, inv) => s + Number(inv.grand_total), 0);
-      chartData.push({ month: monthName, revenue });
+      const tax = paidInvoices
+        .filter((inv) => {
+          const d = new Date(inv.date_issued);
+          return d.getMonth() === m.getMonth() && d.getFullYear() === m.getFullYear();
+        })
+        .reduce((s, inv) => s + Number(inv.total_tax), 0);
+      chartData.push({ month: monthName, revenue, tax });
     }
 
-    return { thisMonthRevenue, lastMonthRevenue, growth, cgst, sgst, igst, totalOutstanding, overdue, dueThisWeek, chartData };
+    return { thisMonthRevenue, lastMonthRevenue, growth, totalOutstanding, overdue, dueThisWeek, chartData };
   }, [invoices]);
 
   if (isLoading) {
@@ -110,7 +109,7 @@ export default function ReportsPage() {
         <div>
           <h1 className="text-2xl md:text-3xl font-bold">Reports & Analytics</h1>
           <p className="text-muted-foreground mt-1 text-sm md:text-base">
-            Track your business performance and generate reports
+            Track your business performance, GST liability, and outstanding payments
           </p>
         </div>
         <Button
@@ -124,145 +123,229 @@ export default function ReportsPage() {
         </Button>
       </div>
 
-      {/* Report Cards */}
-      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        <Card className="hover:shadow-md transition-shadow">
-          <CardHeader>
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-primary/10">
-                <TrendingUp className="w-5 h-5 text-primary" />
-              </div>
-              <div>
-                <CardTitle className="text-lg">Sales Report</CardTitle>
-                <CardDescription>Revenue and sales analysis</CardDescription>
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-2">
-              <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground">This Month</span>
-                <span className="font-semibold">{formatINR(stats.thisMonthRevenue)}</span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground">Last Month</span>
-                <span className="font-semibold">{formatINR(stats.lastMonthRevenue)}</span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground">Growth</span>
-                <span className={`font-semibold ${stats.growth >= 0 ? 'text-success' : 'text-destructive'}`}>
-                  {stats.growth >= 0 ? '+' : ''}{stats.growth.toFixed(1)}%
-                </span>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+      <Tabs defaultValue="sales" className="space-y-6">
+        <TabsList className="bg-muted/50 w-full sm:w-auto">
+          <TabsTrigger value="sales" className="gap-2 flex-1 sm:flex-none">
+            <TrendingUp className="w-4 h-4" />
+            <span className="hidden sm:inline">Sales</span>
+          </TabsTrigger>
+          <TabsTrigger value="gst" className="gap-2 flex-1 sm:flex-none">
+            <Receipt className="w-4 h-4" />
+            <span className="hidden sm:inline">GST & Tax</span>
+          </TabsTrigger>
+          <TabsTrigger value="outstanding" className="gap-2 flex-1 sm:flex-none">
+            <Calendar className="w-4 h-4" />
+            <span className="hidden sm:inline">Outstanding</span>
+          </TabsTrigger>
+        </TabsList>
 
-        <Card className="hover:shadow-md transition-shadow">
-          <CardHeader>
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-info/10">
-                <FileText className="w-5 h-5 text-info" />
-              </div>
-              <div>
-                <CardTitle className="text-lg">GST Summary</CardTitle>
-                <CardDescription>Tax collected and payable</CardDescription>
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-2">
-              <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground">CGST Collected</span>
-                <span className="font-semibold">{formatINR(stats.cgst)}</span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground">SGST Collected</span>
-                <span className="font-semibold">{formatINR(stats.sgst)}</span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground">IGST Collected</span>
-                <span className="font-semibold">{formatINR(stats.igst)}</span>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+        {/* ═══ SALES TAB ═══ */}
+        <TabsContent value="sales" className="space-y-6">
+          <div className="grid gap-6 sm:grid-cols-3">
+            <Card className="hover:shadow-md transition-shadow">
+              <CardHeader>
+                <div className="flex items-center gap-3">
+                  <div className="p-2 rounded-lg bg-primary/10">
+                    <TrendingUp className="w-5 h-5 text-primary" />
+                  </div>
+                  <div>
+                    <CardTitle className="text-lg">This Month</CardTitle>
+                    <CardDescription>Revenue collected</CardDescription>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <p className="text-2xl font-bold">{formatINR(stats.thisMonthRevenue)}</p>
+                <p className={`text-sm mt-1 ${stats.growth >= 0 ? 'text-emerald-600' : 'text-destructive'}`}>
+                  {stats.growth >= 0 ? '+' : ''}{stats.growth.toFixed(1)}% vs last month
+                </p>
+              </CardContent>
+            </Card>
 
-        <Card className="hover:shadow-md transition-shadow">
-          <CardHeader>
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-warning/10">
-                <Calendar className="w-5 h-5 text-warning" />
-              </div>
-              <div>
-                <CardTitle className="text-lg">Outstanding</CardTitle>
-                <CardDescription>Pending payments</CardDescription>
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-2">
-              <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground">Total Outstanding</span>
-                <span className="font-semibold text-warning">{formatINR(stats.totalOutstanding)}</span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground">Overdue</span>
-                <span className="font-semibold text-destructive">{formatINR(stats.overdue)}</span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground">Due This Week</span>
-                <span className="font-semibold">{formatINR(stats.dueThisWeek)}</span>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+            <Card className="hover:shadow-md transition-shadow">
+              <CardHeader>
+                <div className="flex items-center gap-3">
+                  <div className="p-2 rounded-lg bg-muted">
+                    <BarChart3 className="w-5 h-5 text-muted-foreground" />
+                  </div>
+                  <div>
+                    <CardTitle className="text-lg">Last Month</CardTitle>
+                    <CardDescription>Revenue collected</CardDescription>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <p className="text-2xl font-bold">{formatINR(stats.lastMonthRevenue)}</p>
+              </CardContent>
+            </Card>
 
-      {/* Revenue Chart */}
-      <Card>
-        <CardHeader>
-          <div className="flex items-center gap-3">
-            <BarChart3 className="w-5 h-5 text-primary" />
-            <div>
-              <CardTitle>Monthly Revenue</CardTitle>
-              <CardDescription>Revenue trend over the last 6 months</CardDescription>
-            </div>
+            <Card className="hover:shadow-md transition-shadow">
+              <CardHeader>
+                <div className="flex items-center gap-3">
+                  <div className="p-2 rounded-lg bg-primary/10">
+                    <FileText className="w-5 h-5 text-primary" />
+                  </div>
+                  <div>
+                    <CardTitle className="text-lg">Total Invoices</CardTitle>
+                    <CardDescription>All time</CardDescription>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <p className="text-2xl font-bold">{invoices.length}</p>
+                <p className="text-sm text-muted-foreground mt-1">
+                  {invoices.filter((i) => i.status === 'paid').length} paid
+                </p>
+              </CardContent>
+            </Card>
           </div>
-        </CardHeader>
-        <CardContent>
-          {stats.chartData.every((d) => d.revenue === 0) ? (
-            <div className="h-64 flex items-center justify-center bg-muted/30 rounded-lg">
-              <div className="text-center text-muted-foreground">
-                <BarChart3 className="w-12 h-12 mx-auto mb-3 opacity-50" />
-                <p>Charts will populate as you create and finalize invoices</p>
+
+          {/* Revenue Chart */}
+          <Card>
+            <CardHeader>
+              <div className="flex items-center gap-3">
+                <BarChart3 className="w-5 h-5 text-primary" />
+                <div>
+                  <CardTitle>Monthly Revenue & Tax</CardTitle>
+                  <CardDescription>Revenue and tax collection over the last 6 months</CardDescription>
+                </div>
               </div>
-            </div>
-          ) : (
-            <ResponsiveContainer width="100%" height={280}>
-              <BarChart data={stats.chartData}>
-                <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
-                <XAxis dataKey="month" className="text-muted-foreground" tick={{ fontSize: 12 }} />
-                <YAxis
-                  tickFormatter={(v) => `₹${(v / 1000).toFixed(0)}k`}
-                  className="text-muted-foreground"
-                  tick={{ fontSize: 12 }}
-                />
-                <Tooltip
-                  formatter={(value: number) => [formatINR(value), 'Revenue']}
-                  contentStyle={{
-                    borderRadius: '8px',
-                    border: '1px solid hsl(var(--border))',
-                    backgroundColor: 'hsl(var(--card))',
-                    color: 'hsl(var(--card-foreground))',
-                  }}
-                />
-                <Bar dataKey="revenue" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
+            </CardHeader>
+            <CardContent>
+              {stats.chartData.every((d) => d.revenue === 0) ? (
+                <div className="h-64 flex items-center justify-center bg-muted/30 rounded-lg">
+                  <div className="text-center text-muted-foreground">
+                    <BarChart3 className="w-12 h-12 mx-auto mb-3 opacity-50" />
+                    <p>Charts will populate as you create and finalize invoices</p>
+                  </div>
+                </div>
+              ) : (
+                <ResponsiveContainer width="100%" height={280}>
+                  <BarChart data={stats.chartData}>
+                    <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
+                    <XAxis dataKey="month" className="text-muted-foreground" tick={{ fontSize: 12 }} />
+                    <YAxis
+                      tickFormatter={(v) => `₹${(v / 1000).toFixed(0)}k`}
+                      className="text-muted-foreground"
+                      tick={{ fontSize: 12 }}
+                    />
+                    <Tooltip
+                      formatter={(value: number, name: string) => [formatINR(value), name === 'revenue' ? 'Revenue' : 'Tax']}
+                      contentStyle={{
+                        borderRadius: '8px',
+                        border: '1px solid hsl(var(--border))',
+                        backgroundColor: 'hsl(var(--card))',
+                        color: 'hsl(var(--card-foreground))',
+                      }}
+                    />
+                    <Bar dataKey="revenue" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} name="revenue" />
+                    <Bar dataKey="tax" fill="hsl(var(--primary) / 0.4)" radius={[4, 4, 0, 0]} name="tax" />
+                  </BarChart>
+                </ResponsiveContainer>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* ═══ GST & TAX TAB ═══ */}
+        <TabsContent value="gst">
+          <GSTReport invoices={invoices} />
+        </TabsContent>
+
+        {/* ═══ OUTSTANDING TAB ═══ */}
+        <TabsContent value="outstanding" className="space-y-6">
+          <div className="grid gap-6 sm:grid-cols-3">
+            <Card className="hover:shadow-md transition-shadow">
+              <CardHeader>
+                <div className="flex items-center gap-3">
+                  <div className="p-2 rounded-lg bg-amber-500/10">
+                    <Calendar className="w-5 h-5 text-amber-500" />
+                  </div>
+                  <div>
+                    <CardTitle className="text-lg">Total Outstanding</CardTitle>
+                    <CardDescription>Unpaid finalized invoices</CardDescription>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <p className="text-2xl font-bold text-amber-600">{formatINR(stats.totalOutstanding)}</p>
+              </CardContent>
+            </Card>
+
+            <Card className="hover:shadow-md transition-shadow">
+              <CardHeader>
+                <div className="flex items-center gap-3">
+                  <div className="p-2 rounded-lg bg-destructive/10">
+                    <Calendar className="w-5 h-5 text-destructive" />
+                  </div>
+                  <div>
+                    <CardTitle className="text-lg">Overdue</CardTitle>
+                    <CardDescription>Past due date</CardDescription>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <p className="text-2xl font-bold text-destructive">{formatINR(stats.overdue)}</p>
+              </CardContent>
+            </Card>
+
+            <Card className="hover:shadow-md transition-shadow">
+              <CardHeader>
+                <div className="flex items-center gap-3">
+                  <div className="p-2 rounded-lg bg-primary/10">
+                    <Calendar className="w-5 h-5 text-primary" />
+                  </div>
+                  <div>
+                    <CardTitle className="text-lg">Due This Week</CardTitle>
+                    <CardDescription>Coming up in 7 days</CardDescription>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <p className="text-2xl font-bold">{formatINR(stats.dueThisWeek)}</p>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Overdue invoices list */}
+          {invoices.filter((i) => i.status === 'finalized' && i.date_due && new Date(i.date_due) < new Date()).length > 0 && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-base">Overdue Invoices</CardTitle>
+                <CardDescription>These invoices are past their due date</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  {invoices
+                    .filter((i) => i.status === 'finalized' && i.date_due && new Date(i.date_due) < new Date())
+                    .sort((a, b) => new Date(a.date_due!).getTime() - new Date(b.date_due!).getTime())
+                    .map((inv) => {
+                      const daysOverdue = Math.ceil(
+                        (new Date().getTime() - new Date(inv.date_due!).getTime()) / (1000 * 60 * 60 * 24)
+                      );
+                      return (
+                        <div
+                          key={inv.id}
+                          className="flex items-center justify-between p-3 rounded-lg border border-destructive/20 bg-destructive/5"
+                        >
+                          <div>
+                            <p className="font-medium text-sm">{inv.invoice_number}</p>
+                            <p className="text-xs text-muted-foreground">
+                              {inv.client?.name || 'Walk-in'} · {daysOverdue} day{daysOverdue !== 1 ? 's' : ''} overdue
+                            </p>
+                          </div>
+                          <p className="font-semibold text-destructive tabular-nums">
+                            {formatINR(Number(inv.grand_total))}
+                          </p>
+                        </div>
+                      );
+                    })}
+                </div>
+              </CardContent>
+            </Card>
           )}
-        </CardContent>
-      </Card>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
