@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef, useMemo } from 'react';
 import {
   Plus,
   Search,
@@ -43,11 +43,13 @@ import { Textarea } from '@/components/ui/textarea';
 import { Skeleton } from '@/components/ui/skeleton';
 import { formatINR } from '@/hooks/useInvoiceCalculations';
 import { useClients } from '@/hooks/useClients';
+import { usePageShortcuts } from '@/hooks/usePageShortcuts';
 import { INDIAN_STATES } from '@/types';
 
 export default function ClientsPage() {
   const { clients, totalCreditBalance, isLoading, createClient, deleteClient } = useClients();
   const [searchQuery, setSearchQuery] = useState('');
+  const searchRef = useRef<HTMLInputElement>(null);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   
   // Form state
@@ -65,6 +67,12 @@ export default function ClientsPage() {
     client.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
     client.phone?.includes(searchQuery)
   );
+
+  // Page shortcuts: / → focus search, A → add client
+  usePageShortcuts(useMemo(() => [
+    { key: '/', handler: () => searchRef.current?.focus() },
+    { key: 'a', handler: () => setIsAddDialogOpen(true) },
+  ], []));
 
   const handleSubmit = () => {
     createClient.mutate({
@@ -247,8 +255,9 @@ export default function ClientsPage() {
         <div className="relative flex-1 max-w-sm">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input
+            ref={searchRef}
             type="search"
-            placeholder="Search clients..."
+            placeholder="Search clients...  ( / )"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="pl-10"
