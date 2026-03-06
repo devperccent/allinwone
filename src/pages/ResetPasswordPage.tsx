@@ -99,7 +99,7 @@ export default function ResetPasswordPage() {
         <div className="w-full max-w-md text-center">
           <div className="flex justify-center mb-8">
             <Link to="/">
-              <img src={inwWideLogo} alt="Inw" className="h-12 object-contain" />
+              <img src={resolvedTheme === 'dark' ? inwWideWhiteLogo : inwWideLogo} alt="Inw" className="h-12 object-contain" />
             </Link>
           </div>
           <div className="bg-card rounded-2xl border border-border shadow-xl p-8">
