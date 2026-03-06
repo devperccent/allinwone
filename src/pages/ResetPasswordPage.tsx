@@ -26,6 +26,7 @@ function getPasswordStrength(password: string) {
 export default function ResetPasswordPage() {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { resolvedTheme } = useTheme();
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
