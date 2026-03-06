@@ -59,7 +59,7 @@ export default function LoginPage() {
         {/* Logo */}
         <div className="flex justify-center mb-8">
           <Link to="/">
-            <img src={resolvedTheme === 'dark' ? inwWideWhiteLogo : inwWideLogo} alt="Inw" className="h-12 object-contain" />
+            <ThemeLogo />
           </Link>
         </div>
 
