@@ -5,9 +5,7 @@ import {
   Sparkles, Users, Package, Rocket, Store, Briefcase, ShoppingBag, Wrench, Utensils,
   Cpu, Heart, Wheat, MoreHorizontal, Truck, Scissors,
 } from 'lucide-react';
-import inwWideLogo from '@/assets/inw-wide.png';
-import inwWideWhiteLogo from '@/assets/inw-wide-white.png';
-import { useTheme } from '@/hooks/useTheme';
+import { ThemeLogo } from '@/components/ThemeLogo';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
