@@ -35,5 +35,10 @@ export function useTheme() {
 
   const setTheme = (t: Theme) => setThemeState(t);
 
-  return { theme, setTheme };
+  const resolvedTheme: 'light' | 'dark' =
+    theme === 'system'
+      ? (typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
+      : theme;
+
+  return { theme, setTheme, resolvedTheme };
 }

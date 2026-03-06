@@ -1,18 +1,21 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Eye, EyeOff, Loader2 } from 'lucide-react';
+import { Eye, EyeOff, Loader2, Sun, Moon } from 'lucide-react';
 import inwWideLogo from '@/assets/inw-wide.png';
+import inwWideWhiteLogo from '@/assets/inw-wide-white.png';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
+import { useTheme } from '@/hooks/useTheme';
 import { lovable } from '@/integrations/lovable/index';
 
 export default function LoginPage() {
   const navigate = useNavigate();
   const { signIn } = useAuth();
   const { toast } = useToast();
+  const { theme, setTheme, resolvedTheme } = useTheme();
   
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -44,12 +47,20 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background to-muted p-4">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background to-muted p-4 relative">
+      {/* Theme Toggle */}
+      <button
+        onClick={() => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')}
+        className="absolute top-4 right-4 p-2 rounded-lg border border-border bg-card text-muted-foreground hover:text-foreground transition-colors"
+      >
+        {resolvedTheme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+      </button>
+
       <div className="w-full max-w-md">
         {/* Logo */}
         <div className="flex justify-center mb-8">
           <Link to="/">
-            <img src={inwWideLogo} alt="Inw" className="h-12 object-contain" />
+            <img src={resolvedTheme === 'dark' ? inwWideWhiteLogo : inwWideLogo} alt="Inw" className="h-12 object-contain" />
           </Link>
         </div>
 
