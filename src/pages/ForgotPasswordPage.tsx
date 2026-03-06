@@ -1,9 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowLeft, Loader2, Mail } from 'lucide-react';
-import inwWideLogo from '@/assets/inw-wide.png';
-import inwWideWhiteLogo from '@/assets/inw-wide-white.png';
-import { useTheme } from '@/hooks/useTheme';
+import { ThemeLogo } from '@/components/ThemeLogo';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -12,7 +10,6 @@ import { useToast } from '@/hooks/use-toast';
 
 export default function ForgotPasswordPage() {
   const { toast } = useToast();
-  const { resolvedTheme } = useTheme();
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [sent, setSent] = useState(false);
@@ -44,7 +41,7 @@ export default function ForgotPasswordPage() {
       <div className="w-full max-w-md">
         <div className="flex justify-center mb-8">
           <Link to="/">
-            <img src={resolvedTheme === 'dark' ? inwWideWhiteLogo : inwWideLogo} alt="Inw" className="h-12 object-contain" />
+            <ThemeLogo />
           </Link>
         </div>
 

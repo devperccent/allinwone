@@ -1,8 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, Loader2, Check, Sun, Moon } from 'lucide-react';
-import inwWideLogo from '@/assets/inw-wide.png';
-import inwWideWhiteLogo from '@/assets/inw-wide-white.png';
+import { ThemeLogo } from '@/components/ThemeLogo';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -79,7 +78,7 @@ export default function SignupPage() {
         {/* Logo */}
         <div className="flex justify-center mb-8">
           <Link to="/">
-            <img src={resolvedTheme === 'dark' ? inwWideWhiteLogo : inwWideLogo} alt="Inw" className="h-12 object-contain" />
+            <ThemeLogo />
           </Link>
         </div>
 

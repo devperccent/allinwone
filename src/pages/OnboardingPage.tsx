@@ -5,9 +5,7 @@ import {
   Sparkles, Users, Package, Rocket, Store, Briefcase, ShoppingBag, Wrench, Utensils,
   Cpu, Heart, Wheat, MoreHorizontal, Truck, Scissors,
 } from 'lucide-react';
-import inwWideLogo from '@/assets/inw-wide.png';
-import inwWideWhiteLogo from '@/assets/inw-wide-white.png';
-import { useTheme } from '@/hooks/useTheme';
+import { ThemeLogo } from '@/components/ThemeLogo';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -48,7 +46,6 @@ export default function OnboardingPage() {
   const navigate = useNavigate();
   const { profile, refreshProfile } = useAuth();
   const { updateProfile, isUpdating } = useProfile();
-  const { resolvedTheme } = useTheme();
   const { toast } = useToast();
 
   const [currentStep, setCurrentStep] = useState(0);
@@ -142,7 +139,7 @@ export default function OnboardingPage() {
     <div className="min-h-screen bg-gradient-to-br from-background to-muted flex flex-col">
       {/* Top bar */}
       <div className="flex items-center justify-between px-6 py-4">
-        <img src={resolvedTheme === 'dark' ? inwWideWhiteLogo : inwWideLogo} alt="Inw" className="h-8 object-contain" />
+        <ThemeLogo className="h-8 object-contain" />
         <Button variant="ghost" size="sm" onClick={() => navigate('/')} className="text-muted-foreground">
           Skip for now
         </Button>

@@ -13,9 +13,7 @@ import {
 } from 'lucide-react';
 import { useIsAdmin } from '@/hooks/useAdmin';
 import inwLogo from '@/assets/inw-logomark.png';
-import inwWideLogo from '@/assets/inw-wide.png';
-import inwWideWhiteLogo from '@/assets/inw-wide-white.png';
-import { useTheme } from '@/hooks/useTheme';
+import { ThemeLogo } from '@/components/ThemeLogo';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
@@ -51,7 +49,6 @@ export function AppSidebar({ onNavigate }: AppSidebarProps) {
   const [collapsed, setCollapsed] = useState(false);
   const { profile, signOut } = useAuth();
   const { data: isAdmin } = useIsAdmin();
-  const { resolvedTheme } = useTheme();
 
   // On mobile (used inside Sheet), always show expanded
   const isCollapsed = isMobile ? false : collapsed;
@@ -86,7 +83,7 @@ export function AppSidebar({ onNavigate }: AppSidebarProps) {
           {isCollapsed ? (
             <img src={inwLogo} alt="Inw" className="w-10 h-10 object-contain" />
           ) : (
-            <img src={resolvedTheme === 'dark' ? inwWideWhiteLogo : inwWideLogo} alt="Inw" className="h-8 object-contain" />
+            <ThemeLogo className="h-8 object-contain" />
           )}
         </Link>
       </div>

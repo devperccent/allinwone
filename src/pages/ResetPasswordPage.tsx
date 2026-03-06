@@ -1,9 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, Loader2, CheckCircle } from 'lucide-react';
-import inwWideLogo from '@/assets/inw-wide.png';
-import inwWideWhiteLogo from '@/assets/inw-wide-white.png';
-import { useTheme } from '@/hooks/useTheme';
+import { ThemeLogo } from '@/components/ThemeLogo';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -26,7 +24,6 @@ function getPasswordStrength(password: string) {
 export default function ResetPasswordPage() {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { resolvedTheme } = useTheme();
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -99,7 +96,7 @@ export default function ResetPasswordPage() {
         <div className="w-full max-w-md text-center">
           <div className="flex justify-center mb-8">
             <Link to="/">
-              <img src={resolvedTheme === 'dark' ? inwWideWhiteLogo : inwWideLogo} alt="Inw" className="h-12 object-contain" />
+              <ThemeLogo />
             </Link>
           </div>
           <div className="bg-card rounded-2xl border border-border shadow-xl p-8">
@@ -116,7 +113,7 @@ export default function ResetPasswordPage() {
       <div className="w-full max-w-md">
         <div className="flex justify-center mb-8">
           <Link to="/">
-            <img src={resolvedTheme === 'dark' ? inwWideWhiteLogo : inwWideLogo} alt="Inw" className="h-12 object-contain" />
+            <ThemeLogo />
           </Link>
         </div>
 
