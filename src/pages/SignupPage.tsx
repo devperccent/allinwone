@@ -15,6 +15,7 @@ export default function SignupPage() {
   const navigate = useNavigate();
   const { signUp } = useAuth();
   const { toast } = useToast();
+  const { theme, setTheme, resolvedTheme } = useTheme();
   
   const [orgName, setOrgName] = useState('');
   const [email, setEmail] = useState('');
