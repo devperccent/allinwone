@@ -51,6 +51,7 @@ export function AppSidebar({ onNavigate }: AppSidebarProps) {
   const [collapsed, setCollapsed] = useState(false);
   const { profile, signOut } = useAuth();
   const { data: isAdmin } = useIsAdmin();
+  const { resolvedTheme } = useTheme();
 
   // On mobile (used inside Sheet), always show expanded
   const isCollapsed = isMobile ? false : collapsed;
