@@ -46,7 +46,6 @@ export default function OnboardingPage() {
   const navigate = useNavigate();
   const { profile, refreshProfile } = useAuth();
   const { updateProfile, isUpdating } = useProfile();
-  const { resolvedTheme } = useTheme();
   const { toast } = useToast();
 
   const [currentStep, setCurrentStep] = useState(0);
