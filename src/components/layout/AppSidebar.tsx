@@ -86,7 +86,7 @@ export function AppSidebar({ onNavigate }: AppSidebarProps) {
           {isCollapsed ? (
             <img src={inwLogo} alt="Inw" className="w-10 h-10 object-contain" />
           ) : (
-            <img src={inwWideLogo} alt="Inw" className="h-8 object-contain" />
+            <img src={resolvedTheme === 'dark' ? inwWideWhiteLogo : inwWideLogo} alt="Inw" className="h-8 object-contain" />
           )}
         </Link>
       </div>

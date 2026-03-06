@@ -142,7 +142,7 @@ export default function OnboardingPage() {
     <div className="min-h-screen bg-gradient-to-br from-background to-muted flex flex-col">
       {/* Top bar */}
       <div className="flex items-center justify-between px-6 py-4">
-        <img src={inwWideLogo} alt="Inw" className="h-8 object-contain" />
+        <img src={resolvedTheme === 'dark' ? inwWideWhiteLogo : inwWideLogo} alt="Inw" className="h-8 object-contain" />
         <Button variant="ghost" size="sm" onClick={() => navigate('/')} className="text-muted-foreground">
           Skip for now
         </Button>

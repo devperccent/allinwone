@@ -44,7 +44,7 @@ export default function ForgotPasswordPage() {
       <div className="w-full max-w-md">
         <div className="flex justify-center mb-8">
           <Link to="/">
-            <img src={inwWideLogo} alt="Inw" className="h-12 object-contain" />
+            <img src={resolvedTheme === 'dark' ? inwWideWhiteLogo : inwWideLogo} alt="Inw" className="h-12 object-contain" />
           </Link>
         </div>
 
