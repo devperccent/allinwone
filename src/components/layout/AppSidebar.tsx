@@ -13,9 +13,7 @@ import {
 } from 'lucide-react';
 import { useIsAdmin } from '@/hooks/useAdmin';
 import inwLogo from '@/assets/inw-logomark.png';
-import inwWideLogo from '@/assets/inw-wide.png';
-import inwWideWhiteLogo from '@/assets/inw-wide-white.png';
-import { useTheme } from '@/hooks/useTheme';
+import { ThemeLogo } from '@/components/ThemeLogo';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
