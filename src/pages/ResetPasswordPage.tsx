@@ -1,9 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, Loader2, CheckCircle } from 'lucide-react';
-import inwWideLogo from '@/assets/inw-wide.png';
-import inwWideWhiteLogo from '@/assets/inw-wide-white.png';
-import { useTheme } from '@/hooks/useTheme';
+import { ThemeLogo } from '@/components/ThemeLogo';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
