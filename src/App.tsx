@@ -8,6 +8,7 @@ import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { ModuleRoute } from "@/components/auth/ModuleRoute";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { AdminRoute } from "@/components/auth/AdminRoute";
+import { AIChatbot } from "@/components/chat/AIChatbot";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminUserDetail from "./pages/admin/AdminUserDetail";
 import Dashboard from "./pages/Dashboard";
@@ -42,6 +43,7 @@ const App = () => (
       <TooltipProvider>
         <Toaster />
         <Sonner />
+        <AIChatbot />
         <BrowserRouter>
           <Routes>
             {/* Public routes */}
