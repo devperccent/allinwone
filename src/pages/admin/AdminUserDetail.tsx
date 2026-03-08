@@ -198,13 +198,13 @@ export default function AdminUserDetail() {
 
         <TabsContent value="products">
           <Card>
-            <CardContent className="pt-4">
+            <CardContent className="pt-4 overflow-x-auto">
               <Table>
                 <TableHeader>
                   <TableRow>
                     <TableHead>Name</TableHead>
-                    <TableHead>SKU</TableHead>
-                    <TableHead>Type</TableHead>
+                    <TableHead className="hidden sm:table-cell">SKU</TableHead>
+                    <TableHead className="hidden sm:table-cell">Type</TableHead>
                     <TableHead className="text-right">Price</TableHead>
                     <TableHead className="text-right">Stock</TableHead>
                   </TableRow>
@@ -215,8 +215,8 @@ export default function AdminUserDetail() {
                   ) : products.map((p: any) => (
                     <TableRow key={p.id}>
                       <TableCell className="font-medium">{p.name}</TableCell>
-                      <TableCell>{p.sku}</TableCell>
-                      <TableCell className="capitalize">{p.type}</TableCell>
+                      <TableCell className="hidden sm:table-cell">{p.sku}</TableCell>
+                      <TableCell className="hidden sm:table-cell capitalize">{p.type}</TableCell>
                       <TableCell className="text-right">{formatINR(Number(p.selling_price))}</TableCell>
                       <TableCell className="text-right">{p.stock_quantity}</TableCell>
                     </TableRow>
