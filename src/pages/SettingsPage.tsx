@@ -109,6 +109,7 @@ export default function SettingsPage() {
       setBankIfsc(authProfile.bank_ifsc || '');
       setInvoicePrefix(authProfile.invoice_prefix || 'INW-');
       setNextNumber(authProfile.next_invoice_number || 1);
+      setEnabledModules(authProfile.enabled_modules ?? ALL_MODULES.map(m => m.key));
     }
   }, [authProfile]);
 
