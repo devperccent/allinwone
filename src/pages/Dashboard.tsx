@@ -111,9 +111,9 @@ export default function Dashboard() {
             <span className="hidden sm:inline">Overview</span>
           </TabsTrigger>
           {hasDocModules && (
-            <TabsTrigger value="documents" className="gap-1.5">
+            <TabsTrigger value="documents" className="gap-1.5 shrink-0">
               <FileText className="w-4 h-4" />
-              Documents
+              <span className="hidden sm:inline">Documents</span>
             </TabsTrigger>
           )}
           <TabsTrigger value="activity" className="gap-1.5">
