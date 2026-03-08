@@ -106,9 +106,9 @@ export default function Dashboard() {
       {/* Tabbed content area */}
       <Tabs defaultValue="overview" className="space-y-4">
         <TabsList className="bg-muted/50 w-full sm:w-auto overflow-x-auto flex-nowrap justify-start">
-          <TabsTrigger value="overview" className="gap-1.5">
+          <TabsTrigger value="overview" className="gap-1.5 shrink-0">
             <TrendingUp className="w-4 h-4" />
-            Overview
+            <span className="hidden sm:inline">Overview</span>
           </TabsTrigger>
           {hasDocModules && (
             <TabsTrigger value="documents" className="gap-1.5">
