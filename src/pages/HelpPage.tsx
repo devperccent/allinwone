@@ -421,6 +421,26 @@ const SECTIONS: DocSection[] = [
     ],
   },
   {
+    id: 'modules',
+    icon: SlidersHorizontal,
+    title: 'Feature Modules',
+    description: 'Customize your workspace by enabling only the features you need',
+    articles: [
+      {
+        id: 'mod-overview',
+        title: 'What Are Modules?',
+        tags: ['modules', 'features', 'customize', 'toggle'],
+        content: `Not every business needs every feature. **Modules** let you turn off parts of the app you don't use.\n\n**Toggleable modules:**\n• **Quick Bill** – retail POS checkout\n• **Quotations** – create and convert quotes\n• **Delivery Challans** – goods dispatch tracking\n• **Purchase Orders** – supplier order management\n• **Recurring Invoices** – scheduled invoice generation\n• **Reports** – analytics and GST reports\n\n**Always-on features:** Dashboard, Invoices, Products, Clients, Settings, Help.\n\nDisabled modules hide their sidebar links, dashboard widgets, and routes entirely.`,
+      },
+      {
+        id: 'mod-how',
+        title: 'How to Enable/Disable Modules',
+        tags: ['settings', 'toggle', 'enable', 'disable'],
+        content: `1. Go to **Settings → Modules**.\n2. Toggle each module **on** or **off**.\n3. Click **Save Module Preferences**.\n\nChanges take effect immediately — the sidebar and dashboard update to reflect your choices.\n\n> **Tip:** Start with just Invoices and add modules as your business grows. You can always re-enable them later.`,
+      },
+    ],
+  },
+  {
     id: 'tips',
     icon: HelpCircle,
     title: 'Tips & Best Practices',
