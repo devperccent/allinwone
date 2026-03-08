@@ -151,7 +151,7 @@ export function InvoicePdfPreview({
 
       {/* ═══ META STRIP ═══ */}
       {template === 'minimal' ? (
-        <div className="mx-6 mb-3 grid grid-cols-4 gap-3 py-2" style={{ borderTop: `1px solid ${GRAY_200}`, borderBottom: `1px solid ${GRAY_200}` }}>
+        <div className="mx-4 mb-3 grid grid-cols-2 gap-x-3 gap-y-1.5 py-2" style={{ borderTop: `1px solid ${GRAY_200}`, borderBottom: `1px solid ${GRAY_200}` }}>
           {[
             { label: 'Date Issued', value: formatDate(dateIssued) },
             { label: 'Due Date', value: dateDue ? formatDate(dateDue) : '—' },
@@ -159,55 +159,55 @@ export function InvoicePdfPreview({
             { label: 'Supply Type', value: isIntraState ? 'Intra-State' : 'Inter-State' },
           ].map(m => (
             <div key={m.label}>
-              <p className="text-[6.5px] uppercase tracking-wider mb-0.5" style={{ color: GRAY_400 }}>{m.label}</p>
-              <p className="text-[8.5px] font-medium" style={{ color: GRAY_900 }}>{m.value}</p>
+              <p className="text-[5.5px] uppercase tracking-wider mb-0.5" style={{ color: GRAY_400 }}>{m.label}</p>
+              <p className="text-[7.5px] font-medium" style={{ color: GRAY_900 }}>{m.value}</p>
             </div>
           ))}
         </div>
       ) : (
-        <div className="grid grid-cols-4 divide-x" style={{ backgroundColor: template === 'classic' ? p.accentLight : GRAY_100, borderTop: `0.5px solid ${GRAY_200}`, borderBottom: `0.5px solid ${GRAY_200}` }}>
+        <div className="grid grid-cols-2 gap-y-1" style={{ backgroundColor: template === 'classic' ? p.accentLight : GRAY_100, borderTop: `0.5px solid ${GRAY_200}`, borderBottom: `0.5px solid ${GRAY_200}`, padding: '6px 16px' }}>
           {[
             { label: 'Date Issued', value: formatDate(dateIssued) },
             { label: 'Due Date', value: dateDue ? formatDate(dateDue) : '—' },
             { label: 'Place of Supply', value: client ? INDIAN_STATES[client.state_code] : INDIAN_STATES[profileStateCode] },
             { label: 'Supply Type', value: isIntraState ? 'Intra-State' : 'Inter-State' },
           ].map(m => (
-            <div key={m.label} className="py-2 text-center">
-              <p className="text-[6.5px] uppercase tracking-wider mb-0.5" style={{ color: GRAY_400 }}>{m.label}</p>
-              <p className="text-[8.5px] font-bold" style={{ color: GRAY_900 }}>{m.value}</p>
+            <div key={m.label} className="py-0.5">
+              <p className="text-[5.5px] uppercase tracking-wider mb-0.5" style={{ color: GRAY_400 }}>{m.label}</p>
+              <p className="text-[7.5px] font-bold" style={{ color: GRAY_900 }}>{m.value}</p>
             </div>
           ))}
         </div>
       )}
 
       {/* ═══ BILL TO & FROM ═══ */}
-      <div className="px-6 pt-4 pb-3">
-        <div className="grid grid-cols-2 gap-3">
-          <div className="p-3" style={{
+      <div className="px-4 pt-3 pb-2">
+        <div className="grid grid-cols-2 gap-2">
+          <div className="p-2 min-w-0" style={{
             border: `1px solid ${GRAY_200}`,
             borderLeft: template !== 'minimal' ? `3px solid ${p.accent}` : `1px solid ${GRAY_200}`,
             borderRadius: p.borderRadius,
           }}>
-            <h4 className="text-[7px] font-bold uppercase tracking-[1.5px] mb-2" style={{ color: p.accent }}>Bill To</h4>
+            <h4 className="text-[6px] font-bold uppercase tracking-[1.5px] mb-1.5" style={{ color: p.accent }}>Bill To</h4>
             {client ? (
               <>
-                <p className="text-[10.5px] font-bold" style={{ color: GRAY_900 }}>{client.name}</p>
-                {client.billing_address && <p className="text-[8px] leading-snug mt-0.5" style={{ color: GRAY_500 }}>{client.billing_address}</p>}
-                {client.gstin && <p className="text-[8px]" style={{ color: GRAY_500 }}>GSTIN: {client.gstin}</p>}
-                <p className="text-[8px]" style={{ color: GRAY_500 }}>State: {INDIAN_STATES[client.state_code]} ({client.state_code})</p>
-                {client.phone && <p className="text-[8px]" style={{ color: GRAY_500 }}>Phone: {client.phone}</p>}
-                {client.email && <p className="text-[8px]" style={{ color: GRAY_500 }}>Email: {client.email}</p>}
+                <p className="text-[9px] font-bold truncate" style={{ color: GRAY_900 }}>{client.name}</p>
+                {client.billing_address && <p className="text-[7px] leading-snug mt-0.5 break-words" style={{ color: GRAY_500 }}>{client.billing_address}</p>}
+                {client.gstin && <p className="text-[7px]" style={{ color: GRAY_500 }}>GSTIN: {client.gstin}</p>}
+                <p className="text-[7px]" style={{ color: GRAY_500 }}>State: {INDIAN_STATES[client.state_code]} ({client.state_code})</p>
+                {client.phone && <p className="text-[7px]" style={{ color: GRAY_500 }}>Phone: {client.phone}</p>}
+                {client.email && <p className="text-[7px]" style={{ color: GRAY_500 }}>Email: {client.email}</p>}
               </>
             ) : (
-              <p className="text-[8px] italic" style={{ color: GRAY_400 }}>Walk-in Customer</p>
+              <p className="text-[7px] italic" style={{ color: GRAY_400 }}>Walk-in Customer</p>
             )}
           </div>
-          <div className="p-3" style={{ border: `1px solid ${GRAY_200}`, borderRadius: p.borderRadius }}>
-            <h4 className="text-[7px] font-bold uppercase tracking-[1.5px] mb-2" style={{ color: p.accent }}>From</h4>
-            <p className="text-[10.5px] font-bold" style={{ color: GRAY_900 }}>{orgName}</p>
-            {orgAddress && <p className="text-[8px] leading-snug mt-0.5" style={{ color: GRAY_500 }}>{orgAddress}</p>}
-            {orgGstin && <p className="text-[8px]" style={{ color: GRAY_500 }}>GSTIN: {orgGstin}</p>}
-            <p className="text-[8px]" style={{ color: GRAY_500 }}>State: {INDIAN_STATES[profileStateCode]} ({profileStateCode})</p>
+          <div className="p-2 min-w-0" style={{ border: `1px solid ${GRAY_200}`, borderRadius: p.borderRadius }}>
+            <h4 className="text-[6px] font-bold uppercase tracking-[1.5px] mb-1.5" style={{ color: p.accent }}>From</h4>
+            <p className="text-[9px] font-bold truncate" style={{ color: GRAY_900 }}>{orgName}</p>
+            {orgAddress && <p className="text-[7px] leading-snug mt-0.5 break-words" style={{ color: GRAY_500 }}>{orgAddress}</p>}
+            {orgGstin && <p className="text-[7px]" style={{ color: GRAY_500 }}>GSTIN: {orgGstin}</p>}
+            <p className="text-[7px]" style={{ color: GRAY_500 }}>State: {INDIAN_STATES[profileStateCode]} ({profileStateCode})</p>
           </div>
         </div>
       </div>
