@@ -23,6 +23,32 @@ export default function AdminUserDetail() {
   const { profileId } = useParams<{ profileId: string }>();
   const navigate = useNavigate();
   const { data, isLoading } = useAdminUserDetail(profileId);
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+  const [modulesState, setModulesState] = useState<string[]>([]);
+  const [savingModules, setSavingModules] = useState(false);
+
+  useEffect(() => {
+    if (data?.profile) {
+      setModulesState((data.profile as any).enabled_modules ?? ALL_MODULES.map(m => m.key));
+    }
+  }, [data?.profile]);
+
+  const handleSaveModules = async () => {
+    if (!profileId) return;
+    setSavingModules(true);
+    const { error } = await supabase
+      .from('profiles')
+      .update({ enabled_modules: modulesState } as any)
+      .eq('id', profileId);
+    setSavingModules(false);
+    if (error) {
+      toast({ title: 'Error', description: error.message, variant: 'destructive' });
+    } else {
+      toast({ title: 'Modules updated', description: 'User modules have been saved.' });
+      queryClient.invalidateQueries({ queryKey: ['admin_user_detail', profileId] });
+    }
+  };
 
   if (isLoading) {
     return <div className="flex items-center justify-center h-64"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" /></div>;
