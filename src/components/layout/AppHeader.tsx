@@ -27,7 +27,7 @@ interface AppHeaderProps {
   onOpenShortcuts?: () => void;
 }
 
-export function AppHeader({ searchOpen, onSearchOpenChange }: AppHeaderProps) {
+export function AppHeader({ searchOpen, onSearchOpenChange, onOpenShortcuts }: AppHeaderProps) {
   const navigate = useNavigate();
   const { profile, signOut } = useAuth();
   const { theme, setTheme } = useTheme();
