@@ -275,6 +275,13 @@ export function InvoiceForm({
         />
       </div>
 
+      {/* Template Selector */}
+      {onTemplateChange && (
+        <div className="rounded-xl border border-border bg-card p-5">
+          <TemplateSelector value={template} onChange={onTemplateChange} />
+        </div>
+      )}
+
       {/* Payment Info Toggle */}
       <div className="rounded-xl border border-border bg-card p-5 flex items-center justify-between">
         <div>
