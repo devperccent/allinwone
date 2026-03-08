@@ -197,8 +197,10 @@ export default function Dashboard() {
         </TabsContent>
 
         {lowStockProducts.length > 0 && (
-          <TabsContent value="alerts">
+          <TabsContent value="alerts" className="space-y-6">
             <LowStockAlert products={lowStockProducts} />
+            <LowStockAutoPO />
+            <ExpiringBatchesAlert />
           </TabsContent>
         )}
       </Tabs>

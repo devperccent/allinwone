@@ -56,6 +56,7 @@ const mainNavigation: NavItem[] = [
 const documentNavigation: NavItem[] = [
   { name: 'Challans', href: '/challans', icon: Truck, shortcut: '', module: 'challans' },
   { name: 'Purchase Orders', href: '/purchase-orders', icon: ClipboardList, shortcut: '', module: 'purchase_orders' },
+  { name: 'Purchase Bills', href: '/purchase-bills', icon: Receipt, shortcut: '', module: 'purchase_orders' },
   { name: 'Recurring', href: '/recurring', icon: RefreshCw, shortcut: '', module: 'recurring' },
 ];
 

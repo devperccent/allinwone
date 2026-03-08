@@ -84,6 +84,10 @@ const App = () => (
               <Route path="/purchase-orders/:id" element={<ModuleRoute><PurchaseOrderEditor /></ModuleRoute>} />
               <Route path="/purchase-orders/:id/edit" element={<ModuleRoute><PurchaseOrderEditor /></ModuleRoute>} />
               <Route path="/recurring" element={<ModuleRoute><RecurringInvoicesPage /></ModuleRoute>} />
+              <Route path="/purchase-bills" element={<ModuleRoute><PurchaseBillsPage /></ModuleRoute>} />
+              <Route path="/purchase-bills/new" element={<ModuleRoute><PurchaseBillEditor /></ModuleRoute>} />
+              <Route path="/purchase-bills/:id" element={<ModuleRoute><PurchaseBillEditor /></ModuleRoute>} />
+              <Route path="/purchase-bills/:id/edit" element={<ModuleRoute><PurchaseBillEditor /></ModuleRoute>} />
               <Route path="/recurring/new" element={<ModuleRoute><RecurringInvoicesPage /></ModuleRoute>} />
               <Route path="/recurring/:id" element={<ModuleRoute><RecurringInvoicesPage /></ModuleRoute>} />
               <Route path="/products" element={<ProductsPage />} />
