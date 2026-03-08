@@ -154,7 +154,7 @@ export function AIChatbot() {
       {open && (
         <div className="fixed bottom-0 right-0 sm:bottom-6 sm:right-6 z-50 w-full sm:w-[380px] sm:max-w-[calc(100vw-2rem)] h-[100dvh] sm:h-[520px] sm:max-h-[calc(100vh-6rem)] flex flex-col sm:rounded-2xl border border-border bg-card shadow-2xl animate-in slide-in-from-bottom-4 fade-in duration-300">
           {/* Header */}
-          <div className="flex items-center justify-between px-4 py-3 border-b border-border rounded-t-2xl bg-primary/5">
+          <div className="flex items-center justify-between px-4 py-3 border-b border-border sm:rounded-t-2xl bg-primary/5 safe-area-top">
             <div className="flex items-center gap-2">
               <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
                 <Bot className="w-4 h-4 text-primary" />
