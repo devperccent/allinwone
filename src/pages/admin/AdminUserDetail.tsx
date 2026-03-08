@@ -62,16 +62,16 @@ export default function AdminUserDetail() {
   const totalRevenue = invoices.filter((i: any) => i.status === 'paid').reduce((s: number, i: any) => s + Number(i.grand_total), 0);
 
   return (
-    <div className="space-y-6 p-6">
-      <div className="flex items-center gap-4">
-        <Button variant="ghost" size="icon" onClick={() => navigate('/admin')}>
+    <div className="space-y-6 p-4 sm:p-6">
+      <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+        <Button variant="ghost" size="icon" onClick={() => navigate('/admin')} className="self-start">
           <ArrowLeft className="h-4 w-4" />
         </Button>
-        <div>
-          <h1 className="text-2xl font-bold">{profile.org_name}</h1>
-          <p className="text-muted-foreground">{profile.email}</p>
+        <div className="flex-1 min-w-0">
+          <h1 className="text-xl sm:text-2xl font-bold truncate">{profile.org_name}</h1>
+          <p className="text-muted-foreground text-sm truncate">{profile.email}</p>
         </div>
-        <Badge variant={profile.onboarding_completed ? 'default' : 'secondary'} className="ml-auto">
+        <Badge variant={profile.onboarding_completed ? 'default' : 'secondary'} className="self-start sm:self-auto">
           {profile.onboarding_completed ? 'Active' : 'Pending Setup'}
         </Badge>
       </div>
