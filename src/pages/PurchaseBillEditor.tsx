@@ -290,11 +290,11 @@ export default function PurchaseBillEditor() {
           </div>
 
           {/* Totals */}
-          <div className="rounded-xl border border-border bg-card p-5">
+          <div className="rounded-lg border border-border bg-card p-4">
             <div className="space-y-3">
               <div className="flex justify-between text-sm"><span className="text-muted-foreground">Subtotal</span><span className="font-medium tabular-nums">{formatINR(totals.subtotal)}</span></div>
               <div className="flex justify-between text-sm"><span className="text-muted-foreground">GST</span><span className="font-medium tabular-nums">{formatINR(totals.totalTax)}</span></div>
-              <div className="border-t border-border pt-3 flex justify-between"><span className="text-lg font-semibold">Grand Total</span><span className="text-2xl font-bold tabular-nums text-primary">{formatINR(totals.grandTotal)}</span></div>
+              <div className="border-t border-border pt-3 flex justify-between"><span className="text-sm font-semibold">Grand Total</span><span className="text-xl font-bold tabular-nums text-primary">{formatINR(totals.grandTotal)}</span></div>
             </div>
           </div>
 
