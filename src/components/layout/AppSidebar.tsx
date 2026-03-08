@@ -68,10 +68,7 @@ const managementNavigation: NavItem[] = [
   { name: 'Data Manager', href: '/bulk', icon: Upload, shortcut: 'E' },
 ];
 
-const bottomNavigation = [
-  { name: 'Settings', href: '/settings', icon: Settings, shortcut: 'S' },
-  { name: 'Help & Docs', href: '/help', icon: BookOpen, shortcut: '' },
-];
+const bottomNavigation: NavItem[] = [];
 
 interface AppSidebarProps {
   onNavigate?: () => void;
@@ -195,11 +192,6 @@ export function AppSidebar({ onNavigate }: AppSidebarProps) {
 
         {renderSectionLabel('Manage')}
         {filterNav(managementNavigation).map(renderNavItem)}
-
-        {renderSectionLabel('')}
-        {bottomNavigation.map(renderNavItem)}
-
-        {isAdmin && renderNavItem({ name: 'Admin', href: '/admin', icon: ShieldCheck, shortcut: '' })}
       </nav>
 
       {/* Keyboard shortcut hint */}
@@ -219,17 +211,18 @@ export function AppSidebar({ onNavigate }: AppSidebarProps) {
           <DropdownMenuTrigger asChild>
             <button
               className={cn(
-                'flex items-center gap-3 w-full px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200',
+                'flex items-center gap-3 w-full px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 group',
                 'text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground',
                 isCollapsed && 'justify-center'
               )}
             >
-              <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+              <div className="w-8 h-8 rounded-full bg-primary/10 ring-2 ring-primary/20 group-hover:ring-primary/40 flex items-center justify-center flex-shrink-0 transition-all">
                 <span className="text-xs font-semibold text-primary">{initials}</span>
               </div>
               {!isCollapsed && (
                 <div className="flex-1 text-left truncate">
-                  <p className="truncate">{profile?.org_name || 'Loading...'}</p>
+                  <p className="truncate text-xs">{profile?.org_name || 'Loading...'}</p>
+                  <p className="text-[10px] text-sidebar-foreground/50 truncate">Settings & more ▾</p>
                 </div>
               )}
             </button>
@@ -241,11 +234,25 @@ export function AppSidebar({ onNavigate }: AppSidebarProps) {
             </div>
             <DropdownMenuSeparator />
             <DropdownMenuItem asChild>
-              <Link to="/settings">
+              <Link to="/settings" onClick={onNavigate}>
                 <Settings className="w-4 h-4 mr-2" />
                 Settings
               </Link>
             </DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <Link to="/help" onClick={onNavigate}>
+                <BookOpen className="w-4 h-4 mr-2" />
+                Help & Docs
+              </Link>
+            </DropdownMenuItem>
+            {isAdmin && (
+              <DropdownMenuItem asChild>
+                <Link to="/admin" onClick={onNavigate}>
+                  <ShieldCheck className="w-4 h-4 mr-2" />
+                  Admin Panel
+                </Link>
+              </DropdownMenuItem>
+            )}
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={handleSignOut} className="text-destructive focus:text-destructive">
               <LogOut className="w-4 h-4 mr-2" />
