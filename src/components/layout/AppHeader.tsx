@@ -135,15 +135,14 @@ export function AppHeader({ searchOpen, onSearchOpenChange }: AppHeaderProps) {
         <OfflineIndicator />
         
         {/* Profile dropdown — always visible */}
-        <div className="flex items-center pl-2 border-l border-border">
+        <div className="flex items-center pl-2 ml-1 border-l border-border">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <button className="relative flex items-center gap-1.5 rounded-full pr-1 hover:bg-muted/50 transition-colors cursor-pointer group">
-                <div className="w-9 h-9 rounded-full bg-primary/10 ring-2 ring-primary/20 group-hover:ring-primary/40 flex items-center justify-center transition-all">
-                  <span className="text-sm font-semibold text-primary">{initials}</span>
+              <Button variant="ghost" size="icon" className="relative h-9 w-9 rounded-full">
+                <div className="h-8 w-8 rounded-full bg-primary/15 flex items-center justify-center">
+                  <span className="text-xs font-semibold text-primary">{initials}</span>
                 </div>
-                <ChevronDown className="w-3.5 h-3.5 text-muted-foreground hidden sm:block" />
-              </button>
+              </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-56">
               <div className="px-2 py-2">
