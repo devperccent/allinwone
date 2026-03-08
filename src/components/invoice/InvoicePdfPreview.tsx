@@ -106,41 +106,41 @@ export function InvoicePdfPreview({
       )}
 
       {/* ═══ HEADER ═══ */}
-      <div className="px-6 pt-5 pb-4">
-        <div className="flex justify-between items-start">
-          <div className="flex-1">
+      <div className="px-4 pt-4 pb-3">
+        <div className="flex justify-between items-start gap-3">
+          <div className="min-w-0 flex-1">
             {profile?.logo_url && (
-              <img src={profile.logo_url} alt="Logo" className="h-10 w-10 object-contain mb-2" style={{ borderRadius: p.borderRadius }} />
+              <img src={profile.logo_url} alt="Logo" className="h-8 w-8 object-contain mb-1.5" style={{ borderRadius: p.borderRadius }} />
             )}
-            <h1 className="text-lg font-bold leading-tight" style={{ color: GRAY_900 }}>{orgName}</h1>
-            {orgAddress && <p className="text-[8px] mt-1 leading-snug" style={{ color: GRAY_500 }}>{orgAddress}</p>}
-            {orgGstin && <p className="text-[8px]" style={{ color: GRAY_500 }}>GSTIN: {orgGstin}</p>}
-            {orgPan && <p className="text-[8px]" style={{ color: GRAY_500 }}>PAN: {orgPan}</p>}
-            {orgPhone && <p className="text-[8px]" style={{ color: GRAY_500 }}>Phone: {orgPhone}</p>}
-            {orgEmail && <p className="text-[8px]" style={{ color: GRAY_500 }}>Email: {orgEmail}</p>}
+            <h1 className="text-sm font-bold leading-tight truncate" style={{ color: GRAY_900 }}>{orgName}</h1>
+            {orgAddress && <p className="text-[7px] mt-0.5 leading-snug break-words" style={{ color: GRAY_500 }}>{orgAddress}</p>}
+            {orgGstin && <p className="text-[7px]" style={{ color: GRAY_500 }}>GSTIN: {orgGstin}</p>}
+            {orgPan && <p className="text-[7px]" style={{ color: GRAY_500 }}>PAN: {orgPan}</p>}
+            {orgPhone && <p className="text-[7px]" style={{ color: GRAY_500 }}>Phone: {orgPhone}</p>}
+            {orgEmail && <p className="text-[7px]" style={{ color: GRAY_500 }}>Email: {orgEmail}</p>}
           </div>
-          <div className="text-right flex flex-col items-end">
+          <div className="text-right flex flex-col items-end shrink-0">
             {template === 'minimal' ? (
               <>
-                <h2 className="text-xl font-light uppercase tracking-[4px]" style={{ color: GRAY_900 }}>Invoice</h2>
-                <p className="text-[10px] font-medium mt-1.5" style={{ color: GRAY_500 }}>{invoiceNumber || '—'}</p>
+                <h2 className="text-base font-light uppercase tracking-[3px] whitespace-nowrap" style={{ color: GRAY_900 }}>Invoice</h2>
+                <p className="text-[9px] font-medium mt-1" style={{ color: GRAY_500 }}>{invoiceNumber || '—'}</p>
               </>
             ) : template === 'classic' ? (
               <>
-                <h2 className="text-xl font-bold uppercase tracking-[2px]" style={{ color: p.accent }}>Tax Invoice</h2>
-                <div className="mt-1 px-2 py-0.5" style={{ borderBottom: `2px solid ${p.accent}` }}>
-                  <p className="text-[10px] font-semibold" style={{ color: p.accent }}>{invoiceNumber || '—'}</p>
+                <h2 className="text-base font-bold uppercase tracking-[1.5px] whitespace-nowrap" style={{ color: p.accent }}>Tax Invoice</h2>
+                <div className="mt-1 px-1.5 py-0.5" style={{ borderBottom: `2px solid ${p.accent}` }}>
+                  <p className="text-[9px] font-semibold" style={{ color: p.accent }}>{invoiceNumber || '—'}</p>
                 </div>
               </>
             ) : (
               <>
-                <p className="text-[7px] uppercase tracking-[2px] mb-0.5" style={{ color: GRAY_400 }}>Invoice</p>
-                <h2 className="text-xl font-bold tracking-wide" style={{ color: p.accent }}>TAX INVOICE</h2>
-                <p className="text-[10px] font-semibold mt-1" style={{ color: GRAY_500 }}>{invoiceNumber || '—'}</p>
+                <p className="text-[6px] uppercase tracking-[1.5px] mb-0.5" style={{ color: GRAY_400 }}>Invoice</p>
+                <h2 className="text-base font-bold tracking-wide whitespace-nowrap" style={{ color: p.accent }}>TAX INVOICE</h2>
+                <p className="text-[9px] font-semibold mt-0.5" style={{ color: GRAY_500 }}>{invoiceNumber || '—'}</p>
               </>
             )}
             <span
-              className="mt-2 inline-block px-2.5 py-0.5 text-[7.5px] font-bold uppercase tracking-wider"
+              className="mt-1.5 inline-block px-2 py-0.5 text-[6.5px] font-bold uppercase tracking-wider whitespace-nowrap"
               style={{ backgroundColor: statusStyle.bg, color: statusStyle.color, borderRadius: template === 'modern' ? '9999px' : template === 'classic' ? '0' : '2px' }}
             >
               {status.toUpperCase()}
