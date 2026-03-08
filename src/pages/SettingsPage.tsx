@@ -494,6 +494,37 @@ export default function SettingsPage() {
           </div>
         </TabsContent>
 
+        <TabsContent value="modules">
+          <Card>
+            <CardHeader>
+              <CardTitle>Active Modules</CardTitle>
+              <CardDescription>
+                Turn off features you don't need to keep your workspace clean and focused. Core features (Invoices, Products, Clients) are always available.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {ALL_MODULES.map((mod) => (
+                <div key={mod.key} className="flex items-center justify-between">
+                  <div>
+                    <p className="font-medium">{mod.label}</p>
+                    <p className="text-sm text-muted-foreground">{mod.description}</p>
+                  </div>
+                  <Switch
+                    checked={enabledModules.includes(mod.key)}
+                    onCheckedChange={() => toggleModule(mod.key)}
+                  />
+                </div>
+              ))}
+              <div className="flex justify-end pt-4 border-t">
+                <Button onClick={handleSaveModules} disabled={isUpdating}>
+                  {isUpdating && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
+                  Save Module Preferences
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
         {/* Restart Tour Card - below tabs */}
       </Tabs>
 
