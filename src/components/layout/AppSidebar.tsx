@@ -17,6 +17,7 @@ import {
   ClipboardList,
   RefreshCw,
   Receipt,
+  Upload,
 } from 'lucide-react';
 import { useIsAdmin } from '@/hooks/useAdmin';
 import { useEnabledModules, type ModuleKey } from '@/hooks/useEnabledModules';
@@ -64,6 +65,7 @@ const managementNavigation: NavItem[] = [
   { name: 'Products', href: '/products', icon: Package, shortcut: 'P' },
   { name: 'Clients', href: '/clients', icon: Users, shortcut: 'C' },
   { name: 'Reports', href: '/reports', icon: TrendingUp, shortcut: 'R', module: 'reports' },
+  { name: 'Import/Export', href: '/bulk', icon: Upload, shortcut: '' },
 ];
 
 const bottomNavigation = [

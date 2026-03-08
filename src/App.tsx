@@ -36,7 +36,7 @@ import PurchaseOrderEditor from "./pages/PurchaseOrderEditor";
 import RecurringInvoicesPage from "./pages/RecurringInvoicesPage";
 import PurchaseBillsPage from "./pages/PurchaseBillsPage";
 import PurchaseBillEditor from "./pages/PurchaseBillEditor";
-
+import BulkImportExportPage from "./pages/BulkImportExportPage";
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -95,6 +95,7 @@ const App = () => (
               <Route path="/reports" element={<ModuleRoute><ReportsPage /></ModuleRoute>} />
               <Route path="/settings" element={<SettingsPage />} />
               <Route path="/help" element={<HelpPage />} />
+              <Route path="/bulk" element={<BulkImportExportPage />} />
               <Route path="/admin" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
               <Route path="/admin/users/:profileId" element={<AdminRoute><AdminUserDetail /></AdminRoute>} />
             </Route>
