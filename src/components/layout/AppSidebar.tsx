@@ -68,10 +68,7 @@ const managementNavigation: NavItem[] = [
   { name: 'Data Manager', href: '/bulk', icon: Upload, shortcut: 'E' },
 ];
 
-const bottomNavigation = [
-  { name: 'Settings', href: '/settings', icon: Settings, shortcut: 'S' },
-  { name: 'Help & Docs', href: '/help', icon: BookOpen, shortcut: '' },
-];
+const bottomNavigation: NavItem[] = [];
 
 interface AppSidebarProps {
   onNavigate?: () => void;
