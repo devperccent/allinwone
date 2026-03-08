@@ -299,11 +299,11 @@ export function InvoicePdfPreview({
 
         {/* Items summary */}
         {validItems.length > 0 && template !== 'minimal' && (
-          <div className="mt-1 px-2 py-1.5 flex justify-between items-center" style={{ backgroundColor: p.accentLight, borderRadius: p.borderRadius }}>
-            <span className="text-[7.5px] font-semibold" style={{ color: p.accent }}>
+          <div className="mt-1 px-1.5 py-1 flex justify-between items-center" style={{ backgroundColor: p.accentLight, borderRadius: p.borderRadius }}>
+            <span className="text-[6.5px] font-semibold" style={{ color: p.accent }}>
               {validItems.length} item{validItems.length !== 1 ? 's' : ''} · {totalQty} unit{totalQty !== 1 ? 's' : ''}
             </span>
-            <span className="text-[7.5px]" style={{ color: GRAY_500 }}>
+            <span className="text-[6.5px]" style={{ color: GRAY_500 }}>
               Taxable: {formatINR(calculations.subtotal - calculations.totalDiscount)}
             </span>
           </div>
