@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Keyboard, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { modKey } from '@/lib/platform';
@@ -18,6 +18,8 @@ export function setKeyboardHintsEnabled(enabled: boolean) {
   } else {
     localStorage.removeItem(STORAGE_KEY);
   }
+  // Dispatch storage event so the hint component reacts immediately
+  window.dispatchEvent(new CustomEvent('keyboard-hints-changed', { detail: enabled }));
 }
 
 interface KeyboardShortcutsHintProps {
@@ -28,6 +30,18 @@ export function KeyboardShortcutsHint({ onOpenShortcuts }: KeyboardShortcutsHint
   const [visible, setVisible] = useState(false);
   const isMobile = useIsMobile();
 
+  const checkAndShow = useCallback(() => {
+    if (isMobile) return;
+    if (!isKeyboardHintsEnabled()) {
+      setVisible(false);
+      return;
+    }
+    const dismissed = localStorage.getItem(STORAGE_KEY);
+    if (!dismissed) {
+      setVisible(true);
+    }
+  }, [isMobile]);
+
   useEffect(() => {
     if (isMobile) return;
     if (!isKeyboardHintsEnabled()) return;
@@ -37,6 +51,20 @@ export function KeyboardShortcutsHint({ onOpenShortcuts }: KeyboardShortcutsHint
       return () => clearTimeout(timer);
     }
   }, [isMobile]);
+
+  // Listen for toggle changes from settings
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const enabled = (e as CustomEvent).detail;
+      if (enabled) {
+        checkAndShow();
+      } else {
+        setVisible(false);
+      }
+    };
+    window.addEventListener('keyboard-hints-changed', handler);
+    return () => window.removeEventListener('keyboard-hints-changed', handler);
+  }, [checkAndShow]);
 
   const dismiss = () => {
     setVisible(false);

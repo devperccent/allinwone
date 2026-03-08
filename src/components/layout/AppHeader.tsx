@@ -1,4 +1,4 @@
-import { Search, Plus, Moon, Sun, Menu, Settings, LogOut, BookOpen, ShieldCheck } from 'lucide-react';
+import { Search, Plus, Moon, Sun, Menu, Settings, LogOut, BookOpen, ShieldCheck, Keyboard } from 'lucide-react';
 import { modKey } from '@/lib/platform';
 import { Button } from '@/components/ui/button';
 import { NotificationBell } from './NotificationBell';
@@ -24,9 +24,10 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 interface AppHeaderProps {
   searchOpen: boolean;
   onSearchOpenChange: (open: boolean) => void;
+  onOpenShortcuts?: () => void;
 }
 
-export function AppHeader({ searchOpen, onSearchOpenChange }: AppHeaderProps) {
+export function AppHeader({ searchOpen, onSearchOpenChange, onOpenShortcuts }: AppHeaderProps) {
   const navigate = useNavigate();
   const { profile, signOut } = useAuth();
   const { theme, setTheme } = useTheme();
@@ -74,6 +75,16 @@ export function AppHeader({ searchOpen, onSearchOpenChange }: AppHeaderProps) {
             <span>{modKey}</span>K
           </kbd>
         </button>
+        {!isMobile && onOpenShortcuts && (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0" onClick={onOpenShortcuts}>
+                <Keyboard className="w-3.5 h-3.5" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="bottom">Keyboard shortcuts (?)</TooltipContent>
+          </Tooltip>
+        )}
       </div>
 
       {/* Right: Actions */}
