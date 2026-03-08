@@ -1,5 +1,6 @@
 import { useState, useRef, useMemo } from 'react';
 import { BarcodeScanButton } from '@/components/scanner/BarcodeScanner';
+import { useProductBatches } from '@/hooks/useProductBatches';
 import {
   Plus,
   Search,
