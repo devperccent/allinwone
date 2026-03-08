@@ -211,6 +211,10 @@ export default function SettingsPage() {
             <Bell className="w-4 h-4" />
             <span className="hidden sm:inline">Notifications</span>
           </TabsTrigger>
+          <TabsTrigger value="modules" className="gap-2 flex-1 sm:flex-none">
+            <LayoutGrid className="w-4 h-4" />
+            <span className="hidden sm:inline">Modules</span>
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="business">
