@@ -46,6 +46,12 @@ export function useKeyboardShortcuts({ onSearch, onHelp, onToggleTheme }: Shortc
           p: '/products',
           r: '/reports',
           s: '/settings',
+          q: '/quotations',
+          o: '/purchase-orders',
+          l: '/challans',
+          b: '/purchase-bills',
+          e: '/bulk',
+          u: '/recurring',
         };
         const path = routes[e.key.toLowerCase()];
         if (path) {
