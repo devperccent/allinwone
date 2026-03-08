@@ -163,8 +163,8 @@ export default function PurchaseBillEditor() {
             <ArrowLeft className="w-5 h-5" />
           </Button>
           <div className="min-w-0">
-            <h1 className="text-lg md:text-2xl font-bold truncate">{id ? 'Edit Purchase Bill' : 'New Purchase Bill'}</h1>
-            <p className="text-xs md:text-sm text-muted-foreground truncate">{billNumber || 'Enter supplier bill number'}</p>
+            <h1 className="text-lg md:text-xl font-bold truncate">{id ? 'Edit Purchase Bill' : 'New Purchase Bill'}</h1>
+            <p className="text-xs text-muted-foreground truncate">{billNumber || 'Enter supplier bill number'}</p>
           </div>
         </div>
         <div className="flex items-center gap-2 shrink-0">
