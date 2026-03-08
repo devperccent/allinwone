@@ -11,6 +11,7 @@ import { InvoiceForm } from '@/components/invoice/InvoiceForm';
 import { EmailDialog } from '@/components/invoice/EmailDialog';
 import { FinalizeDialog } from '@/components/invoice/FinalizeDialog';
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/components/ui/resizable';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useAuth } from '@/contexts/AuthContext';
 import { useClients } from '@/hooks/useClients';
 import { useProducts } from '@/hooks/useProducts';
