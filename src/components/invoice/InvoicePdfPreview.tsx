@@ -221,10 +221,9 @@ export function InvoicePdfPreview({
               borderBottom: p.tableStyle === 'minimal' ? `1.5px solid ${GRAY_900}` : 'none',
             }}>
               {['#', 'Description', 'Qty', 'Rate', 'Disc.'].map((h, i) => (
-                <th key={h} className={`${i <= 1 ? 'text-left' : 'text-right'} py-2 px-1.5 text-[7.5px] font-bold uppercase tracking-wider`}
+                <th key={h} className={`${i <= 1 ? 'text-left' : 'text-right'} py-1.5 px-1 text-[6.5px] font-bold uppercase tracking-wider`}
                   style={{
                     color: p.tableStyle === 'minimal' ? GRAY_900 : p.tableHeaderText,
-                    borderRadius: i === 0 && p.tableStyle === 'filled' ? `${p.borderRadius} 0 0 ${p.borderRadius}` : undefined,
                   }}>
                   {h}
                 </th>
