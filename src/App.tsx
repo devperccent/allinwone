@@ -36,7 +36,7 @@ import PurchaseOrderEditor from "./pages/PurchaseOrderEditor";
 import RecurringInvoicesPage from "./pages/RecurringInvoicesPage";
 import PurchaseBillsPage from "./pages/PurchaseBillsPage";
 import PurchaseBillEditor from "./pages/PurchaseBillEditor";
-
+import BulkImportExportPage from "./pages/BulkImportExportPage";
 const queryClient = new QueryClient();
 
 const App = () => (
