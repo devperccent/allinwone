@@ -140,28 +140,27 @@ export default function PurchaseOrdersPage() {
           {filteredPOs.map((po) => (
             <Card key={po.id} className="hover:border-primary/30 transition-colors">
               <CardContent className="p-4">
-                <div className="flex items-center justify-between gap-4">
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <Link
-                        to={`/purchase-orders/${po.id}`}
-                        className="font-semibold text-primary hover:underline"
-                      >
-                        {po.po_number}
-                      </Link>
-                      <Badge className={cn('text-xs', statusConfig[po.status]?.className)}>
-                        {statusConfig[po.status]?.label || po.status}
-                      </Badge>
-                    </div>
-                    <p className="text-sm text-muted-foreground mt-1">
-                      {po.supplier_name} • {po.date_issued}
-                      {po.expected_delivery && ` • ETA: ${po.expected_delivery}`}
-                    </p>
-                  </div>
-                  <div className="text-right">
-                    <p className="font-bold">{formatINR(Number(po.grand_total))}</p>
-                  </div>
-                  <DropdownMenu>
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-4">
+                   <div className="flex-1 min-w-0">
+                     <div className="flex items-center gap-2 flex-wrap">
+                       <Link
+                         to={`/purchase-orders/${po.id}`}
+                         className="font-semibold text-primary hover:underline"
+                       >
+                         {po.po_number}
+                       </Link>
+                       <Badge className={cn('text-xs', statusConfig[po.status]?.className)}>
+                         {statusConfig[po.status]?.label || po.status}
+                       </Badge>
+                     </div>
+                     <p className="text-sm text-muted-foreground mt-1 truncate">
+                       {po.supplier_name} • {po.date_issued}
+                       {po.expected_delivery && ` • ETA: ${po.expected_delivery}`}
+                     </p>
+                   </div>
+                   <div className="flex items-center justify-between sm:justify-end gap-2">
+                     <p className="font-bold">{formatINR(Number(po.grand_total))}</p>
+                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button variant="ghost" size="icon" className="h-8 w-8">
                         <MoreHorizontal className="w-4 h-4" />
@@ -214,6 +213,7 @@ export default function PurchaseOrdersPage() {
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
+                   </div>
                 </div>
               </CardContent>
             </Card>

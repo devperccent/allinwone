@@ -138,37 +138,35 @@ export default function DeliveryChallansPage() {
           {filteredChallans.map((challan) => (
             <Card key={challan.id} className="hover:border-primary/30 transition-colors">
               <CardContent className="p-4">
-                <div className="flex items-center justify-between gap-4">
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <Link
-                        to={`/challans/${challan.id}`}
-                        className="font-semibold text-primary hover:underline"
-                      >
-                        {challan.challan_number}
-                      </Link>
-                      <Badge className={cn('text-xs', statusConfig[challan.status]?.className)}>
-                        {statusConfig[challan.status]?.label || challan.status}
-                      </Badge>
-                    </div>
-                    <p className="text-sm text-muted-foreground mt-1">
-                      {challan.client?.name || 'No client'} • {challan.date_issued}
-                      {challan.vehicle_number && ` • 🚚 ${challan.vehicle_number}`}
-                    </p>
-                    {challan.dispatch_to && (
-                      <p className="text-xs text-muted-foreground mt-0.5">
-                        To: {challan.dispatch_to}
-                      </p>
-                    )}
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <div className="text-right">
-                      <div className="flex items-center gap-1 text-sm">
-                        <Package className="w-4 h-4 text-muted-foreground" />
-                        <span className="font-medium">{challan.items?.length || 0} items</span>
-                      </div>
-                    </div>
-                    <DropdownMenu>
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-4">
+                   <div className="flex-1 min-w-0">
+                     <div className="flex items-center gap-2 flex-wrap">
+                       <Link
+                         to={`/challans/${challan.id}`}
+                         className="font-semibold text-primary hover:underline"
+                       >
+                         {challan.challan_number}
+                       </Link>
+                       <Badge className={cn('text-xs', statusConfig[challan.status]?.className)}>
+                         {statusConfig[challan.status]?.label || challan.status}
+                       </Badge>
+                     </div>
+                     <p className="text-sm text-muted-foreground mt-1 truncate">
+                       {challan.client?.name || 'No client'} • {challan.date_issued}
+                       {challan.vehicle_number && ` • 🚚 ${challan.vehicle_number}`}
+                     </p>
+                     {challan.dispatch_to && (
+                       <p className="text-xs text-muted-foreground mt-0.5 truncate">
+                         To: {challan.dispatch_to}
+                       </p>
+                     )}
+                   </div>
+                   <div className="flex items-center justify-between sm:justify-end gap-2">
+                     <div className="flex items-center gap-1 text-sm">
+                       <Package className="w-4 h-4 text-muted-foreground" />
+                       <span className="font-medium">{challan.items?.length || 0} items</span>
+                     </div>
+                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button variant="ghost" size="icon" className="h-8 w-8">
                           <MoreHorizontal className="w-4 h-4" />
@@ -223,9 +221,9 @@ export default function DeliveryChallansPage() {
                           <Trash2 className="w-4 h-4 mr-2" />
                           Delete
                         </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </div>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                   </div>
                 </div>
               </CardContent>
             </Card>

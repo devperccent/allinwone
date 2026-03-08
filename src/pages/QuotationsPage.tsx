@@ -143,28 +143,27 @@ export default function QuotationsPage() {
           {filteredQuotations.map((quotation) => (
             <Card key={quotation.id} className="hover:border-primary/30 transition-colors">
               <CardContent className="p-4">
-                <div className="flex items-center justify-between gap-4">
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <Link
-                        to={`/quotations/${quotation.id}`}
-                        className="font-semibold text-primary hover:underline"
-                      >
-                        {quotation.quotation_number}
-                      </Link>
-                      <Badge className={cn('text-xs', statusConfig[quotation.status]?.className)}>
-                        {statusConfig[quotation.status]?.label || quotation.status}
-                      </Badge>
-                    </div>
-                    <p className="text-sm text-muted-foreground mt-1">
-                      {quotation.client?.name || 'No client'} • {quotation.date_issued}
-                      {quotation.valid_until && ` • Valid till ${quotation.valid_until}`}
-                    </p>
-                  </div>
-                  <div className="text-right">
-                    <p className="font-bold">{formatINR(Number(quotation.grand_total))}</p>
-                  </div>
-                  <DropdownMenu>
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-4">
+                   <div className="flex-1 min-w-0">
+                     <div className="flex items-center gap-2 flex-wrap">
+                       <Link
+                         to={`/quotations/${quotation.id}`}
+                         className="font-semibold text-primary hover:underline"
+                       >
+                         {quotation.quotation_number}
+                       </Link>
+                       <Badge className={cn('text-xs', statusConfig[quotation.status]?.className)}>
+                         {statusConfig[quotation.status]?.label || quotation.status}
+                       </Badge>
+                     </div>
+                     <p className="text-sm text-muted-foreground mt-1 truncate">
+                       {quotation.client?.name || 'No client'} • {quotation.date_issued}
+                       {quotation.valid_until && ` • Valid till ${quotation.valid_until}`}
+                     </p>
+                   </div>
+                   <div className="flex items-center justify-between sm:justify-end gap-2">
+                     <p className="font-bold">{formatINR(Number(quotation.grand_total))}</p>
+                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button variant="ghost" size="icon" className="h-8 w-8">
                         <MoreHorizontal className="w-4 h-4" />
@@ -222,6 +221,7 @@ export default function QuotationsPage() {
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
+                   </div>
                 </div>
               </CardContent>
             </Card>
