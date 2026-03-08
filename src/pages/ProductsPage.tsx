@@ -323,6 +323,9 @@ export default function ProductsPage() {
         </div>
         <BarcodeScanButton onScan={(code) => setSearchQuery(code)} />
       </div>
+
+      {/* Products Grid */}
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {filteredProducts.length === 0 ? (
           <div className="col-span-full text-center py-12 rounded-xl border border-border bg-card">
             <Package className="w-12 h-12 mx-auto text-muted-foreground/50 mb-3" />
