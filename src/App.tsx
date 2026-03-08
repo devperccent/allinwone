@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
+import { ModuleRoute } from "@/components/auth/ModuleRoute";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { AdminRoute } from "@/components/auth/AdminRoute";
 import AdminDashboard from "./pages/admin/AdminDashboard";
@@ -66,25 +67,25 @@ const App = () => (
               <Route path="/invoices/new" element={<InvoiceEditor />} />
               <Route path="/invoices/:id" element={<InvoiceEditor />} />
               <Route path="/invoices/:id/edit" element={<InvoiceEditor />} />
-              <Route path="/quick-bill" element={<QuickBillPage />} />
-              <Route path="/quotations" element={<QuotationsPage />} />
-              <Route path="/quotations/new" element={<QuotationEditor />} />
-              <Route path="/quotations/:id" element={<QuotationEditor />} />
-              <Route path="/quotations/:id/edit" element={<QuotationEditor />} />
-              <Route path="/challans" element={<DeliveryChallansPage />} />
-              <Route path="/challans/new" element={<ChallanEditor />} />
-              <Route path="/challans/:id" element={<ChallanEditor />} />
-              <Route path="/challans/:id/edit" element={<ChallanEditor />} />
-              <Route path="/purchase-orders" element={<PurchaseOrdersPage />} />
-              <Route path="/purchase-orders/new" element={<PurchaseOrderEditor />} />
-              <Route path="/purchase-orders/:id" element={<PurchaseOrderEditor />} />
-              <Route path="/purchase-orders/:id/edit" element={<PurchaseOrderEditor />} />
-              <Route path="/recurring" element={<RecurringInvoicesPage />} />
-              <Route path="/recurring/new" element={<RecurringInvoicesPage />} />
-              <Route path="/recurring/:id" element={<RecurringInvoicesPage />} />
+              <Route path="/quick-bill" element={<ModuleRoute><QuickBillPage /></ModuleRoute>} />
+              <Route path="/quotations" element={<ModuleRoute><QuotationsPage /></ModuleRoute>} />
+              <Route path="/quotations/new" element={<ModuleRoute><QuotationEditor /></ModuleRoute>} />
+              <Route path="/quotations/:id" element={<ModuleRoute><QuotationEditor /></ModuleRoute>} />
+              <Route path="/quotations/:id/edit" element={<ModuleRoute><QuotationEditor /></ModuleRoute>} />
+              <Route path="/challans" element={<ModuleRoute><DeliveryChallansPage /></ModuleRoute>} />
+              <Route path="/challans/new" element={<ModuleRoute><ChallanEditor /></ModuleRoute>} />
+              <Route path="/challans/:id" element={<ModuleRoute><ChallanEditor /></ModuleRoute>} />
+              <Route path="/challans/:id/edit" element={<ModuleRoute><ChallanEditor /></ModuleRoute>} />
+              <Route path="/purchase-orders" element={<ModuleRoute><PurchaseOrdersPage /></ModuleRoute>} />
+              <Route path="/purchase-orders/new" element={<ModuleRoute><PurchaseOrderEditor /></ModuleRoute>} />
+              <Route path="/purchase-orders/:id" element={<ModuleRoute><PurchaseOrderEditor /></ModuleRoute>} />
+              <Route path="/purchase-orders/:id/edit" element={<ModuleRoute><PurchaseOrderEditor /></ModuleRoute>} />
+              <Route path="/recurring" element={<ModuleRoute><RecurringInvoicesPage /></ModuleRoute>} />
+              <Route path="/recurring/new" element={<ModuleRoute><RecurringInvoicesPage /></ModuleRoute>} />
+              <Route path="/recurring/:id" element={<ModuleRoute><RecurringInvoicesPage /></ModuleRoute>} />
               <Route path="/products" element={<ProductsPage />} />
               <Route path="/clients" element={<ClientsPage />} />
-              <Route path="/reports" element={<ReportsPage />} />
+              <Route path="/reports" element={<ModuleRoute><ReportsPage /></ModuleRoute>} />
               <Route path="/settings" element={<SettingsPage />} />
               <Route path="/help" element={<HelpPage />} />
               <Route path="/admin" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
