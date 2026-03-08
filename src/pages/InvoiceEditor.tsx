@@ -355,6 +355,8 @@ export default function InvoiceEditor() {
     profileStateCode,
     showPaymentInfo,
     onShowPaymentInfoChange: setShowPaymentInfo,
+    template,
+    onTemplateChange: setTemplate,
   };
 
   return (
