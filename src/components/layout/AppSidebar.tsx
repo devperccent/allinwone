@@ -184,13 +184,13 @@ export function AppSidebar({ onNavigate }: AppSidebarProps) {
       {/* Navigation */}
       <nav className="flex-1 px-3 py-2 space-y-0.5 overflow-y-auto">
         {renderSectionLabel('Billing')}
-        {mainNavigation.map(renderNavItem)}
+        {filterNav(mainNavigation).map(renderNavItem)}
 
-        {renderSectionLabel('Documents')}
-        {documentNavigation.map(renderNavItem)}
+        {filterNav(documentNavigation).length > 0 && renderSectionLabel('Documents')}
+        {filterNav(documentNavigation).map(renderNavItem)}
 
         {renderSectionLabel('Manage')}
-        {managementNavigation.map(renderNavItem)}
+        {filterNav(managementNavigation).map(renderNavItem)}
 
         {renderSectionLabel('')}
         {bottomNavigation.map(renderNavItem)}
