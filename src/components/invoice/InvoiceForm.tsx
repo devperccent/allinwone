@@ -277,7 +277,7 @@ export function InvoiceForm({
 
       {/* Template Selector */}
       {onTemplateChange && (
-        <div className="rounded-xl border border-border bg-card p-5">
+        <div className="rounded-lg border border-border bg-card p-4">
           <TemplateSelector value={template} onChange={onTemplateChange} />
         </div>
       )}
