@@ -10,6 +10,7 @@ import {
   ChevronLeft,
   ShieldCheck,
   Keyboard,
+  BookOpen,
 } from 'lucide-react';
 import { useIsAdmin } from '@/hooks/useAdmin';
 import inwLogo from '@/assets/inw-logomark.png';
@@ -36,6 +37,7 @@ const navigation = [
   { name: 'Clients', href: '/clients', icon: Users, shortcut: 'C' },
   { name: 'Reports', href: '/reports', icon: TrendingUp, shortcut: 'R' },
   { name: 'Settings', href: '/settings', icon: Settings, shortcut: 'S' },
+  { name: 'Help & Docs', href: '/help', icon: BookOpen, shortcut: '' },
 ];
 
 interface AppSidebarProps {
