@@ -114,6 +114,7 @@ export default function AdminUserDetail() {
           <TabsTrigger value="invoices"><FileText className="h-4 w-4 mr-1" /> Invoices ({invoices.length})</TabsTrigger>
           <TabsTrigger value="clients"><Users className="h-4 w-4 mr-1" /> Clients ({clients.length})</TabsTrigger>
           <TabsTrigger value="products"><Package className="h-4 w-4 mr-1" /> Products ({products.length})</TabsTrigger>
+          <TabsTrigger value="modules"><LayoutGrid className="h-4 w-4 mr-1" /> Modules</TabsTrigger>
         </TabsList>
 
         <TabsContent value="invoices">
