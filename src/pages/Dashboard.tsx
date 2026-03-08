@@ -12,11 +12,17 @@ import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { StatCard } from '@/components/dashboard/StatCard';
 import { RecentInvoices } from '@/components/dashboard/RecentInvoices';
+import { RecentQuotations } from '@/components/dashboard/RecentQuotations';
+import { RecentChallans } from '@/components/dashboard/RecentChallans';
+import { RecentPurchaseOrders } from '@/components/dashboard/RecentPurchaseOrders';
 import { LowStockAlert } from '@/components/dashboard/LowStockAlert';
 import { ActivityFeed } from '@/components/dashboard/ActivityFeed';
 import { formatINR } from '@/hooks/useInvoiceCalculations';
 import { useInvoices } from '@/hooks/useInvoices';
 import { useProducts } from '@/hooks/useProducts';
+import { useQuotations } from '@/hooks/useQuotations';
+import { useDeliveryChallans } from '@/hooks/useDeliveryChallans';
+import { usePurchaseOrders } from '@/hooks/usePurchaseOrders';
 import { Skeleton } from '@/components/ui/skeleton';
 
 export default function Dashboard() {
