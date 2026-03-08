@@ -37,11 +37,10 @@ export default function AdminDashboard() {
   };
 
   return (
-    <div className="space-y-6 p-6">
+    <div className="space-y-5 animate-fade-in">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Admin Console</h1>
-          <p className="text-muted-foreground">Platform overview and user management</p>
+          <h1 className="text-xl font-bold">Admin Console</h1>
         </div>
         <Button variant="outline" onClick={exportCSV} disabled={!users?.length}>
           <Download className="w-4 h-4 mr-2" />

@@ -283,7 +283,7 @@ export default function QuotationEditor() {
           <InvoiceTotals calculations={calculations} />
 
           {/* Notes & Terms */}
-          <div className="rounded-xl border border-border bg-card p-5 space-y-4">
+          <div className="rounded-lg border border-border bg-card p-4 space-y-4">
             <div>
               <Label htmlFor="q-notes">Notes</Label>
               <Textarea id="q-notes" value={notes} onChange={e => setNotes(e.target.value)} placeholder="Additional notes..." className="mt-1.5" rows={2} />

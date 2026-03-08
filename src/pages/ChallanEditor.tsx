@@ -272,7 +272,7 @@ export default function ChallanEditor() {
           </div>
 
           {/* Notes */}
-          <div className="rounded-xl border border-border bg-card p-5">
+          <div className="rounded-lg border border-border bg-card p-4">
             <Label htmlFor="c-notes">Notes</Label>
             <Textarea id="c-notes" value={notes} onChange={e => setNotes(e.target.value)} placeholder="Additional notes..." className="mt-1.5" rows={3} />
           </div>
