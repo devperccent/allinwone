@@ -230,13 +230,13 @@ export function InvoicePdfPreview({
               ))}
               {isIntraState ? (
                 <>
-                  <th className="text-right py-2 px-1.5 text-[7.5px] font-bold uppercase tracking-wider" style={{ color: p.tableStyle === 'minimal' ? GRAY_900 : p.tableHeaderText }}>CGST</th>
-                  <th className="text-right py-2 px-1.5 text-[7.5px] font-bold uppercase tracking-wider" style={{ color: p.tableStyle === 'minimal' ? GRAY_900 : p.tableHeaderText }}>SGST</th>
+                  <th className="text-right py-1.5 px-1 text-[6.5px] font-bold uppercase tracking-wider" style={{ color: p.tableStyle === 'minimal' ? GRAY_900 : p.tableHeaderText }}>CGST</th>
+                  <th className="text-right py-1.5 px-1 text-[6.5px] font-bold uppercase tracking-wider" style={{ color: p.tableStyle === 'minimal' ? GRAY_900 : p.tableHeaderText }}>SGST</th>
                 </>
               ) : (
-                <th className="text-right py-2 px-1.5 text-[7.5px] font-bold uppercase tracking-wider" style={{ color: p.tableStyle === 'minimal' ? GRAY_900 : p.tableHeaderText }}>IGST</th>
+                <th className="text-right py-1.5 px-1 text-[6.5px] font-bold uppercase tracking-wider" style={{ color: p.tableStyle === 'minimal' ? GRAY_900 : p.tableHeaderText }}>IGST</th>
               )}
-              <th className="text-right py-2 px-1.5 text-[7.5px] font-bold uppercase tracking-wider" style={{ color: p.tableStyle === 'minimal' ? GRAY_900 : p.tableHeaderText }}>Amount</th>
+              <th className="text-right py-1.5 px-1 text-[6.5px] font-bold uppercase tracking-wider" style={{ color: p.tableStyle === 'minimal' ? GRAY_900 : p.tableHeaderText }}>Amount</th>
             </tr>
           </thead>
           <tbody>
