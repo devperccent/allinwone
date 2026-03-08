@@ -499,13 +499,8 @@ function escapeXml(s: string): string {
 
 export default function BulkImportExportPage() {
   return (
-    <div className="space-y-6 animate-fade-in">
-      <div>
-        <h1 className="text-2xl md:text-3xl font-bold">Data Manager</h1>
-        <p className="text-muted-foreground mt-1 text-sm md:text-base">
-          Import data from Excel, CSV, or Tally. Export for your CA or accountant.
-        </p>
-      </div>
+    <div className="space-y-4 animate-fade-in">
+      <h1 className="text-xl font-bold">Data Manager</h1>
 
       <Tabs defaultValue="import-excel" className="space-y-6">
         <TabsList className="bg-muted/50 w-full flex-wrap h-auto gap-1 p-1">

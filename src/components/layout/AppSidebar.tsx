@@ -9,7 +9,6 @@ import {
   LogOut,
   ChevronLeft,
   ShieldCheck,
-  Keyboard,
   BookOpen,
   Zap,
   FileCheck,
@@ -28,7 +27,6 @@ import { Button } from '@/components/ui/button';
 import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { modKey } from '@/lib/platform';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -43,32 +41,29 @@ interface NavItem {
   name: string;
   href: string;
   icon: any;
-  shortcut: string;
   module?: ModuleKey;
 }
 
 const mainNavigation: NavItem[] = [
-  { name: 'Dashboard', href: '/', icon: LayoutDashboard, shortcut: 'D' },
-  { name: 'Quick Bill', href: '/quick-bill', icon: Zap, shortcut: '', module: 'quick_bill' },
-  { name: 'Invoices', href: '/invoices', icon: FileText, shortcut: 'I' },
-  { name: 'Quotations', href: '/quotations', icon: FileCheck, shortcut: 'Q', module: 'quotations' },
+  { name: 'Dashboard', href: '/', icon: LayoutDashboard },
+  { name: 'Quick Bill', href: '/quick-bill', icon: Zap, module: 'quick_bill' },
+  { name: 'Invoices', href: '/invoices', icon: FileText },
+  { name: 'Quotations', href: '/quotations', icon: FileCheck, module: 'quotations' },
 ];
 
 const documentNavigation: NavItem[] = [
-  { name: 'Challans', href: '/challans', icon: Truck, shortcut: 'L', module: 'challans' },
-  { name: 'Purchase Orders', href: '/purchase-orders', icon: ClipboardList, shortcut: 'O', module: 'purchase_orders' },
-  { name: 'Purchase Bills', href: '/purchase-bills', icon: Receipt, shortcut: 'B', module: 'purchase_orders' },
-  { name: 'Recurring', href: '/recurring', icon: RefreshCw, shortcut: 'U', module: 'recurring' },
+  { name: 'Challans', href: '/challans', icon: Truck, module: 'challans' },
+  { name: 'Purchase Orders', href: '/purchase-orders', icon: ClipboardList, module: 'purchase_orders' },
+  { name: 'Purchase Bills', href: '/purchase-bills', icon: Receipt, module: 'purchase_orders' },
+  { name: 'Recurring', href: '/recurring', icon: RefreshCw, module: 'recurring' },
 ];
 
 const managementNavigation: NavItem[] = [
-  { name: 'Products', href: '/products', icon: Package, shortcut: 'P' },
-  { name: 'Clients', href: '/clients', icon: Users, shortcut: 'C' },
-  { name: 'Reports', href: '/reports', icon: TrendingUp, shortcut: 'R', module: 'reports' },
-  { name: 'Data Manager', href: '/bulk', icon: Upload, shortcut: 'E' },
+  { name: 'Products', href: '/products', icon: Package },
+  { name: 'Clients', href: '/clients', icon: Users },
+  { name: 'Reports', href: '/reports', icon: TrendingUp, module: 'reports' },
+  { name: 'Data Manager', href: '/bulk', icon: Upload },
 ];
-
-const bottomNavigation: NavItem[] = [];
 
 interface AppSidebarProps {
   onNavigate?: () => void;
@@ -86,7 +81,6 @@ export function AppSidebar({ onNavigate }: AppSidebarProps) {
   const filterNav = (items: NavItem[]) =>
     items.filter(i => !i.module || isModuleEnabled(i.module));
 
-  // On mobile (used inside Sheet), always show expanded
   const isCollapsed = isMobile ? false : collapsed;
 
   const handleSignOut = async () => {
@@ -101,7 +95,7 @@ export function AppSidebar({ onNavigate }: AppSidebarProps) {
     .slice(0, 2)
     .toUpperCase() || 'IN';
 
-  const renderNavItem = (item: typeof mainNavigation[0]) => {
+  const renderNavItem = (item: NavItem) => {
     const isActive = location.pathname === item.href || 
       (item.href !== '/' && location.pathname.startsWith(item.href));
     
@@ -111,43 +105,22 @@ export function AppSidebar({ onNavigate }: AppSidebarProps) {
         to={item.href}
         onClick={onNavigate}
         className={cn(
-          'flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200',
+          'flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors',
           isActive
             ? 'bg-sidebar-accent text-sidebar-accent-foreground'
-            : 'text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground'
+            : 'text-sidebar-foreground hover:bg-sidebar-accent/50'
         )}
       >
-        <item.icon className={cn('w-5 h-5 flex-shrink-0', isActive && 'text-primary')} />
-        {!isCollapsed && (
-          <>
-            <span className="flex-1">{item.name}</span>
-            {item.shortcut && !isMobile && (
-              <span className="flex items-center gap-0.5">
-                <kbd className="inline-flex h-5 min-w-[20px] items-center justify-center rounded border bg-sidebar-accent/60 px-1 font-mono text-[10px] font-medium text-sidebar-foreground/50">
-                  {modKey}
-                </kbd>
-                <kbd className="inline-flex h-5 min-w-[20px] items-center justify-center rounded border bg-sidebar-accent/60 px-1 font-mono text-[10px] font-medium text-sidebar-foreground/50">
-                  ⇧
-                </kbd>
-                <kbd className="inline-flex h-5 min-w-[20px] items-center justify-center rounded border bg-sidebar-accent/60 px-1 font-mono text-[10px] font-medium text-sidebar-foreground/50">
-                  {item.shortcut}
-                </kbd>
-              </span>
-            )}
-          </>
-        )}
+        <item.icon className={cn('w-[18px] h-[18px] flex-shrink-0', isActive && 'text-primary')} />
+        {!isCollapsed && <span className="flex-1">{item.name}</span>}
       </Link>
     );
 
     if (isCollapsed) {
       return (
         <Tooltip key={item.name}>
-          <TooltipTrigger asChild>
-            {linkContent}
-          </TooltipTrigger>
-          <TooltipContent side="right">
-            <span>{item.name}</span>
-          </TooltipContent>
+          <TooltipTrigger asChild>{linkContent}</TooltipTrigger>
+          <TooltipContent side="right">{item.name}</TooltipContent>
         </Tooltip>
       );
     }
@@ -158,7 +131,7 @@ export function AppSidebar({ onNavigate }: AppSidebarProps) {
   const renderSectionLabel = (label: string) => {
     if (isCollapsed) return <Separator className="my-2" />;
     return (
-      <p className="px-3 pt-3 pb-1 text-[10px] font-semibold uppercase tracking-wider text-sidebar-foreground/40">
+      <p className="px-3 pt-4 pb-1 text-[10px] font-semibold uppercase tracking-wider text-sidebar-foreground/40">
         {label}
       </p>
     );
@@ -168,22 +141,22 @@ export function AppSidebar({ onNavigate }: AppSidebarProps) {
     <aside
       className={cn(
         'flex flex-col h-full bg-sidebar border-r border-sidebar-border transition-all duration-300',
-        isCollapsed ? 'w-[72px]' : 'w-64'
+        isCollapsed ? 'w-[60px]' : 'w-56'
       )}
     >
       {/* Logo */}
-      <div className="flex items-center h-16 px-4 border-b border-sidebar-border">
-        <Link to="/" className="flex items-center gap-3">
+      <div className="flex items-center h-14 px-3 border-b border-sidebar-border">
+        <Link to="/" className="flex items-center gap-2">
           {isCollapsed ? (
-            <img src={inwLogo} alt="Inw" className="w-10 h-10 object-contain" />
+            <img src={inwLogo} alt="Inw" className="w-8 h-8 object-contain" />
           ) : (
-            <ThemeLogo className="h-8 object-contain" />
+            <ThemeLogo className="h-7 object-contain" />
           )}
         </Link>
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 px-3 py-2 space-y-0.5 overflow-y-auto">
+      <nav className="flex-1 px-2 py-2 space-y-0.5 overflow-y-auto">
         {renderSectionLabel('Billing')}
         {filterNav(mainNavigation).map(renderNavItem)}
 
@@ -194,40 +167,26 @@ export function AppSidebar({ onNavigate }: AppSidebarProps) {
         {filterNav(managementNavigation).map(renderNavItem)}
       </nav>
 
-      {/* Keyboard shortcut hint */}
-      {!isCollapsed && (
-        <div className="px-3 pb-1">
-          <div className="flex items-center gap-2 px-3 py-1.5 text-[11px] text-sidebar-foreground/40">
-            <Keyboard className="w-3.5 h-3.5" />
-            <span>Press <kbd className="font-mono font-medium">?</kbd> for all shortcuts</span>
-          </div>
-        </div>
-      )}
-
       {/* User section */}
-      <div className="p-3 border-t border-sidebar-border space-y-2">
-        {/* User Profile Dropdown */}
+      <div className="p-2 border-t border-sidebar-border">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <button
               className={cn(
-                'flex items-center gap-3 w-full px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 group',
-                'text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground',
+                'flex items-center gap-2.5 w-full px-2.5 py-2 rounded-lg text-sm transition-colors',
+                'text-sidebar-foreground hover:bg-sidebar-accent/50',
                 isCollapsed && 'justify-center'
               )}
             >
-              <div className="w-8 h-8 rounded-full bg-primary/10 ring-2 ring-primary/20 group-hover:ring-primary/40 flex items-center justify-center flex-shrink-0 transition-all">
-                <span className="text-xs font-semibold text-primary">{initials}</span>
+              <div className="w-7 h-7 rounded-full bg-primary/15 flex items-center justify-center flex-shrink-0">
+                <span className="text-[11px] font-semibold text-primary">{initials}</span>
               </div>
               {!isCollapsed && (
-                <div className="flex-1 text-left truncate">
-                  <p className="truncate text-xs">{profile?.org_name || 'Loading...'}</p>
-                  <p className="text-[10px] text-sidebar-foreground/50 truncate">Settings & more ▾</p>
-                </div>
+                <span className="flex-1 text-left text-xs truncate">{profile?.org_name || 'Loading...'}</span>
               )}
             </button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-56">
+          <DropdownMenuContent align="end" className="w-52">
             <div className="px-2 py-1.5">
               <p className="text-sm font-medium">{profile?.org_name}</p>
               <p className="text-xs text-muted-foreground">{profile?.email}</p>
@@ -261,19 +220,19 @@ export function AppSidebar({ onNavigate }: AppSidebarProps) {
           </DropdownMenuContent>
         </DropdownMenu>
 
-        {/* Collapse button - hide on mobile */}
+        {/* Collapse button */}
         {!isMobile && (
           <Button
             variant="ghost"
             size="sm"
             onClick={() => setCollapsed(!collapsed)}
             className={cn(
-              'w-full justify-start gap-3 text-sidebar-foreground hover:text-sidebar-accent-foreground hover:bg-sidebar-accent/50',
+              'w-full justify-start gap-2.5 mt-1 text-sidebar-foreground/50 hover:text-sidebar-accent-foreground hover:bg-sidebar-accent/50',
               isCollapsed && 'justify-center'
             )}
           >
-            <ChevronLeft className={cn('w-5 h-5 transition-transform', isCollapsed && 'rotate-180')} />
-            {!isCollapsed && <span>Collapse</span>}
+            <ChevronLeft className={cn('w-4 h-4 transition-transform', isCollapsed && 'rotate-180')} />
+            {!isCollapsed && <span className="text-xs">Collapse</span>}
           </Button>
         )}
       </div>

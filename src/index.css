@@ -181,13 +181,12 @@
 
   /* Stat Cards */
   .stat-card {
-    @apply relative overflow-hidden rounded-xl p-6 transition-all duration-200 border border-border bg-card text-card-foreground;
-    box-shadow: var(--shadow-md);
+    @apply relative overflow-hidden rounded-lg p-4 transition-colors border border-border bg-card text-card-foreground;
+    box-shadow: var(--shadow-sm);
   }
 
   .stat-card:hover {
-    box-shadow: var(--shadow-lg);
-    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
   }
 
   /* Table Styling */

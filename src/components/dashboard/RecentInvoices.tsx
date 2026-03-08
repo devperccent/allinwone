@@ -19,23 +19,23 @@ const statusConfig: Record<InvoiceStatus, { label: string; className: string }> 
 
 export function RecentInvoices({ invoices }: RecentInvoicesProps) {
   return (
-    <div className="rounded-xl border border-border bg-card">
-      <div className="flex items-center justify-between p-4 border-b border-border">
-        <h3 className="text-lg font-semibold">Recent Invoices</h3>
-        <Button variant="ghost" size="sm" asChild className="gap-1 text-muted-foreground hover:text-foreground">
+    <div className="rounded-lg border border-border bg-card">
+      <div className="flex items-center justify-between px-4 py-3 border-b border-border">
+        <h3 className="text-sm font-semibold">Recent Invoices</h3>
+        <Button variant="ghost" size="sm" asChild className="gap-1 text-xs text-muted-foreground hover:text-foreground h-7">
           <Link to="/invoices">
             View all
-            <ArrowRight className="w-4 h-4" />
+            <ArrowRight className="w-3.5 h-3.5" />
           </Link>
         </Button>
       </div>
       
       <div className="divide-y divide-border">
         {invoices.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
-            <FileText className="w-12 h-12 mb-3 opacity-50" />
+          <div className="flex flex-col items-center justify-center py-10 text-muted-foreground">
+            <FileText className="w-10 h-10 mb-2 opacity-40" />
             <p className="text-sm">No invoices yet</p>
-            <Button variant="link" asChild className="mt-2">
+            <Button variant="link" size="sm" asChild className="mt-1">
               <Link to="/invoices/new">Create your first invoice</Link>
             </Button>
           </div>
@@ -44,25 +44,22 @@ export function RecentInvoices({ invoices }: RecentInvoicesProps) {
             <Link
               key={invoice.id}
               to={`/invoices/${invoice.id}`}
-              className="flex items-center justify-between p-3 sm:p-4 hover:bg-muted/30 transition-colors gap-3"
+              className="flex items-center justify-between px-4 py-2.5 hover:bg-muted/30 transition-colors gap-3"
             >
-              <div className="flex items-center gap-3 sm:gap-4 min-w-0">
-                <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-muted shrink-0">
-                  <FileText className="w-5 h-5 text-muted-foreground" />
-                </div>
+              <div className="flex items-center gap-3 min-w-0">
                 <div className="min-w-0">
-                  <p className="font-medium truncate">{invoice.invoice_number}</p>
-                  <p className="text-sm text-muted-foreground truncate">
+                  <p className="text-sm font-medium truncate">{invoice.invoice_number}</p>
+                  <p className="text-xs text-muted-foreground truncate">
                     {invoice.client?.name || 'Walk-in Customer'}
                   </p>
                 </div>
               </div>
               
-              <div className="flex items-center gap-2 sm:gap-4 shrink-0">
-                <Badge className={cn('font-medium hidden sm:inline-flex', statusConfig[invoice.status].className)}>
+              <div className="flex items-center gap-3 shrink-0">
+                <Badge className={cn('font-medium text-[10px] hidden sm:inline-flex', statusConfig[invoice.status].className)}>
                   {statusConfig[invoice.status].label}
                 </Badge>
-                <span className="font-semibold tabular-nums text-sm sm:text-base">
+                <span className="font-semibold tabular-nums text-sm">
                   {formatINR(invoice.grand_total)}
                 </span>
               </div>

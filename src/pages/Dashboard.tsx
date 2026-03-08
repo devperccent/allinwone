@@ -41,11 +41,11 @@ export default function Dashboard() {
 
   if (isLoading) {
     return (
-      <div className="space-y-6 animate-fade-in">
-        <Skeleton className="h-9 w-48" />
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="space-y-5 animate-fade-in">
+        <Skeleton className="h-8 w-40" />
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {[...Array(4)].map((_, i) => (
-            <Skeleton key={i} className="h-28" />
+            <Skeleton key={i} className="h-24" />
           ))}
         </div>
       </div>
@@ -55,25 +55,22 @@ export default function Dashboard() {
   const hasDocModules = isModuleEnabled('quotations') || isModuleEnabled('challans') || isModuleEnabled('purchase_orders');
 
   return (
-    <div className="space-y-6 animate-fade-in">
-      {/* Compact Header */}
+    <div className="space-y-5 animate-fade-in">
+      {/* Header */}
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">Dashboard</h1>
-          <p className="text-sm text-muted-foreground">Your business at a glance</p>
-        </div>
-        <Button asChild size="sm" className="gap-2">
+        <h1 className="text-xl font-bold">Dashboard</h1>
+        <Button asChild size="sm" className="gap-1.5 h-8 text-xs">
           <Link to="/invoices/new">
-            <Plus className="w-4 h-4" />
+            <Plus className="w-3.5 h-3.5" />
             New Invoice
           </Link>
         </Button>
       </div>
 
-      {/* Stats - always visible */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      {/* Stats */}
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard
-          title="Total Revenue"
+          title="Revenue"
           value={formatINR(totalRevenue)}
           change={invoices.filter(i => i.status === 'paid').length + ' paid'}
           changeType="positive"
@@ -105,81 +102,40 @@ export default function Dashboard() {
         />
       </div>
 
-      {/* Tabbed content area */}
+      {/* Tabbed content */}
       <Tabs defaultValue="overview" className="space-y-4">
-        <TabsList className="bg-muted/50 w-full sm:w-auto overflow-x-auto flex-nowrap justify-start">
-          <TabsTrigger value="overview" className="gap-1.5 shrink-0">
-            <TrendingUp className="w-4 h-4" />
-            <span className="hidden sm:inline">Overview</span>
+        <TabsList className="bg-muted/50 h-9">
+          <TabsTrigger value="overview" className="text-xs gap-1.5">
+            <TrendingUp className="w-3.5 h-3.5" />
+            Overview
           </TabsTrigger>
           {hasDocModules && (
-            <TabsTrigger value="documents" className="gap-1.5 shrink-0">
-              <FileText className="w-4 h-4" />
-              <span className="hidden sm:inline">Documents</span>
+            <TabsTrigger value="documents" className="text-xs gap-1.5">
+              <FileText className="w-3.5 h-3.5" />
+              Documents
             </TabsTrigger>
           )}
-          <TabsTrigger value="activity" className="gap-1.5 shrink-0">
-            <Activity className="w-4 h-4" />
-            <span className="hidden sm:inline">Activity</span>
+          <TabsTrigger value="activity" className="text-xs gap-1.5">
+            <Activity className="w-3.5 h-3.5" />
+            Activity
           </TabsTrigger>
           {lowStockProducts.length > 0 && (
-            <TabsTrigger value="alerts" className="gap-1.5 shrink-0">
-              <AlertTriangle className="w-4 h-4" />
-              <span className="hidden sm:inline">Alerts</span>
-              <span className="ml-1 text-xs bg-destructive text-destructive-foreground rounded-full px-1.5 py-0.5">
+            <TabsTrigger value="alerts" className="text-xs gap-1.5">
+              <AlertTriangle className="w-3.5 h-3.5" />
+              Alerts
+              <span className="ml-0.5 text-[10px] bg-destructive text-destructive-foreground rounded-full px-1.5 leading-4">
                 {lowStockProducts.length}
               </span>
             </TabsTrigger>
           )}
         </TabsList>
 
-        <TabsContent value="overview" className="space-y-6">
-          {/* Quick Actions */}
-          <div className="grid gap-3 sm:grid-cols-3">
-            <Link
-              to="/invoices/new"
-              className="flex items-center gap-3 p-3 rounded-lg border border-border bg-card hover:bg-muted/30 transition-colors group"
-            >
-              <div className="p-2 rounded-lg bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
-                <FileText className="w-5 h-5" />
-              </div>
-              <div>
-                <p className="font-medium text-sm">New Invoice</p>
-                <p className="text-xs text-muted-foreground">Create invoice</p>
-              </div>
-            </Link>
-            <Link
-              to="/products"
-              className="flex items-center gap-3 p-3 rounded-lg border border-border bg-card hover:bg-muted/30 transition-colors group"
-            >
-              <div className="p-2 rounded-lg bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
-                <Package className="w-5 h-5" />
-              </div>
-              <div>
-                <p className="font-medium text-sm">Add Product</p>
-                <p className="text-xs text-muted-foreground">Add to inventory</p>
-              </div>
-            </Link>
-            <Link
-              to="/clients"
-              className="flex items-center gap-3 p-3 rounded-lg border border-border bg-card hover:bg-muted/30 transition-colors group"
-            >
-              <div className="p-2 rounded-lg bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
-                <Users className="w-5 h-5" />
-              </div>
-              <div>
-                <p className="font-medium text-sm">Add Client</p>
-                <p className="text-xs text-muted-foreground">New client</p>
-              </div>
-            </Link>
-          </div>
-
-          {/* Recent invoices only */}
+        <TabsContent value="overview" className="space-y-4">
           <RecentInvoices invoices={invoices.slice(0, 5)} />
         </TabsContent>
 
         {hasDocModules && (
-          <TabsContent value="documents" className="space-y-6">
+          <TabsContent value="documents" className="space-y-4">
             {isModuleEnabled('quotations') && (
               <RecentQuotations quotations={quotations.slice(0, 5)} />
             )}
@@ -197,7 +153,7 @@ export default function Dashboard() {
         </TabsContent>
 
         {lowStockProducts.length > 0 && (
-          <TabsContent value="alerts" className="space-y-6">
+          <TabsContent value="alerts" className="space-y-4">
             <LowStockAlert products={lowStockProducts} />
             <LowStockAutoPO />
             <ExpiringBatchesAlert />

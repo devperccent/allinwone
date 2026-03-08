@@ -143,29 +143,21 @@ export default function ProductsPage() {
   }
 
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="space-y-4 animate-fade-in">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl md:text-3xl font-bold">Products & Inventory</h1>
-          <p className="text-muted-foreground mt-1 text-sm md:text-base">
-            Manage your products and track inventory levels
-          </p>
-        </div>
+      <div className="flex items-center justify-between gap-3">
+        <h1 className="text-xl font-bold">Products</h1>
         <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
           <DialogTrigger asChild>
-            <Button className="gap-2">
-              <Plus className="w-4 h-4" />
+            <Button size="sm" className="gap-1.5 h-8 text-xs">
+              <Plus className="w-3.5 h-3.5" />
               Add Product
-              <kbd className="ml-1 hidden sm:inline-flex h-5 min-w-[20px] items-center justify-center rounded border bg-primary-foreground/20 px-1.5 font-mono text-[10px] font-medium text-primary-foreground/70">A</kbd>
             </Button>
           </DialogTrigger>
           <DialogContent className="sm:max-w-lg">
             <DialogHeader>
               <DialogTitle>Add New Product</DialogTitle>
-              <DialogDescription>
-                Add a new product or service to your inventory.
-              </DialogDescription>
+              <DialogDescription>Add a new product or service to your inventory.</DialogDescription>
             </DialogHeader>
             <div className="grid gap-4 py-4">
               <div className="grid gap-2">
@@ -193,9 +185,7 @@ export default function ProductsPage() {
                     value={formData.type} 
                     onValueChange={(v) => setFormData(prev => ({ ...prev, type: v as ProductType }))}
                   >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
                       <SelectItem value="goods">Goods</SelectItem>
                       <SelectItem value="service">Service</SelectItem>
@@ -236,7 +226,7 @@ export default function ProductsPage() {
               <div className="flex items-center justify-between p-3 rounded-lg border border-border bg-muted/30">
                 <div>
                   <Label htmlFor="customGst" className="text-sm font-medium cursor-pointer">Custom GST Rate</Label>
-                  <p className="text-xs text-muted-foreground">Default is 18%. Toggle to set a different rate.</p>
+                  <p className="text-xs text-muted-foreground">Default is 18%</p>
                 </div>
                 <Switch 
                   id="customGst"
@@ -251,9 +241,7 @@ export default function ProductsPage() {
                     value={formData.tax_rate} 
                     onValueChange={(v) => setFormData(prev => ({ ...prev, tax_rate: v }))}
                   >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
                       {GST_RATES.map((rate) => (
                         <SelectItem key={rate} value={String(rate)}>{rate}%</SelectItem>
@@ -288,51 +276,43 @@ export default function ProductsPage() {
               )}
             </div>
             <DialogFooter>
-              <Button variant="outline" onClick={() => setIsAddDialogOpen(false)}>
-                Cancel
-              </Button>
+              <Button variant="outline" onClick={() => setIsAddDialogOpen(false)}>Cancel</Button>
               <Button 
                 onClick={handleSubmit} 
                 disabled={createProduct.isPending || !formData.name || !formData.sku}
               >
                 {createProduct.isPending ? (
-                  <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Adding...
-                  </>
-                ) : (
-                  'Add Product'
-                )}
+                  <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Adding...</>
+                ) : 'Add Product'}
               </Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
       </div>
 
-      {/* Filters */}
-      <div className="flex items-center gap-4">
+      {/* Search */}
+      <div className="flex items-center gap-2">
         <div className="relative flex-1 max-w-sm">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
           <Input
             ref={searchRef}
             type="search"
             placeholder="Search products..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10 pr-10"
+            className="pl-8 h-8 text-sm"
           />
-          <kbd className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none hidden sm:inline-flex h-5 min-w-[20px] items-center justify-center rounded border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground">/</kbd>
         </div>
         <BarcodeScanButton onScan={(code) => setSearchQuery(code)} />
       </div>
 
       {/* Products Grid */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {filteredProducts.length === 0 ? (
-          <div className="col-span-full text-center py-12 rounded-xl border border-border bg-card">
-            <Package className="w-12 h-12 mx-auto text-muted-foreground/50 mb-3" />
-            <p className="text-muted-foreground">No products found</p>
-            <Button variant="link" onClick={() => setIsAddDialogOpen(true)} className="mt-2">
+          <div className="col-span-full text-center py-10 rounded-lg border border-border bg-card">
+            <Package className="w-10 h-10 mx-auto text-muted-foreground/40 mb-2" />
+            <p className="text-sm text-muted-foreground">No products found</p>
+            <Button variant="link" size="sm" onClick={() => setIsAddDialogOpen(true)} className="mt-1">
               Add your first product
             </Button>
           </div>
@@ -378,24 +358,21 @@ function ProductCard({
   return (
     <div
       className={cn(
-        'rounded-xl border bg-card p-5 transition-all hover:shadow-md',
+        'rounded-lg border bg-card p-4 transition-colors hover:bg-muted/20',
         lowStock ? 'border-warning/50' : 'border-border'
       )}
     >
       <div className="flex items-start justify-between">
-        <div>
-          <div className="flex items-center gap-2">
-            <h3 className="font-semibold">{product.name}</h3>
-            {lowStock && <AlertTriangle className="w-4 h-4 text-warning" />}
+        <div className="min-w-0">
+          <div className="flex items-center gap-1.5">
+            <h3 className="font-medium text-sm truncate">{product.name}</h3>
+            {lowStock && <AlertTriangle className="w-3.5 h-3.5 text-warning shrink-0" />}
           </div>
-          <p className="text-sm text-muted-foreground">SKU: {product.sku}</p>
-          {(product as any).barcode && (
-            <p className="text-xs text-muted-foreground">Barcode: {(product as any).barcode}</p>
-          )}
+          <p className="text-xs text-muted-foreground mt-0.5">{product.sku}{product.hsn_code ? ` · HSN ${product.hsn_code}` : ''}</p>
         </div>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon" className="h-8 w-8"><MoreHorizontal className="w-4 h-4" /></Button>
+            <Button variant="ghost" size="icon" className="h-7 w-7 shrink-0"><MoreHorizontal className="w-3.5 h-3.5" /></Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             {product.type === 'goods' && (
@@ -412,39 +389,22 @@ function ProductCard({
         </DropdownMenu>
       </div>
 
-      <div className="mt-4 flex items-center gap-2 flex-wrap">
-        <Badge variant="secondary" className="text-xs">{product.type === 'goods' ? 'Goods' : 'Service'}</Badge>
-        {product.hsn_code && <Badge variant="outline" className="text-xs">HSN: {product.hsn_code}</Badge>}
-        {batches.length > 0 && (
-          <Badge variant="outline" className="text-xs">{batches.length} batch{batches.length > 1 ? 'es' : ''}</Badge>
-        )}
-        {expiredCount > 0 && (
-          <Badge className="text-xs bg-destructive text-destructive-foreground">{expiredCount} expired</Badge>
-        )}
-      </div>
-
-      <div className="mt-4 flex items-end justify-between">
-        <div>
-          <p className="text-2xl font-bold">{formatINR(Number(product.selling_price))}</p>
-        </div>
+      <div className="mt-3 flex items-end justify-between">
+        <p className="text-lg font-bold tabular-nums">{formatINR(Number(product.selling_price))}</p>
         {product.type === 'goods' && (
-          <div className="text-right">
-            <p className={cn('text-sm font-medium', lowStock ? 'text-warning' : 'text-muted-foreground')}>
-              {product.stock_quantity} in stock
-            </p>
-            <p className="text-xs text-muted-foreground">Min: {product.low_stock_limit}</p>
-          </div>
+          <p className={cn('text-xs font-medium tabular-nums', lowStock ? 'text-warning' : 'text-muted-foreground')}>
+            {product.stock_quantity} in stock
+          </p>
+        )}
+        {product.type === 'service' && (
+          <span className="text-xs text-muted-foreground">Service</span>
         )}
       </div>
 
-      {/* Nearest expiry indicator */}
       {nearestExpiry && nearestExpiry.expiry_date && (
-        <div className="mt-3 flex items-center gap-1.5 text-xs text-muted-foreground border-t border-border pt-3">
+        <div className="mt-2 flex items-center gap-1 text-[11px] text-muted-foreground border-t border-border pt-2">
           <Calendar className="w-3 h-3" />
-          <span>
-            Next expiry: <span className="font-medium">{format(new Date(nearestExpiry.expiry_date), 'dd MMM yyyy')}</span>
-            {' '}({nearestExpiry.batch_number}, qty: {nearestExpiry.quantity})
-          </span>
+          <span>Expires {format(new Date(nearestExpiry.expiry_date), 'dd MMM yyyy')}</span>
         </div>
       )}
     </div>

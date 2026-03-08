@@ -114,29 +114,21 @@ export default function ClientsPage() {
   }
 
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="space-y-4 animate-fade-in">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl md:text-3xl font-bold">Clients</h1>
-          <p className="text-muted-foreground mt-1 text-sm md:text-base">
-            Manage your clients and track credit
-          </p>
-        </div>
+      <div className="flex items-center justify-between gap-3">
+        <h1 className="text-xl font-bold">Clients</h1>
         <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
           <DialogTrigger asChild>
-            <Button className="gap-2">
-              <Plus className="w-4 h-4" />
+            <Button size="sm" className="gap-1.5 h-8 text-xs">
+              <Plus className="w-3.5 h-3.5" />
               Add Client
-              <kbd className="ml-1 hidden sm:inline-flex h-5 min-w-[20px] items-center justify-center rounded border bg-primary-foreground/20 px-1.5 font-mono text-[10px] font-medium text-primary-foreground/70">A</kbd>
             </Button>
           </DialogTrigger>
           <DialogContent className="sm:max-w-lg">
             <DialogHeader>
               <DialogTitle>Add New Client</DialogTitle>
-              <DialogDescription>
-                Add a new client to your CRM.
-              </DialogDescription>
+              <DialogDescription>Add a new client to your CRM.</DialogDescription>
             </DialogHeader>
             <div className="grid gap-4 py-4">
               <div className="grid gap-2">
@@ -190,9 +182,7 @@ export default function ClientsPage() {
                     </SelectTrigger>
                     <SelectContent>
                       {Object.entries(INDIAN_STATES).map(([code, name]) => (
-                        <SelectItem key={code} value={code}>
-                          {name}
-                        </SelectItem>
+                        <SelectItem key={code} value={code}>{name}</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
@@ -203,77 +193,61 @@ export default function ClientsPage() {
                 <Textarea 
                   id="address" 
                   placeholder="Full billing address" 
-                  rows={3}
+                  rows={2}
                   value={formData.billing_address}
                   onChange={(e) => setFormData(prev => ({ ...prev, billing_address: e.target.value }))}
                 />
               </div>
             </div>
             <DialogFooter>
-              <Button variant="outline" onClick={() => setIsAddDialogOpen(false)}>
-                Cancel
-              </Button>
+              <Button variant="outline" onClick={() => setIsAddDialogOpen(false)}>Cancel</Button>
               <Button 
                 onClick={handleSubmit} 
                 disabled={createClient.isPending || !formData.name}
               >
                 {createClient.isPending ? (
-                  <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Adding...
-                  </>
-                ) : (
-                  'Add Client'
-                )}
+                  <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Adding...</>
+                ) : 'Add Client'}
               </Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
       </div>
 
-      {/* Summary Card */}
+      {/* Outstanding credit - compact inline */}
       {totalCreditBalance > 0 && (
-      <div className="rounded-xl border border-warning/30 bg-warning/5 p-4">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-warning/10 shrink-0">
-                <IndianRupee className="w-5 h-5 text-warning" />
-              </div>
-              <div>
-                <p className="text-xs sm:text-sm text-muted-foreground">Total Outstanding Credit (Udhaar)</p>
-                <p className="text-xl sm:text-2xl font-bold text-warning">{formatINR(totalCreditBalance)}</p>
-              </div>
-            </div>
-            <Badge variant="outline" className="border-warning text-warning self-start sm:self-center whitespace-nowrap">
-              {clients.filter(c => Number(c.credit_balance) > 0).length} clients with pending
-            </Badge>
+        <div className="flex items-center justify-between rounded-lg border border-warning/30 bg-warning/5 px-4 py-2.5">
+          <div className="flex items-center gap-2">
+            <IndianRupee className="w-4 h-4 text-warning" />
+            <span className="text-sm text-muted-foreground">Outstanding credit</span>
+            <span className="text-sm font-bold text-warning">{formatINR(totalCreditBalance)}</span>
           </div>
+          <span className="text-xs text-muted-foreground">
+            {clients.filter(c => Number(c.credit_balance) > 0).length} clients
+          </span>
         </div>
       )}
 
-      {/* Filters */}
-      <div className="flex items-center gap-4">
-        <div className="relative flex-1 max-w-sm">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-          <Input
-            ref={searchRef}
-            type="search"
-            placeholder="Search clients..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10 pr-10"
-          />
-          <kbd className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none hidden sm:inline-flex h-5 min-w-[20px] items-center justify-center rounded border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground">/</kbd>
-        </div>
+      {/* Search */}
+      <div className="relative max-w-sm">
+        <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
+        <Input
+          ref={searchRef}
+          type="search"
+          placeholder="Search clients..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="pl-8 h-8 text-sm"
+        />
       </div>
 
       {/* Clients List */}
-      <div className="grid gap-4">
+      <div className="grid gap-3">
         {filteredClients.length === 0 ? (
-          <div className="text-center py-12 rounded-xl border border-border bg-card">
-            <Users className="w-12 h-12 mx-auto text-muted-foreground/50 mb-3" />
-            <p className="text-muted-foreground">No clients found</p>
-            <Button variant="link" onClick={() => setIsAddDialogOpen(true)} className="mt-2">
+          <div className="text-center py-10 rounded-lg border border-border bg-card">
+            <Users className="w-10 h-10 mx-auto text-muted-foreground/40 mb-2" />
+            <p className="text-sm text-muted-foreground">No clients found</p>
+            <Button variant="link" size="sm" onClick={() => setIsAddDialogOpen(true)} className="mt-1">
               Add your first client
             </Button>
           </div>
@@ -281,91 +255,61 @@ export default function ClientsPage() {
           filteredClients.map((client) => (
             <div
               key={client.id}
-              className="rounded-xl border border-border bg-card p-5 transition-all hover:shadow-md"
+              className="rounded-lg border border-border bg-card p-4 transition-colors hover:bg-muted/20"
             >
-              <div className="flex items-start justify-between gap-3">
-                <div className="flex items-start gap-3 sm:gap-4 min-w-0 flex-1">
-                  <div className="flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-primary/10 text-primary font-semibold text-base sm:text-lg shrink-0">
+              <div className="flex items-center justify-between gap-3">
+                <div className="flex items-center gap-3 min-w-0 flex-1">
+                  <div className="flex items-center justify-center w-9 h-9 rounded-lg bg-primary/10 text-primary font-semibold text-sm shrink-0">
                     {client.name.charAt(0)}
                   </div>
-                  <div className="min-w-0">
-                    <h3 className="font-semibold text-base sm:text-lg truncate">{client.name}</h3>
-                    <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-1 sm:mt-2 text-sm text-muted-foreground">
-                      {client.email && (
-                        <div className="flex items-center gap-1 truncate">
-                          <Mail className="w-4 h-4 shrink-0" />
-                          <span className="truncate">{client.email}</span>
-                        </div>
-                      )}
-                      {client.phone && (
-                        <div className="flex items-center gap-1">
-                          <Phone className="w-4 h-4 shrink-0" />
-                          {client.phone}
-                        </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-2">
+                      <h3 className="font-medium text-sm truncate">{client.name}</h3>
+                      {client.gstin && (
+                        <span className="text-[10px] text-muted-foreground hidden sm:inline">{client.gstin}</span>
                       )}
                     </div>
-                    {client.billing_address && (
-                      <div className="flex items-start gap-1 mt-1 sm:mt-2 text-sm text-muted-foreground">
-                        <MapPin className="w-4 h-4 mt-0.5 flex-shrink-0" />
-                        <span className="line-clamp-2">{client.billing_address}</span>
-                      </div>
-                    )}
+                    <div className="flex items-center gap-3 text-xs text-muted-foreground mt-0.5">
+                      {client.email && <span className="truncate">{client.email}</span>}
+                      {client.phone && <span>{client.phone}</span>}
+                    </div>
                   </div>
                 </div>
                 
-                <div className="flex items-center gap-2 sm:gap-4 shrink-0">
-                  <div className="text-right hidden sm:block">
-                    {Number(client.credit_balance) > 0 ? (
-                      <>
-                        <p className="text-sm text-muted-foreground">Credit Balance</p>
-                        <p className="text-lg font-bold text-warning">{formatINR(Number(client.credit_balance))}</p>
-                      </>
-                    ) : (
-                      <Badge className="bg-success/10 text-success">No pending</Badge>
-                    )}
-                  </div>
-                  
+                <div className="flex items-center gap-3 shrink-0">
+                  {Number(client.credit_balance) > 0 ? (
+                    <span className="text-sm font-semibold text-warning tabular-nums hidden sm:block">
+                      {formatINR(Number(client.credit_balance))}
+                    </span>
+                  ) : (
+                    <span className="text-xs text-muted-foreground hidden sm:block">No dues</span>
+                  )}
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="icon" className="h-8 w-8">
-                        <MoreHorizontal className="w-4 h-4" />
+                      <Button variant="ghost" size="icon" className="h-7 w-7">
+                        <MoreHorizontal className="w-3.5 h-3.5" />
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                      <DropdownMenuItem>
-                        <Pencil className="w-4 h-4 mr-2" />
-                        Edit
-                      </DropdownMenuItem>
+                      <DropdownMenuItem><Pencil className="w-4 h-4 mr-2" />Edit</DropdownMenuItem>
                       <DropdownMenuSeparator />
                       <DropdownMenuItem 
                         onClick={() => deleteClient.mutate(client.id)}
                         className="text-destructive focus:text-destructive"
                       >
-                        <Trash2 className="w-4 h-4 mr-2" />
-                        Delete
+                        <Trash2 className="w-4 h-4 mr-2" />Delete
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </div>
               </div>
-              {/* Mobile credit balance */}
+              {/* Mobile credit */}
               {Number(client.credit_balance) > 0 && (
-                <div className="sm:hidden mt-3 flex items-center justify-between pt-3 border-t border-border">
-                  <span className="text-sm text-muted-foreground">Credit Balance</span>
-                  <span className="font-bold text-warning">{formatINR(Number(client.credit_balance))}</span>
+                <div className="sm:hidden mt-2 flex items-center justify-between pt-2 border-t border-border text-sm">
+                  <span className="text-muted-foreground">Credit</span>
+                  <span className="font-semibold text-warning tabular-nums">{formatINR(Number(client.credit_balance))}</span>
                 </div>
               )}
-              
-              <div className="mt-4 flex items-center gap-2">
-                {client.gstin && (
-                  <Badge variant="outline" className="text-xs">
-                    GSTIN: {client.gstin}
-                  </Badge>
-                )}
-                <Badge variant="secondary" className="text-xs">
-                  {INDIAN_STATES[client.state_code] || client.state_code}
-                </Badge>
-              </div>
             </div>
           ))
         )}

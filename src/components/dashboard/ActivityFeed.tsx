@@ -1,15 +1,15 @@
 import { useActivityLogs } from '@/hooks/useActivityLogs';
-import { FileText, Users, Package, Activity, ArrowDown, ArrowUp, CheckCircle, Trash2, Edit, PlusCircle } from 'lucide-react';
+import { FileText, Users, Package, Activity, CheckCircle, Trash2, Edit, PlusCircle } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { Skeleton } from '@/components/ui/skeleton';
 
 const ACTION_CONFIG: Record<string, { icon: React.ElementType; label: string; color: string }> = {
-  created: { icon: PlusCircle, label: 'Created', color: 'text-emerald-500' },
-  updated: { icon: Edit, label: 'Updated', color: 'text-blue-500' },
+  created: { icon: PlusCircle, label: 'Created', color: 'text-success' },
+  updated: { icon: Edit, label: 'Updated', color: 'text-info' },
   finalized: { icon: CheckCircle, label: 'Finalized', color: 'text-primary' },
-  marked_paid: { icon: CheckCircle, label: 'Marked paid', color: 'text-emerald-500' },
+  marked_paid: { icon: CheckCircle, label: 'Marked paid', color: 'text-success' },
   deleted: { icon: Trash2, label: 'Deleted', color: 'text-destructive' },
-  stock_adjusted: { icon: ArrowDown, label: 'Stock adjusted', color: 'text-warning' },
+  stock_adjusted: { icon: Edit, label: 'Stock adjusted', color: 'text-warning' },
 };
 
 const ENTITY_ICON: Record<string, React.ElementType> = {
@@ -23,13 +23,13 @@ export function ActivityFeed() {
 
   if (isLoading) {
     return (
-      <div className="rounded-xl border border-border bg-card p-6">
-        <h3 className="font-semibold text-lg mb-4 flex items-center gap-2">
-          <Activity className="w-5 h-5 text-primary" /> Activity Feed
+      <div className="rounded-lg border border-border bg-card p-4">
+        <h3 className="text-sm font-semibold mb-3 flex items-center gap-1.5">
+          <Activity className="w-4 h-4 text-primary" /> Activity
         </h3>
-        <div className="space-y-4">
+        <div className="space-y-3">
           {[...Array(4)].map((_, i) => (
-            <Skeleton key={i} className="h-12 w-full" />
+            <Skeleton key={i} className="h-10 w-full" />
           ))}
         </div>
       </div>
@@ -37,44 +37,34 @@ export function ActivityFeed() {
   }
 
   return (
-    <div className="rounded-xl border border-border bg-card p-6">
-      <h3 className="font-semibold text-lg mb-4 flex items-center gap-2">
-        <Activity className="w-5 h-5 text-primary" /> Activity Feed
+    <div className="rounded-lg border border-border bg-card p-4">
+      <h3 className="text-sm font-semibold mb-3 flex items-center gap-1.5">
+        <Activity className="w-4 h-4 text-primary" /> Activity
       </h3>
       {!logs || logs.length === 0 ? (
-        <p className="text-sm text-muted-foreground text-center py-6">
+        <p className="text-xs text-muted-foreground text-center py-6">
           No activity yet. Start by creating an invoice, product, or client.
         </p>
       ) : (
-        <div className="space-y-1">
+        <div className="space-y-0.5">
           {logs.map((log) => {
             const config = ACTION_CONFIG[log.action] || ACTION_CONFIG.updated;
-            const EntityIcon = ENTITY_ICON[log.entity_type] || FileText;
             const ActionIcon = config.icon;
 
             return (
               <div
                 key={log.id}
-                className="flex items-start gap-3 py-2.5 px-2 rounded-lg hover:bg-muted/40 transition-colors"
+                className="flex items-center gap-2.5 py-1.5 px-1.5 rounded hover:bg-muted/30 transition-colors"
               >
-                <div className={`mt-0.5 p-1.5 rounded-lg bg-muted ${config.color}`}>
-                  <ActionIcon className="w-3.5 h-3.5" />
+                <div className={`p-1 rounded bg-muted ${config.color}`}>
+                  <ActionIcon className="w-3 h-3" />
                 </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm leading-snug">
-                    <span className="font-medium">{config.label}</span>{' '}
-                    <span className="text-muted-foreground">{log.entity_type}</span>{' '}
-                    {log.entity_label && (
-                      <span className="font-medium truncate">{log.entity_label}</span>
-                    )}
-                  </p>
-                  {log.action === 'stock_adjusted' && log.metadata && (
-                    <p className="text-xs text-muted-foreground mt-0.5">
-                      {log.metadata.old_qty} → {log.metadata.new_qty} units
-                    </p>
-                  )}
-                </div>
-                <span className="text-xs text-muted-foreground whitespace-nowrap mt-0.5">
+                <p className="flex-1 min-w-0 text-xs leading-snug">
+                  <span className="font-medium">{config.label}</span>{' '}
+                  <span className="text-muted-foreground">{log.entity_type}</span>{' '}
+                  {log.entity_label && <span className="font-medium truncate">{log.entity_label}</span>}
+                </p>
+                <span className="text-[10px] text-muted-foreground whitespace-nowrap">
                   {formatDistanceToNow(new Date(log.created_at), { addSuffix: true })}
                 </span>
               </div>
