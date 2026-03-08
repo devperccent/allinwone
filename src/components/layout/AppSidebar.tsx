@@ -18,6 +18,7 @@ import {
   RefreshCw,
 } from 'lucide-react';
 import { useIsAdmin } from '@/hooks/useAdmin';
+import { useEnabledModules, type ModuleKey } from '@/hooks/useEnabledModules';
 import inwLogo from '@/assets/inw-logomark.png';
 import { ThemeLogo } from '@/components/ThemeLogo';
 import { cn } from '@/lib/utils';
