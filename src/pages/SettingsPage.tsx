@@ -65,6 +65,9 @@ export default function SettingsPage() {
     ALL_MODULES.map(m => m.key)
   );
 
+  // Keyboard hints toggle
+  const [keyboardHints, setKeyboardHints] = useState(isKeyboardHintsEnabled);
+
   const updateNotifPref = (key: keyof NotificationPreferences, value: boolean) => {
     const updated = { ...notifPrefs, [key]: value };
     setNotifPrefs(updated);
