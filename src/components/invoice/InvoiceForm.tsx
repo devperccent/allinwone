@@ -224,8 +224,8 @@ export function InvoiceForm({
       </div>
 
       {/* Line Items */}
-      <div className="rounded-xl border border-border bg-card p-5">
-        <h3 className="text-lg font-semibold mb-4">Line Items</h3>
+      <div className="rounded-lg border border-border bg-card p-4">
+        <h3 className="text-sm font-semibold mb-3">Line Items</h3>
 
         <div className="hidden sm:grid grid-cols-12 gap-3 px-3 py-2 text-sm font-medium text-muted-foreground mb-2">
           <div className="col-span-5 pl-6">Product / Description</div>
