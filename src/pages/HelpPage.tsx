@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
+import { useEnabledModules, type ModuleKey } from '@/hooks/useEnabledModules';
 import {
   Search,
   LayoutDashboard,
