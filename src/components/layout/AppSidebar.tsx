@@ -10,6 +10,7 @@ import {
   ChevronLeft,
   ShieldCheck,
   Keyboard,
+  BookOpen,
 } from 'lucide-react';
 import { useIsAdmin } from '@/hooks/useAdmin';
 import inwLogo from '@/assets/inw-logomark.png';
