@@ -231,11 +231,25 @@ export function AppSidebar({ onNavigate }: AppSidebarProps) {
             </div>
             <DropdownMenuSeparator />
             <DropdownMenuItem asChild>
-              <Link to="/settings">
+              <Link to="/settings" onClick={onNavigate}>
                 <Settings className="w-4 h-4 mr-2" />
                 Settings
               </Link>
             </DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <Link to="/help" onClick={onNavigate}>
+                <BookOpen className="w-4 h-4 mr-2" />
+                Help & Docs
+              </Link>
+            </DropdownMenuItem>
+            {isAdmin && (
+              <DropdownMenuItem asChild>
+                <Link to="/admin" onClick={onNavigate}>
+                  <ShieldCheck className="w-4 h-4 mr-2" />
+                  Admin Panel
+                </Link>
+              </DropdownMenuItem>
+            )}
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={handleSignOut} className="text-destructive focus:text-destructive">
               <LogOut className="w-4 h-4 mr-2" />
