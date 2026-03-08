@@ -16,6 +16,7 @@ import {
   Truck,
   ClipboardList,
   RefreshCw,
+  Receipt,
 } from 'lucide-react';
 import { useIsAdmin } from '@/hooks/useAdmin';
 import { useEnabledModules, type ModuleKey } from '@/hooks/useEnabledModules';
