@@ -166,10 +166,10 @@ export default function QuotationEditor() {
             <ArrowLeft className="w-5 h-5" />
           </Button>
           <div className="min-w-0">
-            <h1 className="text-lg md:text-2xl font-bold truncate">
+            <h1 className="text-lg md:text-xl font-bold truncate">
               {id ? 'Edit Quotation' : 'New Quotation'}
             </h1>
-            <p className="text-xs md:text-sm text-muted-foreground truncate">
+            <p className="text-xs text-muted-foreground truncate">
               {quotationNumber || 'Will be generated on save'}
             </p>
           </div>
@@ -191,8 +191,8 @@ export default function QuotationEditor() {
       <div className="flex-1 pt-4 md:pt-6 overflow-y-auto">
         <div className="max-w-4xl mx-auto space-y-6">
           {/* Client */}
-          <div className="rounded-xl border border-border bg-card p-5">
-            <h3 className="text-lg font-semibold mb-4">Client Details</h3>
+          <div className="rounded-lg border border-border bg-card p-4">
+            <h3 className="text-sm font-semibold mb-3">Client Details</h3>
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="sm:col-span-2">
                 <Label>Select Client</Label>
@@ -241,8 +241,8 @@ export default function QuotationEditor() {
           </div>
 
           {/* Dates */}
-          <div className="rounded-xl border border-border bg-card p-5">
-            <h3 className="text-lg font-semibold mb-4">Quotation Details</h3>
+          <div className="rounded-lg border border-border bg-card p-4">
+            <h3 className="text-sm font-semibold mb-3">Quotation Details</h3>
             <div className="grid gap-4 sm:grid-cols-2">
               <div>
                 <Label htmlFor="q-date">Date</Label>
@@ -256,8 +256,8 @@ export default function QuotationEditor() {
           </div>
 
           {/* Line Items */}
-          <div className="rounded-xl border border-border bg-card p-5">
-            <h3 className="text-lg font-semibold mb-4">Line Items</h3>
+          <div className="rounded-lg border border-border bg-card p-4">
+            <h3 className="text-sm font-semibold mb-3">Line Items</h3>
             <div className="hidden sm:grid grid-cols-12 gap-3 px-3 py-2 text-sm font-medium text-muted-foreground mb-2">
               <div className="col-span-5 pl-6">Product / Description</div>
               <div className="col-span-2">Qty</div>
@@ -283,7 +283,7 @@ export default function QuotationEditor() {
           <InvoiceTotals calculations={calculations} />
 
           {/* Notes & Terms */}
-          <div className="rounded-xl border border-border bg-card p-5 space-y-4">
+          <div className="rounded-lg border border-border bg-card p-4 space-y-4">
             <div>
               <Label htmlFor="q-notes">Notes</Label>
               <Textarea id="q-notes" value={notes} onChange={e => setNotes(e.target.value)} placeholder="Additional notes..." className="mt-1.5" rows={2} />

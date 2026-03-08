@@ -59,10 +59,10 @@ export function InvoiceEditorHeader({
           <ArrowLeft className="w-5 h-5" />
         </Button>
         <div className="min-w-0">
-          <h1 className="text-lg md:text-2xl font-bold truncate">
+          <h1 className="text-lg md:text-xl font-bold truncate">
             {id ? 'Edit Invoice' : 'New Invoice'}
           </h1>
-          <p className="text-xs md:text-sm text-muted-foreground truncate">
+          <p className="text-xs text-muted-foreground truncate">
             {invoiceNumber || 'Will be generated on save'}
           </p>
         </div>

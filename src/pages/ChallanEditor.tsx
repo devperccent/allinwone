@@ -142,8 +142,8 @@ export default function ChallanEditor() {
             <ArrowLeft className="w-5 h-5" />
           </Button>
           <div className="min-w-0">
-            <h1 className="text-lg md:text-2xl font-bold truncate">{id ? 'Edit Challan' : 'New Delivery Challan'}</h1>
-            <p className="text-xs md:text-sm text-muted-foreground truncate">{challanNumber || 'Will be generated on save'}</p>
+            <h1 className="text-lg md:text-xl font-bold truncate">{id ? 'Edit Challan' : 'New Delivery Challan'}</h1>
+            <p className="text-xs text-muted-foreground truncate">{challanNumber || 'Will be generated on save'}</p>
           </div>
         </div>
         <div className="flex items-center gap-2 shrink-0">
@@ -162,8 +162,8 @@ export default function ChallanEditor() {
       <div className="flex-1 pt-4 md:pt-6 overflow-y-auto">
         <div className="max-w-4xl mx-auto space-y-6">
           {/* Client */}
-          <div className="rounded-xl border border-border bg-card p-5">
-            <h3 className="text-lg font-semibold mb-4">Client Details</h3>
+          <div className="rounded-lg border border-border bg-card p-4">
+            <h3 className="text-sm font-semibold mb-3">Client Details</h3>
             <Popover open={clientOpen} onOpenChange={setClientOpen}>
               <PopoverTrigger asChild>
                 <Button variant="outline" role="combobox" className="w-full justify-between">
@@ -198,8 +198,8 @@ export default function ChallanEditor() {
           </div>
 
           {/* Transport Details */}
-          <div className="rounded-xl border border-border bg-card p-5">
-            <h3 className="text-lg font-semibold mb-4">Transport Details</h3>
+          <div className="rounded-lg border border-border bg-card p-4">
+            <h3 className="text-sm font-semibold mb-3">Transport Details</h3>
             <div className="grid gap-4 sm:grid-cols-2">
               <div>
                 <Label htmlFor="c-date">Date</Label>
@@ -225,8 +225,8 @@ export default function ChallanEditor() {
           </div>
 
           {/* Items */}
-          <div className="rounded-xl border border-border bg-card p-5">
-            <h3 className="text-lg font-semibold mb-4">Items</h3>
+          <div className="rounded-lg border border-border bg-card p-4">
+            <h3 className="text-sm font-semibold mb-3">Items</h3>
             <div className="space-y-3">
               {items.map((item, idx) => (
                 <div key={item.id} className="flex items-center gap-3 p-3 rounded-lg border bg-card">
@@ -272,7 +272,7 @@ export default function ChallanEditor() {
           </div>
 
           {/* Notes */}
-          <div className="rounded-xl border border-border bg-card p-5">
+          <div className="rounded-lg border border-border bg-card p-4">
             <Label htmlFor="c-notes">Notes</Label>
             <Textarea id="c-notes" value={notes} onChange={e => setNotes(e.target.value)} placeholder="Additional notes..." className="mt-1.5" rows={3} />
           </div>

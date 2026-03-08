@@ -109,8 +109,8 @@ export function InvoiceForm({
   return (
     <div className="space-y-6">
       {/* Client Selection */}
-      <div className="rounded-xl border border-border bg-card p-5">
-        <h3 className="text-lg font-semibold mb-4">Client Details</h3>
+      <div className="rounded-lg border border-border bg-card p-4">
+        <h3 className="text-sm font-semibold mb-3">Client Details</h3>
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="sm:col-span-2">
             <Label>Select Client</Label>
@@ -197,8 +197,8 @@ export function InvoiceForm({
       </div>
 
       {/* Dates */}
-      <div className="rounded-xl border border-border bg-card p-5">
-        <h3 className="text-lg font-semibold mb-4">Invoice Details</h3>
+      <div className="rounded-lg border border-border bg-card p-4">
+        <h3 className="text-sm font-semibold mb-3">Invoice Details</h3>
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
             <Label htmlFor="date-issued">Invoice Date</Label>
@@ -224,8 +224,8 @@ export function InvoiceForm({
       </div>
 
       {/* Line Items */}
-      <div className="rounded-xl border border-border bg-card p-5">
-        <h3 className="text-lg font-semibold mb-4">Line Items</h3>
+      <div className="rounded-lg border border-border bg-card p-4">
+        <h3 className="text-sm font-semibold mb-3">Line Items</h3>
 
         <div className="hidden sm:grid grid-cols-12 gap-3 px-3 py-2 text-sm font-medium text-muted-foreground mb-2">
           <div className="col-span-5 pl-6">Product / Description</div>
@@ -263,7 +263,7 @@ export function InvoiceForm({
       <InvoiceTotals calculations={calculations} />
 
       {/* Notes */}
-      <div className="rounded-xl border border-border bg-card p-5">
+      <div className="rounded-lg border border-border bg-card p-4">
         <Label htmlFor="notes">Notes / Terms</Label>
         <Textarea
           id="notes"
@@ -277,13 +277,13 @@ export function InvoiceForm({
 
       {/* Template Selector */}
       {onTemplateChange && (
-        <div className="rounded-xl border border-border bg-card p-5">
+        <div className="rounded-lg border border-border bg-card p-4">
           <TemplateSelector value={template} onChange={onTemplateChange} />
         </div>
       )}
 
       {/* Payment Info Toggle */}
-      <div className="rounded-xl border border-border bg-card p-5 flex items-center justify-between">
+      <div className="rounded-lg border border-border bg-card p-4 flex items-center justify-between">
         <div>
           <Label htmlFor={paymentToggleId} className="text-sm font-semibold">Show Payment Info</Label>
           <p className="text-xs text-muted-foreground mt-0.5">Include bank details & UPI QR on the invoice</p>

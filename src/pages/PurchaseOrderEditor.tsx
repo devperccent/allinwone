@@ -157,8 +157,8 @@ export default function PurchaseOrderEditor() {
             <ArrowLeft className="w-5 h-5" />
           </Button>
           <div className="min-w-0">
-            <h1 className="text-lg md:text-2xl font-bold truncate">{id ? 'Edit Purchase Order' : 'New Purchase Order'}</h1>
-            <p className="text-xs md:text-sm text-muted-foreground truncate">{poNumber || 'Will be generated on save'}</p>
+            <h1 className="text-lg md:text-xl font-bold truncate">{id ? 'Edit Purchase Order' : 'New Purchase Order'}</h1>
+            <p className="text-xs text-muted-foreground truncate">{poNumber || 'Will be generated on save'}</p>
           </div>
         </div>
         <div className="flex items-center gap-2 shrink-0">
@@ -177,8 +177,8 @@ export default function PurchaseOrderEditor() {
       <div className="flex-1 pt-4 md:pt-6 overflow-y-auto">
         <div className="max-w-4xl mx-auto space-y-6">
           {/* Supplier */}
-          <div className="rounded-xl border border-border bg-card p-5">
-            <h3 className="text-lg font-semibold mb-4">Supplier Details</h3>
+          <div className="rounded-lg border border-border bg-card p-4">
+            <h3 className="text-sm font-semibold mb-3">Supplier Details</h3>
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="sm:col-span-2">
                 <Label htmlFor="po-supplier">Supplier Name *</Label>
@@ -196,8 +196,8 @@ export default function PurchaseOrderEditor() {
           </div>
 
           {/* Dates */}
-          <div className="rounded-xl border border-border bg-card p-5">
-            <h3 className="text-lg font-semibold mb-4">Order Details</h3>
+          <div className="rounded-lg border border-border bg-card p-4">
+            <h3 className="text-sm font-semibold mb-3">Order Details</h3>
             <div className="grid gap-4 sm:grid-cols-2">
               <div>
                 <Label htmlFor="po-date">Order Date</Label>
@@ -211,8 +211,8 @@ export default function PurchaseOrderEditor() {
           </div>
 
           {/* Line Items */}
-          <div className="rounded-xl border border-border bg-card p-5">
-            <h3 className="text-lg font-semibold mb-4">Line Items</h3>
+          <div className="rounded-lg border border-border bg-card p-4">
+            <h3 className="text-sm font-semibold mb-3">Line Items</h3>
             <div className="hidden sm:grid grid-cols-12 gap-3 px-3 py-2 text-sm font-medium text-muted-foreground mb-2">
               <div className="col-span-4">Product / Description</div>
               <div className="col-span-2">Qty</div>
@@ -289,7 +289,7 @@ export default function PurchaseOrderEditor() {
           </div>
 
           {/* Totals */}
-          <div className="rounded-xl border border-border bg-card p-5">
+          <div className="rounded-lg border border-border bg-card p-4">
             <div className="space-y-3">
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">Subtotal</span>
@@ -300,14 +300,14 @@ export default function PurchaseOrderEditor() {
                 <span className="font-medium tabular-nums">{formatINR(totals.totalTax)}</span>
               </div>
               <div className="border-t border-border pt-3 flex justify-between">
-                <span className="text-lg font-semibold">Grand Total</span>
-                <span className="text-2xl font-bold tabular-nums text-primary">{formatINR(totals.grandTotal)}</span>
+                <span className="text-sm font-semibold">Grand Total</span>
+                <span className="text-xl font-bold tabular-nums text-primary">{formatINR(totals.grandTotal)}</span>
               </div>
             </div>
           </div>
 
           {/* Notes */}
-          <div className="rounded-xl border border-border bg-card p-5">
+          <div className="rounded-lg border border-border bg-card p-4">
             <Label htmlFor="po-notes">Notes</Label>
             <Textarea id="po-notes" value={notes} onChange={e => setNotes(e.target.value)} placeholder="Payment terms, special instructions..." className="mt-1.5" rows={3} />
           </div>

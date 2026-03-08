@@ -163,8 +163,8 @@ export default function PurchaseBillEditor() {
             <ArrowLeft className="w-5 h-5" />
           </Button>
           <div className="min-w-0">
-            <h1 className="text-lg md:text-2xl font-bold truncate">{id ? 'Edit Purchase Bill' : 'New Purchase Bill'}</h1>
-            <p className="text-xs md:text-sm text-muted-foreground truncate">{billNumber || 'Enter supplier bill number'}</p>
+            <h1 className="text-lg md:text-xl font-bold truncate">{id ? 'Edit Purchase Bill' : 'New Purchase Bill'}</h1>
+            <p className="text-xs text-muted-foreground truncate">{billNumber || 'Enter supplier bill number'}</p>
           </div>
         </div>
         <div className="flex items-center gap-2 shrink-0">
@@ -183,8 +183,8 @@ export default function PurchaseBillEditor() {
       <div className="flex-1 pt-4 md:pt-6 overflow-y-auto">
         <div className="max-w-4xl mx-auto space-y-6">
           {/* Supplier */}
-          <div className="rounded-xl border border-border bg-card p-5">
-            <h3 className="text-lg font-semibold mb-4">Supplier Details</h3>
+          <div className="rounded-lg border border-border bg-card p-4">
+            <h3 className="text-sm font-semibold mb-3">Supplier Details</h3>
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="sm:col-span-2">
                 <Label>Supplier Name *</Label>
@@ -202,8 +202,8 @@ export default function PurchaseBillEditor() {
           </div>
 
           {/* Bill Details */}
-          <div className="rounded-xl border border-border bg-card p-5">
-            <h3 className="text-lg font-semibold mb-4">Bill Details</h3>
+          <div className="rounded-lg border border-border bg-card p-4">
+            <h3 className="text-sm font-semibold mb-3">Bill Details</h3>
             <div className="grid gap-4 sm:grid-cols-3">
               <div>
                 <Label>Bill Number *</Label>
@@ -221,8 +221,8 @@ export default function PurchaseBillEditor() {
           </div>
 
           {/* Line Items */}
-          <div className="rounded-xl border border-border bg-card p-5">
-            <h3 className="text-lg font-semibold mb-4">Line Items</h3>
+          <div className="rounded-lg border border-border bg-card p-4">
+            <h3 className="text-sm font-semibold mb-3">Line Items</h3>
             <div className="space-y-3">
               {items.map((item) => {
                 const itemAmount = item.qty * item.rate * (1 + item.tax_rate / 100);
@@ -290,16 +290,16 @@ export default function PurchaseBillEditor() {
           </div>
 
           {/* Totals */}
-          <div className="rounded-xl border border-border bg-card p-5">
+          <div className="rounded-lg border border-border bg-card p-4">
             <div className="space-y-3">
               <div className="flex justify-between text-sm"><span className="text-muted-foreground">Subtotal</span><span className="font-medium tabular-nums">{formatINR(totals.subtotal)}</span></div>
               <div className="flex justify-between text-sm"><span className="text-muted-foreground">GST</span><span className="font-medium tabular-nums">{formatINR(totals.totalTax)}</span></div>
-              <div className="border-t border-border pt-3 flex justify-between"><span className="text-lg font-semibold">Grand Total</span><span className="text-2xl font-bold tabular-nums text-primary">{formatINR(totals.grandTotal)}</span></div>
+              <div className="border-t border-border pt-3 flex justify-between"><span className="text-sm font-semibold">Grand Total</span><span className="text-xl font-bold tabular-nums text-primary">{formatINR(totals.grandTotal)}</span></div>
             </div>
           </div>
 
           {/* Notes */}
-          <div className="rounded-xl border border-border bg-card p-5">
+          <div className="rounded-lg border border-border bg-card p-4">
             <Label>Notes</Label>
             <Textarea value={notes} onChange={e => setNotes(e.target.value)} placeholder="Payment terms, special instructions..." className="mt-1.5" rows={3} />
           </div>
