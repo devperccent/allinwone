@@ -338,85 +338,13 @@ export default function ProductsPage() {
           </div>
         ) : (
           filteredProducts.map((product) => (
-            <div
+            <ProductCard
               key={product.id}
-              className={cn(
-                'rounded-xl border bg-card p-5 transition-all hover:shadow-md',
-                isLowStock(product) ? 'border-warning/50' : 'border-border'
-              )}
-            >
-              <div className="flex items-start justify-between">
-                <div>
-                  <div className="flex items-center gap-2">
-                    <h3 className="font-semibold">{product.name}</h3>
-                    {isLowStock(product) && (
-                      <AlertTriangle className="w-4 h-4 text-warning" />
-                    )}
-                  </div>
-                  <p className="text-sm text-muted-foreground">SKU: {product.sku}</p>
-                </div>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon" className="h-8 w-8">
-                      <MoreHorizontal className="w-4 h-4" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    {product.type === 'goods' && (
-                      <DropdownMenuItem onClick={() => {
-                        setSelectedProduct(product);
-                        setStockSheetOpen(true);
-                      }}>
-                        <History className="w-4 h-4 mr-2" />
-                        Stock History
-                      </DropdownMenuItem>
-                    )}
-                    <DropdownMenuItem>
-                      <Pencil className="w-4 h-4 mr-2" />
-                      Edit
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem 
-                      onClick={() => deleteProduct.mutate(product.id)}
-                      className="text-destructive focus:text-destructive"
-                    >
-                      <Trash2 className="w-4 h-4 mr-2" />
-                      Delete
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </div>
-              
-              <div className="mt-4 flex items-center gap-2">
-                <Badge variant="secondary" className="text-xs">
-                  {product.type === 'goods' ? 'Goods' : 'Service'}
-                </Badge>
-                {product.hsn_code && (
-                  <Badge variant="outline" className="text-xs">
-                    HSN: {product.hsn_code}
-                  </Badge>
-                )}
-              </div>
-              
-              <div className="mt-4 flex items-end justify-between">
-                <div>
-                  <p className="text-2xl font-bold">{formatINR(Number(product.selling_price))}</p>
-                </div>
-                {product.type === 'goods' && (
-                  <div className="text-right">
-                    <p className={cn(
-                      'text-sm font-medium',
-                      isLowStock(product) ? 'text-warning' : 'text-muted-foreground'
-                    )}>
-                      {product.stock_quantity} in stock
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      Min: {product.low_stock_limit}
-                    </p>
-                  </div>
-                )}
-              </div>
-            </div>
+              product={product}
+              isLowStock={isLowStock(product)}
+              onStockHistory={() => { setSelectedProduct(product); setStockSheetOpen(true); }}
+              onDelete={() => deleteProduct.mutate(product.id)}
+            />
           ))
         )}
       </div>
