@@ -46,6 +46,12 @@ export function useKeyboardShortcuts({ onSearch, onHelp, onToggleTheme }: Shortc
           p: '/products',
           r: '/reports',
           s: '/settings',
+          q: '/quotations',
+          o: '/purchase-orders',
+          l: '/challans',
+          b: '/purchase-bills',
+          e: '/bulk',
+          u: '/recurring',
         };
         const path = routes[e.key.toLowerCase()];
         if (path) {
@@ -96,18 +102,24 @@ export const SHORTCUT_GROUPS = [
     title: 'List Pages',
     shortcuts: [
       { keys: ['/'], description: 'Focus search field' },
-      { keys: ['A'], description: 'Add new item (client / product)' },
+      { keys: ['A'], description: 'Add new item' },
     ],
   },
   {
     title: 'Navigation',
     shortcuts: [
-      { keys: [modKey, '⇧', 'D'], description: 'Go to Dashboard', separator: '+' },
-      { keys: [modKey, '⇧', 'I'], description: 'Go to Invoices', separator: '+' },
-      { keys: [modKey, '⇧', 'C'], description: 'Go to Clients', separator: '+' },
-      { keys: [modKey, '⇧', 'P'], description: 'Go to Products', separator: '+' },
-      { keys: [modKey, '⇧', 'R'], description: 'Go to Reports', separator: '+' },
-      { keys: [modKey, '⇧', 'S'], description: 'Go to Settings', separator: '+' },
+      { keys: [modKey, '⇧', 'D'], description: 'Dashboard', separator: '+' },
+      { keys: [modKey, '⇧', 'I'], description: 'Invoices', separator: '+' },
+      { keys: [modKey, '⇧', 'C'], description: 'Clients', separator: '+' },
+      { keys: [modKey, '⇧', 'P'], description: 'Products', separator: '+' },
+      { keys: [modKey, '⇧', 'Q'], description: 'Quotations', separator: '+' },
+      { keys: [modKey, '⇧', 'O'], description: 'Purchase Orders', separator: '+' },
+      { keys: [modKey, '⇧', 'L'], description: 'Delivery Challans', separator: '+' },
+      { keys: [modKey, '⇧', 'B'], description: 'Purchase Bills', separator: '+' },
+      { keys: [modKey, '⇧', 'U'], description: 'Recurring Invoices', separator: '+' },
+      { keys: [modKey, '⇧', 'R'], description: 'Reports', separator: '+' },
+      { keys: [modKey, '⇧', 'E'], description: 'Import/Export', separator: '+' },
+      { keys: [modKey, '⇧', 'S'], description: 'Settings', separator: '+' },
     ],
   },
   {

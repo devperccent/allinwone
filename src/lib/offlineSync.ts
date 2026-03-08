@@ -1,5 +1,4 @@
-// Offline sync queue using IndexedDB via idb-keyval
-import { get, set, del, keys } from 'idb-keyval';
+// Offline sync queue using native IndexedDB (no external dependency)
 import { supabase } from '@/integrations/supabase/client';
 
 export interface SyncQueueItem {
@@ -9,6 +8,68 @@ export interface SyncQueueItem {
   data: Record<string, any>;
   timestamp: number;
   retries: number;
+}
+
+const DB_NAME = 'inw_offline';
+const STORE_NAME = 'sync_queue';
+const DB_VERSION = 1;
+
+function openDB(): Promise<IDBDatabase> {
+  return new Promise((resolve, reject) => {
+    const request = indexedDB.open(DB_NAME, DB_VERSION);
+    request.onupgradeneeded = () => {
+      const db = request.result;
+      if (!db.objectStoreNames.contains(STORE_NAME)) {
+        db.createObjectStore(STORE_NAME, { keyPath: 'id' });
+      }
+    };
+    request.onsuccess = () => resolve(request.result);
+    request.onerror = () => reject(request.error);
+  });
+}
+
+async function dbGet<T>(key: string): Promise<T | undefined> {
+  const db = await openDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(STORE_NAME, 'readonly');
+    const store = tx.objectStore(STORE_NAME);
+    const req = store.get(key);
+    req.onsuccess = () => resolve(req.result as T | undefined);
+    req.onerror = () => reject(req.error);
+  });
+}
+
+async function dbSet(key: string, value: any): Promise<void> {
+  const db = await openDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(STORE_NAME, 'readwrite');
+    const store = tx.objectStore(STORE_NAME);
+    store.put({ ...value, id: key });
+    tx.oncomplete = () => resolve();
+    tx.onerror = () => reject(tx.error);
+  });
+}
+
+async function dbDel(key: string): Promise<void> {
+  const db = await openDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(STORE_NAME, 'readwrite');
+    const store = tx.objectStore(STORE_NAME);
+    store.delete(key);
+    tx.oncomplete = () => resolve();
+    tx.onerror = () => reject(tx.error);
+  });
+}
+
+async function dbKeys(): Promise<string[]> {
+  const db = await openDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(STORE_NAME, 'readonly');
+    const store = tx.objectStore(STORE_NAME);
+    const req = store.getAllKeys();
+    req.onsuccess = () => resolve(req.result as string[]);
+    req.onerror = () => reject(req.error);
+  });
 }
 
 const QUEUE_PREFIX = 'sync_queue_';
@@ -31,23 +92,23 @@ export async function enqueueOfflineMutation(
     timestamp: Date.now(),
     retries: 0,
   };
-  await set(`${QUEUE_PREFIX}${id}`, item);
+  await dbSet(`${QUEUE_PREFIX}${id}`, item);
   return id;
 }
 
 export async function getQueuedItems(): Promise<SyncQueueItem[]> {
-  const allKeys = await keys();
+  const allKeys = await dbKeys();
   const queueKeys = allKeys.filter((k) => String(k).startsWith(QUEUE_PREFIX));
   const items: SyncQueueItem[] = [];
   for (const key of queueKeys) {
-    const item = await get(key);
-    if (item) items.push(item as SyncQueueItem);
+    const item = await dbGet<SyncQueueItem>(key);
+    if (item) items.push(item);
   }
   return items.sort((a, b) => a.timestamp - b.timestamp);
 }
 
 export async function removeQueuedItem(id: string): Promise<void> {
-  await del(`${QUEUE_PREFIX}${id}`);
+  await dbDel(`${QUEUE_PREFIX}${id}`);
 }
 
 export async function syncQueue(): Promise<{ synced: number; failed: number }> {
@@ -74,20 +135,19 @@ export async function syncQueue(): Promise<{ synced: number; failed: number }> {
       if (error) {
         item.retries++;
         if (item.retries >= 3) {
-          // Give up after 3 retries
-          await removeQueuedItem(item.id);
+          await dbDel(`${QUEUE_PREFIX}${item.id}`);
           failed++;
         } else {
-          await set(`${QUEUE_PREFIX}${item.id}`, item);
+          await dbSet(`${QUEUE_PREFIX}${item.id}`, item);
           failed++;
         }
       } else {
-        await removeQueuedItem(item.id);
+        await dbDel(`${QUEUE_PREFIX}${item.id}`);
         synced++;
       }
     } catch {
       item.retries++;
-      await set(`${QUEUE_PREFIX}${item.id}`, item);
+      await dbSet(`${QUEUE_PREFIX}${item.id}`, item);
       failed++;
     }
   }
@@ -96,6 +156,6 @@ export async function syncQueue(): Promise<{ synced: number; failed: number }> {
 }
 
 export async function getQueueCount(): Promise<number> {
-  const allKeys = await keys();
+  const allKeys = await dbKeys();
   return allKeys.filter((k) => String(k).startsWith(QUEUE_PREFIX)).length;
 }
