@@ -1,23 +1,25 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
-import { MessageCircle, X, Send, Loader2, Bot, User, Minimize2 } from 'lucide-react';
+import { X, Send, Loader2, Bot, User, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import ReactMarkdown from 'react-markdown';
 import { useAuth } from '@/contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 type Msg = { role: 'user' | 'assistant'; content: string };
 
 const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-assistant`;
 
 const SUGGESTIONS = [
-  'How do I create an invoice?',
-  'Explain GST calculation',
-  'How to track inventory?',
-  'What reports are available?',
+  'Show my dashboard stats',
+  'List unpaid invoices',
+  'Show low stock products',
+  'Create a new invoice',
 ];
 
 export function AIChatbot() {
-  const { user } = useAuth();
+  const { user, session } = useAuth();
+  const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<Msg[]>([]);
   const [input, setInput] = useState('');
@@ -33,6 +35,15 @@ export function AIChatbot() {
     if (open) inputRef.current?.focus();
   }, [open]);
 
+  // Handle navigation commands from AI
+  const handleNavigation = useCallback((content: string) => {
+    // Look for navigation JSON in tool responses embedded in the stream
+    const navMatch = content.match(/\{"action":"navigate","path":"([^"]+)"\}/);
+    if (navMatch) {
+      navigate(navMatch[1]);
+    }
+  }, [navigate]);
+
   const sendMessage = useCallback(async (text: string) => {
     if (!text.trim() || isLoading) return;
 
@@ -43,6 +54,7 @@ export function AIChatbot() {
     setIsLoading(true);
 
     let assistantSoFar = '';
+    let hasNavigated = false;
 
     try {
       const resp = await fetch(CHAT_URL, {
@@ -50,6 +62,7 @@ export function AIChatbot() {
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+          'x-user-authorization': `Bearer ${session?.access_token || ''}`,
         },
         body: JSON.stringify({ messages: allMessages }),
       });
@@ -69,6 +82,28 @@ export function AIChatbot() {
       const upsertAssistant = (chunk: string) => {
         assistantSoFar += chunk;
         const content = assistantSoFar;
+
+        // Check for navigation commands
+        if (!hasNavigated) {
+          const navPaths = ['/dashboard', '/invoices', '/clients', '/products', '/quotations', '/challans', '/purchase-orders', '/settings', '/reports', '/quick-bill', '/recurring-invoices'];
+          for (const p of navPaths) {
+            if (content.includes(`"path":"${p}"`) || content.includes(`"path": "${p}"`)) {
+              navigate(p.startsWith('/invoices/new') ? '/invoices/new' : p);
+              hasNavigated = true;
+              break;
+            }
+          }
+          // Also check for /new routes
+          const newRoutes = ['/invoices/new', '/quotations/new', '/challans/new', '/purchase-orders/new'];
+          for (const p of newRoutes) {
+            if (content.includes(p)) {
+              navigate(p);
+              hasNavigated = true;
+              break;
+            }
+          }
+        }
+
         setMessages(prev => {
           const last = prev[prev.length - 1];
           if (last?.role === 'assistant') {
@@ -133,13 +168,12 @@ export function AIChatbot() {
     } finally {
       setIsLoading(false);
     }
-  }, [messages, isLoading]);
+  }, [messages, isLoading, session, navigate]);
 
   if (!user) return null;
 
   return (
     <>
-      {/* Floating button */}
       {!open && (
         <button
           onClick={() => setOpen(true)}
@@ -150,7 +184,6 @@ export function AIChatbot() {
         </button>
       )}
 
-      {/* Chat panel */}
       {open && (
         <div className="fixed inset-0 sm:inset-auto sm:bottom-6 sm:right-6 z-50 w-full sm:w-[380px] sm:max-w-[calc(100vw-2rem)] h-[100dvh] sm:h-[520px] sm:max-h-[calc(100vh-6rem)] flex flex-col sm:rounded-2xl border border-border bg-card shadow-2xl animate-in slide-in-from-bottom-4 fade-in duration-300">
           {/* Header */}
@@ -161,12 +194,25 @@ export function AIChatbot() {
               </div>
               <div>
                 <p className="text-sm font-semibold">AI Assistant</p>
-                <p className="text-xs text-muted-foreground">Ask me anything</p>
+                <p className="text-xs text-muted-foreground">Full access to your data</p>
               </div>
             </div>
-            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setOpen(false)}>
-              <X className="w-4 h-4" />
-            </Button>
+            <div className="flex items-center gap-1">
+              {messages.length > 0 && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8"
+                  onClick={() => setMessages([])}
+                  title="Clear chat"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                </Button>
+              )}
+              <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setOpen(false)}>
+                <X className="w-4 h-4" />
+              </Button>
+            </div>
           </div>
 
           {/* Messages */}
@@ -174,7 +220,7 @@ export function AIChatbot() {
             {messages.length === 0 && (
               <div className="space-y-3">
                 <p className="text-sm text-muted-foreground text-center pt-4">
-                  👋 Hi! I'm your business assistant. How can I help?
+                  👋 Hi! I can access your data and perform actions. Try asking me anything!
                 </p>
                 <div className="grid grid-cols-2 gap-2">
                   {SUGGESTIONS.map((s) => (
@@ -212,7 +258,7 @@ export function AIChatbot() {
                   )}
                 >
                   {msg.role === 'assistant' ? (
-                    <div className="prose prose-sm dark:prose-invert max-w-none [&>p]:mb-1 [&>p:last-child]:mb-0 [&>ul]:my-1 [&>ol]:my-1">
+                    <div className="prose prose-sm dark:prose-invert max-w-none [&>p]:mb-1 [&>p:last-child]:mb-0 [&>ul]:my-1 [&>ol]:my-1 [&>table]:text-xs">
                       <ReactMarkdown>{msg.content}</ReactMarkdown>
                     </div>
                   ) : (
@@ -233,7 +279,10 @@ export function AIChatbot() {
                   <Bot className="w-3 h-3 text-primary" />
                 </div>
                 <div className="bg-muted/60 rounded-xl px-3 py-2">
-                  <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
+                  <div className="flex items-center gap-2">
+                    <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
+                    <span className="text-xs text-muted-foreground">Thinking & fetching data...</span>
+                  </div>
                 </div>
               </div>
             )}
@@ -254,7 +303,7 @@ export function AIChatbot() {
                 ref={inputRef}
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
-                placeholder="Ask something..."
+                placeholder="Ask anything or give a command..."
                 disabled={isLoading}
                 className="flex-1 h-9 px-3 rounded-lg border border-border bg-background text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring disabled:opacity-50"
               />
