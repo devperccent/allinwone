@@ -225,8 +225,8 @@ export default function ChallanEditor() {
           </div>
 
           {/* Items */}
-          <div className="rounded-xl border border-border bg-card p-5">
-            <h3 className="text-lg font-semibold mb-4">Items</h3>
+          <div className="rounded-lg border border-border bg-card p-4">
+            <h3 className="text-sm font-semibold mb-3">Items</h3>
             <div className="space-y-3">
               {items.map((item, idx) => (
                 <div key={item.id} className="flex items-center gap-3 p-3 rounded-lg border bg-card">
