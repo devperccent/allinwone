@@ -258,36 +258,36 @@ export function InvoicePdfPreview({
                     borderBottom: `0.5px solid ${GRAY_200}`,
                     backgroundColor: p.tableStyle === 'filled' && isAlt ? p.tableAltBg : 'transparent',
                   }}>
-                    <td className="py-2 px-1.5 text-[8.5px]" style={{ color: GRAY_400 }}>{index + 1}</td>
-                    <td className="py-2 px-1.5">
-                      <span className="text-[8.5px] font-semibold" style={{ color: GRAY_900 }}>{item.description}</span>
+                    <td className="py-1.5 px-1 text-[7.5px]" style={{ color: GRAY_400 }}>{index + 1}</td>
+                    <td className="py-1.5 px-1">
+                      <span className="text-[7.5px] font-semibold" style={{ color: GRAY_900 }}>{item.description}</span>
                     </td>
-                    <td className="py-2 px-1.5 text-right text-[8.5px] tabular-nums font-semibold">{item.qty}</td>
-                    <td className="py-2 px-1.5 text-right text-[8.5px] tabular-nums">{formatINR(item.rate)}</td>
-                    <td className="py-2 px-1.5 text-right text-[8.5px] tabular-nums" style={{ color: discount > 0 ? GREEN : GRAY_400 }}>
+                    <td className="py-1.5 px-1 text-right text-[7.5px] tabular-nums font-semibold">{item.qty}</td>
+                    <td className="py-1.5 px-1 text-right text-[7.5px] tabular-nums">{formatINR(item.rate)}</td>
+                    <td className="py-1.5 px-1 text-right text-[7.5px] tabular-nums" style={{ color: discount > 0 ? GREEN : GRAY_400 }}>
                       {discount > 0 ? `-${formatINR(discount)}` : '—'}
                     </td>
                     {isIntraState ? (
                       <>
-                        <td className="py-2 px-1.5 text-right text-[8.5px] tabular-nums">
+                        <td className="py-1.5 px-1 text-right text-[7.5px] tabular-nums">
                           {formatINR(taxAmount / 2)}
                           <br />
-                          <span className="text-[6.5px]" style={{ color: GRAY_400 }}>@{item.tax_rate / 2}%</span>
+                          <span className="text-[5.5px]" style={{ color: GRAY_400 }}>@{item.tax_rate / 2}%</span>
                         </td>
-                        <td className="py-2 px-1.5 text-right text-[8.5px] tabular-nums">
+                        <td className="py-1.5 px-1 text-right text-[7.5px] tabular-nums">
                           {formatINR(taxAmount / 2)}
                           <br />
-                          <span className="text-[6.5px]" style={{ color: GRAY_400 }}>@{item.tax_rate / 2}%</span>
+                          <span className="text-[5.5px]" style={{ color: GRAY_400 }}>@{item.tax_rate / 2}%</span>
                         </td>
                       </>
                     ) : (
-                      <td className="py-2 px-1.5 text-right text-[8.5px] tabular-nums">
+                      <td className="py-1.5 px-1 text-right text-[7.5px] tabular-nums">
                         {formatINR(taxAmount)}
                         <br />
-                        <span className="text-[6.5px]" style={{ color: GRAY_400 }}>@{item.tax_rate}%</span>
+                        <span className="text-[5.5px]" style={{ color: GRAY_400 }}>@{item.tax_rate}%</span>
                       </td>
                     )}
-                    <td className="py-2 px-1.5 text-right text-[8.5px] font-bold tabular-nums">
+                    <td className="py-1.5 px-1 text-right text-[7.5px] font-bold tabular-nums">
                       {formatINR(itemCalc?.totalAmount || 0)}
                     </td>
                   </tr>
