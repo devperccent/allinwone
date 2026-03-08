@@ -77,6 +77,7 @@ export default function ProductsPage() {
     low_stock_limit: '10',
     useCustomGst: false,
     tax_rate: '18',
+    barcode: '',
   });
 
   const filteredProducts = products.filter((product) =>
