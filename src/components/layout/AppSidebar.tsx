@@ -216,12 +216,13 @@ export function AppSidebar({ onNavigate }: AppSidebarProps) {
                 isCollapsed && 'justify-center'
               )}
             >
-              <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+              <div className="w-8 h-8 rounded-full bg-primary/10 ring-2 ring-primary/20 group-hover:ring-primary/40 flex items-center justify-center flex-shrink-0 transition-all">
                 <span className="text-xs font-semibold text-primary">{initials}</span>
               </div>
               {!isCollapsed && (
                 <div className="flex-1 text-left truncate">
-                  <p className="truncate">{profile?.org_name || 'Loading...'}</p>
+                  <p className="truncate text-xs">{profile?.org_name || 'Loading...'}</p>
+                  <p className="text-[10px] text-sidebar-foreground/50 truncate">Settings & more ▾</p>
                 </div>
               )}
             </button>
