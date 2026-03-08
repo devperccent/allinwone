@@ -1,13 +1,19 @@
+import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAdminUserDetail } from '@/hooks/useAdmin';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, FileText, Users, Package } from 'lucide-react';
+import { Switch } from '@/components/ui/switch';
+import { ArrowLeft, FileText, Users, Package, Loader2, LayoutGrid } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { format } from 'date-fns';
 import { INDIAN_STATES } from '@/types';
+import { ALL_MODULES } from '@/hooks/useEnabledModules';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
+import { useQueryClient } from '@tanstack/react-query';
 
 function formatINR(amount: number) {
   return new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(amount);
@@ -17,6 +23,32 @@ export default function AdminUserDetail() {
   const { profileId } = useParams<{ profileId: string }>();
   const navigate = useNavigate();
   const { data, isLoading } = useAdminUserDetail(profileId);
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+  const [modulesState, setModulesState] = useState<string[]>([]);
+  const [savingModules, setSavingModules] = useState(false);
+
+  useEffect(() => {
+    if (data?.profile) {
+      setModulesState((data.profile as any).enabled_modules ?? ALL_MODULES.map(m => m.key));
+    }
+  }, [data?.profile]);
+
+  const handleSaveModules = async () => {
+    if (!profileId) return;
+    setSavingModules(true);
+    const { error } = await supabase
+      .from('profiles')
+      .update({ enabled_modules: modulesState } as any)
+      .eq('id', profileId);
+    setSavingModules(false);
+    if (error) {
+      toast({ title: 'Error', description: error.message, variant: 'destructive' });
+    } else {
+      toast({ title: 'Modules updated', description: 'User modules have been saved.' });
+      queryClient.invalidateQueries({ queryKey: ['admin_user_detail', profileId] });
+    }
+  };
 
   if (isLoading) {
     return <div className="flex items-center justify-center h-64"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" /></div>;
@@ -82,6 +114,7 @@ export default function AdminUserDetail() {
           <TabsTrigger value="invoices"><FileText className="h-4 w-4 mr-1" /> Invoices ({invoices.length})</TabsTrigger>
           <TabsTrigger value="clients"><Users className="h-4 w-4 mr-1" /> Clients ({clients.length})</TabsTrigger>
           <TabsTrigger value="products"><Package className="h-4 w-4 mr-1" /> Products ({products.length})</TabsTrigger>
+          <TabsTrigger value="modules"><LayoutGrid className="h-4 w-4 mr-1" /> Modules</TabsTrigger>
         </TabsList>
 
         <TabsContent value="invoices">
@@ -173,6 +206,40 @@ export default function AdminUserDetail() {
                   ))}
                 </TableBody>
               </Table>
+            </CardContent>
+          </Card>
+        </TabsContent>
+        <TabsContent value="modules">
+          <Card>
+            <CardHeader>
+              <CardTitle>Active Modules</CardTitle>
+              <CardDescription>
+                Control which features this user sees. Disabled modules hide the related sidebar links, dashboard widgets, and routes.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {ALL_MODULES.map((mod) => (
+                <div key={mod.key} className="flex items-center justify-between">
+                  <div>
+                    <p className="font-medium">{mod.label}</p>
+                    <p className="text-sm text-muted-foreground">{mod.description}</p>
+                  </div>
+                  <Switch
+                    checked={modulesState.includes(mod.key)}
+                    onCheckedChange={() =>
+                      setModulesState(prev =>
+                        prev.includes(mod.key) ? prev.filter(k => k !== mod.key) : [...prev, mod.key]
+                      )
+                    }
+                  />
+                </div>
+              ))}
+              <div className="flex justify-end pt-4 border-t">
+                <Button onClick={handleSaveModules} disabled={savingModules}>
+                  {savingModules && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
+                  Save Modules for User
+                </Button>
+              </div>
             </CardContent>
           </Card>
         </TabsContent>

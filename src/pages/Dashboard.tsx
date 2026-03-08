@@ -23,6 +23,7 @@ import { useProducts } from '@/hooks/useProducts';
 import { useQuotations } from '@/hooks/useQuotations';
 import { useDeliveryChallans } from '@/hooks/useDeliveryChallans';
 import { usePurchaseOrders } from '@/hooks/usePurchaseOrders';
+import { useEnabledModules } from '@/hooks/useEnabledModules';
 import { Skeleton } from '@/components/ui/skeleton';
 
 export default function Dashboard() {
@@ -31,7 +32,7 @@ export default function Dashboard() {
   const { quotations, isLoading: quotationsLoading } = useQuotations();
   const { challans, isLoading: challansLoading } = useDeliveryChallans();
   const { purchaseOrders, isLoading: posLoading } = usePurchaseOrders();
-
+  const { isModuleEnabled } = useEnabledModules();
   const isLoading = invoicesLoading || productsLoading;
 
   if (isLoading) {
@@ -162,11 +163,13 @@ export default function Dashboard() {
       <div className="grid gap-6 lg:grid-cols-3">
         <div className="lg:col-span-2 space-y-6">
           <RecentInvoices invoices={invoices.slice(0, 5)} />
-          <div className="grid gap-6 sm:grid-cols-2">
-            <RecentQuotations quotations={quotations.slice(0, 4)} />
-            <RecentPurchaseOrders purchaseOrders={purchaseOrders.slice(0, 4)} />
-          </div>
-          <RecentChallans challans={challans.slice(0, 4)} />
+          {(isModuleEnabled('quotations') || isModuleEnabled('purchase_orders')) && (
+            <div className="grid gap-6 sm:grid-cols-2">
+              {isModuleEnabled('quotations') && <RecentQuotations quotations={quotations.slice(0, 4)} />}
+              {isModuleEnabled('purchase_orders') && <RecentPurchaseOrders purchaseOrders={purchaseOrders.slice(0, 4)} />}
+            </div>
+          )}
+          {isModuleEnabled('challans') && <RecentChallans challans={challans.slice(0, 4)} />}
           <ActivityFeed />
         </div>
         <div className="space-y-6">

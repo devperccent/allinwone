@@ -18,6 +18,7 @@ import {
   RefreshCw,
 } from 'lucide-react';
 import { useIsAdmin } from '@/hooks/useAdmin';
+import { useEnabledModules, type ModuleKey } from '@/hooks/useEnabledModules';
 import inwLogo from '@/assets/inw-logomark.png';
 import { ThemeLogo } from '@/components/ThemeLogo';
 import { cn } from '@/lib/utils';
@@ -36,23 +37,31 @@ import {
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { Separator } from '@/components/ui/separator';
 
-const mainNavigation = [
+interface NavItem {
+  name: string;
+  href: string;
+  icon: any;
+  shortcut: string;
+  module?: ModuleKey;
+}
+
+const mainNavigation: NavItem[] = [
   { name: 'Dashboard', href: '/', icon: LayoutDashboard, shortcut: 'D' },
-  { name: 'Quick Bill', href: '/quick-bill', icon: Zap, shortcut: '' },
+  { name: 'Quick Bill', href: '/quick-bill', icon: Zap, shortcut: '', module: 'quick_bill' },
   { name: 'Invoices', href: '/invoices', icon: FileText, shortcut: 'I' },
-  { name: 'Quotations', href: '/quotations', icon: FileCheck, shortcut: '' },
+  { name: 'Quotations', href: '/quotations', icon: FileCheck, shortcut: '', module: 'quotations' },
 ];
 
-const documentNavigation = [
-  { name: 'Challans', href: '/challans', icon: Truck, shortcut: '' },
-  { name: 'Purchase Orders', href: '/purchase-orders', icon: ClipboardList, shortcut: '' },
-  { name: 'Recurring', href: '/recurring', icon: RefreshCw, shortcut: '' },
+const documentNavigation: NavItem[] = [
+  { name: 'Challans', href: '/challans', icon: Truck, shortcut: '', module: 'challans' },
+  { name: 'Purchase Orders', href: '/purchase-orders', icon: ClipboardList, shortcut: '', module: 'purchase_orders' },
+  { name: 'Recurring', href: '/recurring', icon: RefreshCw, shortcut: '', module: 'recurring' },
 ];
 
-const managementNavigation = [
+const managementNavigation: NavItem[] = [
   { name: 'Products', href: '/products', icon: Package, shortcut: 'P' },
   { name: 'Clients', href: '/clients', icon: Users, shortcut: 'C' },
-  { name: 'Reports', href: '/reports', icon: TrendingUp, shortcut: 'R' },
+  { name: 'Reports', href: '/reports', icon: TrendingUp, shortcut: 'R', module: 'reports' },
 ];
 
 const bottomNavigation = [
@@ -71,6 +80,10 @@ export function AppSidebar({ onNavigate }: AppSidebarProps) {
   const [collapsed, setCollapsed] = useState(false);
   const { profile, signOut } = useAuth();
   const { data: isAdmin } = useIsAdmin();
+  const { isModuleEnabled } = useEnabledModules();
+
+  const filterNav = (items: NavItem[]) =>
+    items.filter(i => !i.module || isModuleEnabled(i.module));
 
   // On mobile (used inside Sheet), always show expanded
   const isCollapsed = isMobile ? false : collapsed;
@@ -171,13 +184,13 @@ export function AppSidebar({ onNavigate }: AppSidebarProps) {
       {/* Navigation */}
       <nav className="flex-1 px-3 py-2 space-y-0.5 overflow-y-auto">
         {renderSectionLabel('Billing')}
-        {mainNavigation.map(renderNavItem)}
+        {filterNav(mainNavigation).map(renderNavItem)}
 
-        {renderSectionLabel('Documents')}
-        {documentNavigation.map(renderNavItem)}
+        {filterNav(documentNavigation).length > 0 && renderSectionLabel('Documents')}
+        {filterNav(documentNavigation).map(renderNavItem)}
 
         {renderSectionLabel('Manage')}
-        {managementNavigation.map(renderNavItem)}
+        {filterNav(managementNavigation).map(renderNavItem)}
 
         {renderSectionLabel('')}
         {bottomNavigation.map(renderNavItem)}

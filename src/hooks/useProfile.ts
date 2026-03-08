@@ -22,6 +22,7 @@ interface UpdateProfileData {
   bank_account_name?: string | null;
   bank_account_number?: string | null;
   bank_ifsc?: string | null;
+  enabled_modules?: string[];
 }
 
 export function useProfile() {

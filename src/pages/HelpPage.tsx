@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
+import { useEnabledModules, type ModuleKey } from '@/hooks/useEnabledModules';
 import {
   Search,
   LayoutDashboard,
@@ -56,6 +57,7 @@ interface DocSection {
   title: string;
   description: string;
   articles: DocArticle[];
+  module?: ModuleKey;
 }
 
 interface DocArticle {
@@ -273,6 +275,7 @@ const SECTIONS: DocSection[] = [
     icon: TrendingUp,
     title: 'Reports & Analytics',
     description: 'GST summaries, revenue charts, and data exports',
+    module: 'reports',
     articles: [
       {
         id: 'rep-gst',
@@ -419,6 +422,26 @@ const SECTIONS: DocSection[] = [
     ],
   },
   {
+    id: 'modules',
+    icon: SlidersHorizontal,
+    title: 'Feature Modules',
+    description: 'Customize your workspace by enabling only the features you need',
+    articles: [
+      {
+        id: 'mod-overview',
+        title: 'What Are Modules?',
+        tags: ['modules', 'features', 'customize', 'toggle'],
+        content: `Not every business needs every feature. **Modules** let you turn off parts of the app you don't use.\n\n**Toggleable modules:**\n• **Quick Bill** – retail POS checkout\n• **Quotations** – create and convert quotes\n• **Delivery Challans** – goods dispatch tracking\n• **Purchase Orders** – supplier order management\n• **Recurring Invoices** – scheduled invoice generation\n• **Reports** – analytics and GST reports\n\n**Always-on features:** Dashboard, Invoices, Products, Clients, Settings, Help.\n\nDisabled modules hide their sidebar links, dashboard widgets, and routes entirely.`,
+      },
+      {
+        id: 'mod-how',
+        title: 'How to Enable/Disable Modules',
+        tags: ['settings', 'toggle', 'enable', 'disable'],
+        content: `1. Go to **Settings → Modules**.\n2. Toggle each module **on** or **off**.\n3. Click **Save Module Preferences**.\n\nChanges take effect immediately — the sidebar and dashboard update to reflect your choices.\n\n> **Tip:** Start with just Invoices and add modules as your business grows. You can always re-enable them later.`,
+      },
+    ],
+  },
+  {
     id: 'tips',
     icon: HelpCircle,
     title: 'Tips & Best Practices',
@@ -466,12 +489,14 @@ export default function HelpPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [expandedSection, setExpandedSection] = useState<string | null>('getting-started');
   const [expandedArticle, setExpandedArticle] = useState<string | null>('gs-signup');
+  const { isModuleEnabled } = useEnabledModules();
 
-  // Filter articles by search
+  // Filter sections by enabled modules, then by search
   const filteredSections = useMemo(() => {
-    if (!searchQuery.trim()) return SECTIONS;
+    const moduleSections = SECTIONS.filter(s => !s.module || isModuleEnabled(s.module));
+    if (!searchQuery.trim()) return moduleSections;
     const q = searchQuery.toLowerCase();
-    return SECTIONS.map((section) => ({
+    return moduleSections.map((section) => ({
       ...section,
       articles: section.articles.filter(
         (a) =>
@@ -480,7 +505,7 @@ export default function HelpPage() {
           a.tags?.some((t) => t.toLowerCase().includes(q))
       ),
     })).filter((s) => s.articles.length > 0);
-  }, [searchQuery]);
+  }, [searchQuery, isModuleEnabled]);
 
   const totalArticles = SECTIONS.reduce((sum, s) => sum + s.articles.length, 0);
 

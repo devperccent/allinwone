@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useOutletContext } from 'react-router-dom';
-import { Building2, CreditCard, Bell, Loader2, RotateCcw, BellRing } from 'lucide-react';
+import { Building2, CreditCard, Bell, Loader2, RotateCcw, BellRing, LayoutGrid } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -22,6 +22,7 @@ import { useProfile } from '@/hooks/useProfile';
 import { usePageShortcuts } from '@/hooks/usePageShortcuts';
 import { LogoUpload } from '@/components/LogoUpload';
 import { resetWalkthrough } from '@/components/onboarding/WalkthroughTutorial';
+import { ALL_MODULES, type ModuleKey } from '@/hooks/useEnabledModules';
 import {
   getNotificationPreferences,
   saveNotificationPreferences,
@@ -58,10 +59,38 @@ export default function SettingsPage() {
   // Notification preferences
   const [notifPrefs, setNotifPrefs] = useState<NotificationPreferences>(getNotificationPreferences);
 
+  // Module preferences
+  const [enabledModules, setEnabledModules] = useState<string[]>(
+    ALL_MODULES.map(m => m.key)
+  );
+
   const updateNotifPref = (key: keyof NotificationPreferences, value: boolean) => {
     const updated = { ...notifPrefs, [key]: value };
     setNotifPrefs(updated);
     saveNotificationPreferences(updated);
+  };
+
+  const toggleModule = (key: string) => {
+    setEnabledModules(prev =>
+      prev.includes(key) ? prev.filter(k => k !== key) : [...prev, key]
+    );
+  };
+
+  const handleSaveModules = async () => {
+    if (!authProfile) return;
+    try {
+      await updateProfile({
+        id: authProfile.id,
+        enabled_modules: enabledModules,
+      });
+      await refreshProfile();
+      toast({
+        title: 'Modules updated',
+        description: 'Your active modules have been saved.',
+      });
+    } catch (error: any) {
+      toast({ title: 'Error', description: error.message, variant: 'destructive' });
+    }
   };
 
   // Load profile data
@@ -80,6 +109,7 @@ export default function SettingsPage() {
       setBankIfsc(authProfile.bank_ifsc || '');
       setInvoicePrefix(authProfile.invoice_prefix || 'INW-');
       setNextNumber(authProfile.next_invoice_number || 1);
+      setEnabledModules(authProfile.enabled_modules ?? ALL_MODULES.map(m => m.key));
     }
   }, [authProfile]);
 
@@ -180,6 +210,10 @@ export default function SettingsPage() {
           <TabsTrigger value="notifications" className="gap-2 flex-1 sm:flex-none">
             <Bell className="w-4 h-4" />
             <span className="hidden sm:inline">Notifications</span>
+          </TabsTrigger>
+          <TabsTrigger value="modules" className="gap-2 flex-1 sm:flex-none">
+            <LayoutGrid className="w-4 h-4" />
+            <span className="hidden sm:inline">Modules</span>
           </TabsTrigger>
         </TabsList>
 
@@ -458,6 +492,37 @@ export default function SettingsPage() {
               </CardContent>
             </Card>
           </div>
+        </TabsContent>
+
+        <TabsContent value="modules">
+          <Card>
+            <CardHeader>
+              <CardTitle>Active Modules</CardTitle>
+              <CardDescription>
+                Turn off features you don't need to keep your workspace clean and focused. Core features (Invoices, Products, Clients) are always available.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {ALL_MODULES.map((mod) => (
+                <div key={mod.key} className="flex items-center justify-between">
+                  <div>
+                    <p className="font-medium">{mod.label}</p>
+                    <p className="text-sm text-muted-foreground">{mod.description}</p>
+                  </div>
+                  <Switch
+                    checked={enabledModules.includes(mod.key)}
+                    onCheckedChange={() => toggleModule(mod.key)}
+                  />
+                </div>
+              ))}
+              <div className="flex justify-end pt-4 border-t">
+                <Button onClick={handleSaveModules} disabled={isUpdating}>
+                  {isUpdating && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
+                  Save Module Preferences
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
         </TabsContent>
 
         {/* Restart Tour Card - below tabs */}
