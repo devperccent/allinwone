@@ -221,6 +221,7 @@ export default function QuotationsPage() {
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
+                   </div>
                 </div>
               </CardContent>
             </Card>

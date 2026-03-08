@@ -221,9 +221,9 @@ export default function DeliveryChallansPage() {
                           <Trash2 className="w-4 h-4 mr-2" />
                           Delete
                         </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </div>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                   </div>
                 </div>
               </CardContent>
             </Card>

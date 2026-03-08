@@ -252,28 +252,32 @@ export default function PurchaseOrderEditor() {
                           </PopoverContent>
                         </Popover>
                       </div>
-                      <div className="sm:col-span-2">
-                        <Input type="number" min="1" value={item.qty} onChange={e => updateItem(item.id, { qty: parseInt(e.target.value) || 1 })} placeholder="Qty" />
-                      </div>
-                      <div className="sm:col-span-2">
-                        <Input type="number" min="0" step="0.01" value={item.rate} onChange={e => updateItem(item.id, { rate: parseFloat(e.target.value) || 0 })} placeholder="Rate" />
-                      </div>
-                      <div className="sm:col-span-2">
-                        <Select value={String(item.tax_rate)} onValueChange={v => updateItem(item.id, { tax_rate: parseInt(v) })}>
-                          <SelectTrigger className="text-sm"><SelectValue /></SelectTrigger>
-                          <SelectContent>
-                            {GST_RATES.map(r => <SelectItem key={r} value={String(r)}>{r}%</SelectItem>)}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <div className="sm:col-span-1 text-sm font-medium tabular-nums">
-                        {formatINR(itemAmount)}
-                      </div>
-                      <div className="sm:col-span-1">
-                        <Button variant="ghost" size="icon" onClick={() => removeItem(item.id)} disabled={items.length <= 1} className="text-muted-foreground hover:text-destructive">
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
-                      </div>
+                       <div className="sm:col-span-2">
+                         <label className="text-xs text-muted-foreground sm:hidden">Qty</label>
+                         <Input type="number" min="1" value={item.qty} onChange={e => updateItem(item.id, { qty: parseInt(e.target.value) || 1 })} placeholder="Qty" />
+                       </div>
+                       <div className="sm:col-span-2">
+                         <label className="text-xs text-muted-foreground sm:hidden">Rate (₹)</label>
+                         <Input type="number" min="0" step="0.01" value={item.rate} onChange={e => updateItem(item.id, { rate: parseFloat(e.target.value) || 0 })} placeholder="Rate" />
+                       </div>
+                       <div className="sm:col-span-2">
+                         <label className="text-xs text-muted-foreground sm:hidden">Tax %</label>
+                         <Select value={String(item.tax_rate)} onValueChange={v => updateItem(item.id, { tax_rate: parseInt(v) })}>
+                           <SelectTrigger className="text-sm"><SelectValue /></SelectTrigger>
+                           <SelectContent>
+                             {GST_RATES.map(r => <SelectItem key={r} value={String(r)}>{r}%</SelectItem>)}
+                           </SelectContent>
+                         </Select>
+                       </div>
+                       <div className="sm:col-span-1 text-sm font-medium tabular-nums flex items-center justify-between sm:justify-start">
+                         <span className="sm:hidden text-xs text-muted-foreground">Total:</span>
+                         {formatINR(itemAmount)}
+                       </div>
+                       <div className="sm:col-span-1 flex justify-end">
+                         <Button variant="ghost" size="icon" onClick={() => removeItem(item.id)} disabled={items.length <= 1} className="text-muted-foreground hover:text-destructive">
+                           <Trash2 className="w-4 h-4" />
+                         </Button>
+                       </div>
                     </div>
                   </div>
                 );

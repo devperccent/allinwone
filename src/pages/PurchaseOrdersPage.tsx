@@ -213,6 +213,7 @@ export default function PurchaseOrdersPage() {
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
+                   </div>
                 </div>
               </CardContent>
             </Card>

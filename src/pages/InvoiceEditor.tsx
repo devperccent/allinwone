@@ -381,7 +381,37 @@ export default function InvoiceEditor() {
 
       {/* Split View */}
       <div className="flex-1 pt-4 md:pt-6 overflow-hidden">
-        {showPreview && !isMobileView ? (
+        {/* Mobile: Tabs for Form / Preview */}
+        {isMobileView ? (
+          <Tabs defaultValue="form" className="h-full flex flex-col">
+            <TabsList className="mx-auto mb-3 shrink-0">
+              <TabsTrigger value="form">Form</TabsTrigger>
+              <TabsTrigger value="preview">Preview</TabsTrigger>
+            </TabsList>
+            <TabsContent value="form" className="flex-1 overflow-y-auto mt-0">
+              <div className="max-w-4xl mx-auto">
+                <InvoiceForm {...formProps} paymentToggleId="paymentToggleMobile" />
+              </div>
+            </TabsContent>
+            <TabsContent value="preview" className="flex-1 overflow-y-auto mt-0">
+              <div className="rounded-xl border border-border bg-muted/30 p-4 h-full">
+                <InvoicePdfPreview
+                  invoiceNumber={invoiceNumber || 'DRAFT'}
+                  dateIssued={dateIssued}
+                  dateDue={dateDue}
+                  client={selectedClient}
+                  items={items}
+                  calculations={calculations}
+                  profileStateCode={profileStateCode}
+                  notes={notes}
+                  profile={profile}
+                  status={currentInvoice?.status || 'draft'}
+                  showPaymentInfo={showPaymentInfo}
+                />
+              </div>
+            </TabsContent>
+          </Tabs>
+        ) : showPreview ? (
           <ResizablePanelGroup direction="horizontal" className="h-full rounded-lg">
             <ResizablePanel defaultSize={60} minSize={35}>
               <div className="h-full overflow-y-auto pr-4">
