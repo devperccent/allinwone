@@ -43,7 +43,6 @@ const App = () => (
       <TooltipProvider>
         <Toaster />
         <Sonner />
-        <AIChatbot />
         <BrowserRouter>
           <Routes>
             {/* Public routes */}
@@ -96,6 +95,7 @@ const App = () => (
             
             <Route path="*" element={<NotFound />} />
           </Routes>
+          <AIChatbot />
         </BrowserRouter>
       </TooltipProvider>
     </AuthProvider>
