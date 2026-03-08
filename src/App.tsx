@@ -26,8 +26,11 @@ import NotFound from "./pages/NotFound";
 import HelpPage from "./pages/HelpPage";
 import QuickBillPage from "./pages/QuickBillPage";
 import QuotationsPage from "./pages/QuotationsPage";
+import QuotationEditor from "./pages/QuotationEditor";
 import DeliveryChallansPage from "./pages/DeliveryChallansPage";
+import ChallanEditor from "./pages/ChallanEditor";
 import PurchaseOrdersPage from "./pages/PurchaseOrdersPage";
+import PurchaseOrderEditor from "./pages/PurchaseOrderEditor";
 import RecurringInvoicesPage from "./pages/RecurringInvoicesPage";
 
 const queryClient = new QueryClient();
