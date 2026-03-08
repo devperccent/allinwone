@@ -809,8 +809,8 @@ export default function HelpPage() {
     <div className="space-y-6 animate-fade-in max-w-4xl mx-auto">
       {/* Header */}
       <div>
-        <h1 className="text-2xl md:text-3xl font-bold flex items-center gap-3">
-          <BookOpen className="w-7 h-7 text-primary" />
+        <h1 className="text-xl font-bold flex items-center gap-2">
+          <BookOpen className="w-5 h-5 text-primary" />
           Help & Documentation
         </h1>
         <p className="text-muted-foreground mt-1 text-sm md:text-base">
