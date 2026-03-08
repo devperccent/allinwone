@@ -116,9 +116,9 @@ export default function Dashboard() {
               <span className="hidden sm:inline">Documents</span>
             </TabsTrigger>
           )}
-          <TabsTrigger value="activity" className="gap-1.5">
+          <TabsTrigger value="activity" className="gap-1.5 shrink-0">
             <Activity className="w-4 h-4" />
-            Activity
+            <span className="hidden sm:inline">Activity</span>
           </TabsTrigger>
           {lowStockProducts.length > 0 && (
             <TabsTrigger value="alerts" className="gap-1.5">
