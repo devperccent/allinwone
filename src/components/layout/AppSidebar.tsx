@@ -65,6 +65,7 @@ const managementNavigation: NavItem[] = [
   { name: 'Products', href: '/products', icon: Package, shortcut: 'P' },
   { name: 'Clients', href: '/clients', icon: Users, shortcut: 'C' },
   { name: 'Reports', href: '/reports', icon: TrendingUp, shortcut: 'R', module: 'reports' },
+  { name: 'Import/Export', href: '/bulk', icon: Upload, shortcut: '' },
 ];
 
 const bottomNavigation = [

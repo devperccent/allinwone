@@ -116,6 +116,7 @@ export function AppHeader({ searchOpen, onSearchOpenChange }: AppHeaderProps) {
         </Tooltip>
         
         <NotificationBell />
+        <OfflineIndicator />
         
         {!isMobile && (
           <div className="flex items-center gap-3 pl-3 border-l border-border">
