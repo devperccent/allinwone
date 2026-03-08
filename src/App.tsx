@@ -23,6 +23,7 @@ import PublicInvoicePage from "./pages/PublicInvoicePage";
 import ForgotPasswordPage from "./pages/ForgotPasswordPage";
 import ResetPasswordPage from "./pages/ResetPasswordPage";
 import NotFound from "./pages/NotFound";
+import HelpPage from "./pages/HelpPage";
 
 const queryClient = new QueryClient();
 
