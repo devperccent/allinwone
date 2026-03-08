@@ -190,14 +190,7 @@ export function AppSidebar({ onNavigate }: AppSidebarProps) {
         {filterNav(documentNavigation).length > 0 && renderSectionLabel('Documents')}
         {filterNav(documentNavigation).map(renderNavItem)}
 
-        {renderSectionLabel('Manage')}
         {filterNav(managementNavigation).map(renderNavItem)}
-
-        {renderSectionLabel('')}
-        {bottomNavigation.map(renderNavItem)}
-
-        {isAdmin && renderNavItem({ name: 'Admin', href: '/admin', icon: ShieldCheck, shortcut: '' })}
-      </nav>
 
       {/* Keyboard shortcut hint */}
       {!isCollapsed && (
