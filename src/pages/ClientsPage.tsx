@@ -242,12 +242,12 @@ export default function ClientsPage() {
       </div>
 
       {/* Clients List */}
-      <div className="grid gap-4">
+      <div className="grid gap-3">
         {filteredClients.length === 0 ? (
-          <div className="text-center py-12 rounded-xl border border-border bg-card">
-            <Users className="w-12 h-12 mx-auto text-muted-foreground/50 mb-3" />
-            <p className="text-muted-foreground">No clients found</p>
-            <Button variant="link" onClick={() => setIsAddDialogOpen(true)} className="mt-2">
+          <div className="text-center py-10 rounded-lg border border-border bg-card">
+            <Users className="w-10 h-10 mx-auto text-muted-foreground/40 mb-2" />
+            <p className="text-sm text-muted-foreground">No clients found</p>
+            <Button variant="link" size="sm" onClick={() => setIsAddDialogOpen(true)} className="mt-1">
               Add your first client
             </Button>
           </div>
@@ -255,91 +255,61 @@ export default function ClientsPage() {
           filteredClients.map((client) => (
             <div
               key={client.id}
-              className="rounded-xl border border-border bg-card p-5 transition-all hover:shadow-md"
+              className="rounded-lg border border-border bg-card p-4 transition-colors hover:bg-muted/20"
             >
-              <div className="flex items-start justify-between gap-3">
-                <div className="flex items-start gap-3 sm:gap-4 min-w-0 flex-1">
-                  <div className="flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-primary/10 text-primary font-semibold text-base sm:text-lg shrink-0">
+              <div className="flex items-center justify-between gap-3">
+                <div className="flex items-center gap-3 min-w-0 flex-1">
+                  <div className="flex items-center justify-center w-9 h-9 rounded-lg bg-primary/10 text-primary font-semibold text-sm shrink-0">
                     {client.name.charAt(0)}
                   </div>
-                  <div className="min-w-0">
-                    <h3 className="font-semibold text-base sm:text-lg truncate">{client.name}</h3>
-                    <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-1 sm:mt-2 text-sm text-muted-foreground">
-                      {client.email && (
-                        <div className="flex items-center gap-1 truncate">
-                          <Mail className="w-4 h-4 shrink-0" />
-                          <span className="truncate">{client.email}</span>
-                        </div>
-                      )}
-                      {client.phone && (
-                        <div className="flex items-center gap-1">
-                          <Phone className="w-4 h-4 shrink-0" />
-                          {client.phone}
-                        </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-2">
+                      <h3 className="font-medium text-sm truncate">{client.name}</h3>
+                      {client.gstin && (
+                        <span className="text-[10px] text-muted-foreground hidden sm:inline">{client.gstin}</span>
                       )}
                     </div>
-                    {client.billing_address && (
-                      <div className="flex items-start gap-1 mt-1 sm:mt-2 text-sm text-muted-foreground">
-                        <MapPin className="w-4 h-4 mt-0.5 flex-shrink-0" />
-                        <span className="line-clamp-2">{client.billing_address}</span>
-                      </div>
-                    )}
+                    <div className="flex items-center gap-3 text-xs text-muted-foreground mt-0.5">
+                      {client.email && <span className="truncate">{client.email}</span>}
+                      {client.phone && <span>{client.phone}</span>}
+                    </div>
                   </div>
                 </div>
                 
-                <div className="flex items-center gap-2 sm:gap-4 shrink-0">
-                  <div className="text-right hidden sm:block">
-                    {Number(client.credit_balance) > 0 ? (
-                      <>
-                        <p className="text-sm text-muted-foreground">Credit Balance</p>
-                        <p className="text-lg font-bold text-warning">{formatINR(Number(client.credit_balance))}</p>
-                      </>
-                    ) : (
-                      <Badge className="bg-success/10 text-success">No pending</Badge>
-                    )}
-                  </div>
-                  
+                <div className="flex items-center gap-3 shrink-0">
+                  {Number(client.credit_balance) > 0 ? (
+                    <span className="text-sm font-semibold text-warning tabular-nums hidden sm:block">
+                      {formatINR(Number(client.credit_balance))}
+                    </span>
+                  ) : (
+                    <span className="text-xs text-muted-foreground hidden sm:block">No dues</span>
+                  )}
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="icon" className="h-8 w-8">
-                        <MoreHorizontal className="w-4 h-4" />
+                      <Button variant="ghost" size="icon" className="h-7 w-7">
+                        <MoreHorizontal className="w-3.5 h-3.5" />
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                      <DropdownMenuItem>
-                        <Pencil className="w-4 h-4 mr-2" />
-                        Edit
-                      </DropdownMenuItem>
+                      <DropdownMenuItem><Pencil className="w-4 h-4 mr-2" />Edit</DropdownMenuItem>
                       <DropdownMenuSeparator />
                       <DropdownMenuItem 
                         onClick={() => deleteClient.mutate(client.id)}
                         className="text-destructive focus:text-destructive"
                       >
-                        <Trash2 className="w-4 h-4 mr-2" />
-                        Delete
+                        <Trash2 className="w-4 h-4 mr-2" />Delete
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </div>
               </div>
-              {/* Mobile credit balance */}
+              {/* Mobile credit */}
               {Number(client.credit_balance) > 0 && (
-                <div className="sm:hidden mt-3 flex items-center justify-between pt-3 border-t border-border">
-                  <span className="text-sm text-muted-foreground">Credit Balance</span>
-                  <span className="font-bold text-warning">{formatINR(Number(client.credit_balance))}</span>
+                <div className="sm:hidden mt-2 flex items-center justify-between pt-2 border-t border-border text-sm">
+                  <span className="text-muted-foreground">Credit</span>
+                  <span className="font-semibold text-warning tabular-nums">{formatINR(Number(client.credit_balance))}</span>
                 </div>
               )}
-              
-              <div className="mt-4 flex items-center gap-2">
-                {client.gstin && (
-                  <Badge variant="outline" className="text-xs">
-                    GSTIN: {client.gstin}
-                  </Badge>
-                )}
-                <Badge variant="secondary" className="text-xs">
-                  {INDIAN_STATES[client.state_code] || client.state_code}
-                </Badge>
-              </div>
             </div>
           ))
         )}

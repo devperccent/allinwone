@@ -362,81 +362,67 @@ export default function InvoicesPage() {
   }
 
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="space-y-4 animate-fade-in">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl md:text-3xl font-bold">Invoices</h1>
-          <p className="text-muted-foreground mt-1 text-sm md:text-base">
-            Manage and track all your invoices
-          </p>
-        </div>
+      <div className="flex items-center justify-between gap-3">
+        <h1 className="text-xl font-bold">Invoices</h1>
         <div className="flex items-center gap-2">
           <Button
-            variant="outline"
+            variant="ghost"
             size="sm"
             onClick={() => exportInvoicesToCSV(filteredInvoices)}
-            className="gap-2"
+            className="gap-1.5 h-8 text-xs text-muted-foreground"
           >
-            <FileSpreadsheet className="w-4 h-4" />
-            <span className="hidden sm:inline">Export CSV</span>
+            <FileSpreadsheet className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">Export</span>
           </Button>
-          <Button asChild className="gap-2">
+          <Button asChild size="sm" className="gap-1.5 h-8 text-xs">
             <Link to="/invoices/new">
-              <Plus className="w-4 h-4" />
+              <Plus className="w-3.5 h-3.5" />
               New Invoice
-              <kbd className="ml-1 hidden sm:inline-flex h-5 min-w-[20px] items-center justify-center rounded border bg-primary-foreground/20 px-1.5 font-mono text-[10px] font-medium text-primary-foreground/70">N</kbd>
             </Link>
           </Button>
         </div>
       </div>
 
       {/* Filters */}
-      <div className="flex flex-col gap-3">
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <Input
-              ref={searchRef}
-              type="search"
-              placeholder="Search by invoice # or client..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 pr-10"
-            />
-            <kbd className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none hidden sm:inline-flex h-5 min-w-[20px] items-center justify-center rounded border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground">/</kbd>
-          </div>
-          <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger className="w-full sm:w-40">
-              <Filter className="w-4 h-4 mr-2" />
-              <SelectValue placeholder="Status" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Status</SelectItem>
-              <SelectItem value="draft">Draft</SelectItem>
-              <SelectItem value="finalized">Sent</SelectItem>
-              <SelectItem value="paid">Paid</SelectItem>
-              <SelectItem value="cancelled">Cancelled</SelectItem>
-            </SelectContent>
-          </Select>
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+        <div className="relative flex-1">
+          <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
+          <Input
+            ref={searchRef}
+            type="search"
+            placeholder="Search invoices..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-8 h-8 text-sm"
+          />
         </div>
-        <div className="flex items-center gap-2 overflow-x-auto">
-          <div className="relative flex-shrink-0">
-            <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
-            <Input
-              type="date"
-              value={dateFrom}
-              onChange={(e) => setDateFrom(e.target.value)}
-              className="pl-10 w-[160px]"
-              placeholder="From"
-            />
-          </div>
-          <span className="text-muted-foreground text-sm flex-shrink-0">to</span>
+        <Select value={statusFilter} onValueChange={setStatusFilter}>
+          <SelectTrigger className="w-full sm:w-32 h-8 text-xs">
+            <SelectValue placeholder="Status" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Status</SelectItem>
+            <SelectItem value="draft">Draft</SelectItem>
+            <SelectItem value="finalized">Sent</SelectItem>
+            <SelectItem value="paid">Paid</SelectItem>
+            <SelectItem value="cancelled">Cancelled</SelectItem>
+          </SelectContent>
+        </Select>
+        <div className="flex items-center gap-1.5">
+          <Input
+            type="date"
+            value={dateFrom}
+            onChange={(e) => setDateFrom(e.target.value)}
+            className="w-[130px] h-8 text-xs"
+          />
+          <span className="text-muted-foreground text-xs">–</span>
           <Input
             type="date"
             value={dateTo}
             onChange={(e) => setDateTo(e.target.value)}
-            className="w-[160px] flex-shrink-0"
+            className="w-[130px] h-8 text-xs"
           />
         </div>
       </div>
