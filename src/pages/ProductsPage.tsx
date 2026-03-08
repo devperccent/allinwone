@@ -82,7 +82,8 @@ export default function ProductsPage() {
 
   const filteredProducts = products.filter((product) =>
     product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    product.sku.toLowerCase().includes(searchQuery.toLowerCase())
+    product.sku.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    ((product as any).barcode || '').toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   // Page shortcuts: / → focus search, A → add product
