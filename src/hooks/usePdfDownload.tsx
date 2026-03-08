@@ -6,6 +6,7 @@ import { PurchaseOrderPdfDocument } from '@/components/pdf/PurchaseOrderPdfDocum
 import type { Invoice, InvoiceItem, Client, Profile } from '@/types';
 import type { DeliveryChallan, ChallanItem } from '@/hooks/useDeliveryChallans';
 import type { PurchaseOrder, POItem } from '@/hooks/usePurchaseOrders';
+import type { InvoiceTemplate } from '@/components/invoice/invoiceTemplates';
 import QRCode from 'qrcode';
 
 interface UsePdfDownloadOptions {
@@ -14,6 +15,7 @@ interface UsePdfDownloadOptions {
   client: Client | null;
   profile: Profile;
   showPaymentInfo?: boolean;
+  template?: InvoiceTemplate;
 }
 
 interface ChallanPdfOptions {
@@ -33,7 +35,7 @@ export function usePdfDownload() {
   const [isGenerating, setIsGenerating] = useState(false);
 
   const generatePdf = useCallback(async ({
-    invoice, items, client, profile, showPaymentInfo = true,
+    invoice, items, client, profile, showPaymentInfo = true, template = 'modern' as InvoiceTemplate,
   }: UsePdfDownloadOptions) => {
     setIsGenerating(true);
     try {
@@ -43,7 +45,7 @@ export function usePdfDownload() {
         qrCodeDataUrl = await QRCode.toDataURL(upiString, { width: 200, margin: 1 });
       }
       const doc = (
-        <InvoicePdfDocument invoice={invoice} items={items} client={client} profile={profile} qrCodeDataUrl={qrCodeDataUrl} showPaymentInfo={showPaymentInfo} />
+        <InvoicePdfDocument invoice={invoice} items={items} client={client} profile={profile} qrCodeDataUrl={qrCodeDataUrl} showPaymentInfo={showPaymentInfo} template={template} />
       );
       const blob = await pdf(doc).toBlob();
       downloadBlob(blob, `${invoice.invoice_number}.pdf`);

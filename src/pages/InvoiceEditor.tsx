@@ -5,6 +5,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useInvoiceCalculations, formatINR } from '@/hooks/useInvoiceCalculations';
 import type { Client, InvoiceItemFormData, Invoice, InvoiceItem } from '@/types';
+import type { InvoiceTemplate } from '@/components/invoice/invoiceTemplates';
 import { InvoicePdfPreview } from '@/components/invoice/InvoicePdfPreview';
 import { InvoiceEditorHeader } from '@/components/invoice/InvoiceEditorHeader';
 import { InvoiceForm } from '@/components/invoice/InvoiceForm';
@@ -34,6 +35,7 @@ export default function InvoiceEditor() {
   const [emailDialogOpen, setEmailDialogOpen] = useState(false);
   const [emailRecipient, setEmailRecipient] = useState('');
   const [finalizeDialogOpen, setFinalizeDialogOpen] = useState(false);
+  const [template, setTemplate] = useState<InvoiceTemplate>('modern');
 
   // Database hooks
   const { clients, isLoading: clientsLoading } = useClients();
@@ -284,6 +286,7 @@ export default function InvoiceEditor() {
       client: selectedClient,
       profile,
       showPaymentInfo,
+      template,
     });
   };
 
@@ -353,6 +356,8 @@ export default function InvoiceEditor() {
     profileStateCode,
     showPaymentInfo,
     onShowPaymentInfoChange: setShowPaymentInfo,
+    template,
+    onTemplateChange: setTemplate,
   };
 
   return (
@@ -408,6 +413,7 @@ export default function InvoiceEditor() {
                   profile={profile}
                   status={currentInvoice?.status || 'draft'}
                   showPaymentInfo={showPaymentInfo}
+                  template={template}
                 />
               </div>
             </TabsContent>
@@ -435,6 +441,7 @@ export default function InvoiceEditor() {
                     profile={profile}
                     status={currentInvoice?.status || 'draft'}
                     showPaymentInfo={showPaymentInfo}
+                    template={template}
                   />
                 </div>
               </div>

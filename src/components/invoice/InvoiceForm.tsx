@@ -1,4 +1,6 @@
 import { Plus, Search } from 'lucide-react';
+import type { InvoiceTemplate } from './invoiceTemplates';
+import { TemplateSelector } from './TemplateSelector';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -67,6 +69,8 @@ interface InvoiceFormProps {
   showPaymentInfo: boolean;
   onShowPaymentInfoChange: (v: boolean) => void;
   paymentToggleId?: string;
+  template?: InvoiceTemplate;
+  onTemplateChange?: (t: InvoiceTemplate) => void;
 }
 
 export function InvoiceForm({
@@ -92,6 +96,8 @@ export function InvoiceForm({
   showPaymentInfo,
   onShowPaymentInfoChange,
   paymentToggleId = 'paymentToggle',
+  template = 'modern',
+  onTemplateChange,
 }: InvoiceFormProps) {
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -268,6 +274,13 @@ export function InvoiceForm({
           rows={3}
         />
       </div>
+
+      {/* Template Selector */}
+      {onTemplateChange && (
+        <div className="rounded-xl border border-border bg-card p-5">
+          <TemplateSelector value={template} onChange={onTemplateChange} />
+        </div>
+      )}
 
       {/* Payment Info Toggle */}
       <div className="rounded-xl border border-border bg-card p-5 flex items-center justify-between">
