@@ -1,4 +1,5 @@
 import { useState, useRef, useMemo } from 'react';
+import { BarcodeScanButton } from '@/components/scanner/BarcodeScanner';
 import {
   Plus,
   Search,
