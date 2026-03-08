@@ -494,7 +494,7 @@ const SECTIONS: DocSection[] = [
     id: 'offline',
     icon: WifiOff,
     title: 'Offline Mode',
-    description: 'Work without internet — changes sync when you're back online',
+    description: 'Work without internet — changes sync when you are back online',
     articles: [
       {
         id: 'off-how',
