@@ -241,8 +241,8 @@ export default function QuotationEditor() {
           </div>
 
           {/* Dates */}
-          <div className="rounded-xl border border-border bg-card p-5">
-            <h3 className="text-lg font-semibold mb-4">Quotation Details</h3>
+          <div className="rounded-lg border border-border bg-card p-4">
+            <h3 className="text-sm font-semibold mb-3">Quotation Details</h3>
             <div className="grid gap-4 sm:grid-cols-2">
               <div>
                 <Label htmlFor="q-date">Date</Label>
