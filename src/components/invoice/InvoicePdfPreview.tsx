@@ -378,57 +378,59 @@ export function InvoicePdfPreview({
 
       {/* ═══ PAYMENT FOOTER ═══ */}
       {showPaymentInfo && (
-        <div className="px-6 py-3 flex justify-between items-start" style={{ backgroundColor: GRAY_100, borderTop: `1px solid ${GRAY_200}` }}>
-          <div className="flex-1">
-            <h4 className="text-[7px] font-bold uppercase tracking-[1.2px] mb-1.5" style={{ color: p.accent }}>Payment Information</h4>
-            <div className="flex gap-5 mt-1 flex-wrap">
-              {orgBankName && (
-                <div>
-                  <p className="text-[7px]" style={{ color: GRAY_400 }}>Account Name</p>
-                  <p className="text-[8.5px] font-semibold" style={{ color: GRAY_700 }}>{orgBankName}</p>
-                </div>
-              )}
-              {orgBankAccount && (
-                <div>
-                  <p className="text-[7px]" style={{ color: GRAY_400 }}>Account No.</p>
-                  <p className="text-[8.5px] font-semibold" style={{ color: GRAY_700 }}>{orgBankAccount}</p>
-                </div>
-              )}
-              {orgBankIfsc && (
-                <div>
-                  <p className="text-[7px]" style={{ color: GRAY_400 }}>IFSC</p>
-                  <p className="text-[8.5px] font-semibold" style={{ color: GRAY_700 }}>{orgBankIfsc}</p>
-                </div>
-              )}
-              {orgUpi && (
-                <div>
-                  <p className="text-[7px]" style={{ color: GRAY_400 }}>UPI ID</p>
-                  <p className="text-[8.5px] font-semibold" style={{ color: GRAY_700 }}>{orgUpi}</p>
-                </div>
-              )}
+        <div className="px-4 py-2" style={{ backgroundColor: GRAY_100, borderTop: `1px solid ${GRAY_200}` }}>
+          <div className="flex justify-between items-start gap-2 min-w-0">
+            <div className="flex-1 min-w-0">
+              <h4 className="text-[6px] font-bold uppercase tracking-[1.2px] mb-1" style={{ color: p.accent }}>Payment Information</h4>
+              <div className="grid grid-cols-2 gap-x-3 gap-y-1 mt-0.5">
+                {orgBankName && (
+                  <div className="min-w-0">
+                    <p className="text-[6px]" style={{ color: GRAY_400 }}>Account Name</p>
+                    <p className="text-[7.5px] font-semibold truncate" style={{ color: GRAY_700 }}>{orgBankName}</p>
+                  </div>
+                )}
+                {orgBankAccount && (
+                  <div className="min-w-0">
+                    <p className="text-[6px]" style={{ color: GRAY_400 }}>Account No.</p>
+                    <p className="text-[7.5px] font-semibold truncate" style={{ color: GRAY_700 }}>{orgBankAccount}</p>
+                  </div>
+                )}
+                {orgBankIfsc && (
+                  <div className="min-w-0">
+                    <p className="text-[6px]" style={{ color: GRAY_400 }}>IFSC</p>
+                    <p className="text-[7.5px] font-semibold" style={{ color: GRAY_700 }}>{orgBankIfsc}</p>
+                  </div>
+                )}
+                {orgUpi && (
+                  <div className="min-w-0">
+                    <p className="text-[6px]" style={{ color: GRAY_400 }}>UPI ID</p>
+                    <p className="text-[7.5px] font-semibold truncate" style={{ color: GRAY_700 }}>{orgUpi}</p>
+                  </div>
+                )}
+              </div>
             </div>
+            {qrCodeUrl && (
+              <div className="text-center shrink-0">
+                <p className="text-[6px] font-bold uppercase tracking-wider mb-0.5" style={{ color: p.accent }}>Scan to Pay</p>
+                <img src={qrCodeUrl} alt="UPI QR Code" className="w-12 h-12" />
+                <p className="text-[5.5px] mt-0.5" style={{ color: GRAY_400 }}>UPI Payment</p>
+              </div>
+            )}
           </div>
-          {qrCodeUrl && (
-            <div className="text-center ml-4">
-              <p className="text-[7px] font-bold uppercase tracking-wider mb-0.5" style={{ color: p.accent }}>Scan to Pay</p>
-              <img src={qrCodeUrl} alt="UPI QR Code" className="w-16 h-16" />
-              <p className="text-[6.5px] mt-0.5" style={{ color: GRAY_400 }}>UPI Payment</p>
-            </div>
-          )}
         </div>
       )}
 
       {/* ═══ THANK YOU ═══ */}
       {p.showThankYou && (
-        <div className="py-3 text-center" style={{ backgroundColor: p.accent }}>
-          <p className="text-[10px] font-semibold text-white tracking-wide">Thank you for your business!</p>
-          <p className="text-[7px] text-white/70 mt-0.5">Questions? Contact {orgEmail || orgPhone || orgName}</p>
+        <div className="py-2 text-center" style={{ backgroundColor: p.accent }}>
+          <p className="text-[8px] font-semibold text-white tracking-wide">Thank you for your business!</p>
+          <p className="text-[6px] text-white/70 mt-0.5">Questions? Contact {orgEmail || orgPhone || orgName}</p>
         </div>
       )}
 
       {/* ═══ LEGAL FOOTER ═══ */}
-      <div className="py-2 text-center" style={{ borderTop: !p.showThankYou ? `1px solid ${GRAY_200}` : 'none' }}>
-        <p className="text-[6.5px]" style={{ color: GRAY_400 }}>
+      <div className="py-1.5 text-center" style={{ borderTop: !p.showThankYou ? `1px solid ${GRAY_200}` : 'none' }}>
+        <p className="text-[5.5px]" style={{ color: GRAY_400 }}>
           This is a computer-generated invoice and does not require a physical signature.
         </p>
       </div>
