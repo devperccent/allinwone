@@ -24,6 +24,11 @@ import ForgotPasswordPage from "./pages/ForgotPasswordPage";
 import ResetPasswordPage from "./pages/ResetPasswordPage";
 import NotFound from "./pages/NotFound";
 import HelpPage from "./pages/HelpPage";
+import QuickBillPage from "./pages/QuickBillPage";
+import QuotationsPage from "./pages/QuotationsPage";
+import DeliveryChallansPage from "./pages/DeliveryChallansPage";
+import PurchaseOrdersPage from "./pages/PurchaseOrdersPage";
+import RecurringInvoicesPage from "./pages/RecurringInvoicesPage";
 
 const queryClient = new QueryClient();
 
@@ -58,6 +63,20 @@ const App = () => (
               <Route path="/invoices/new" element={<InvoiceEditor />} />
               <Route path="/invoices/:id" element={<InvoiceEditor />} />
               <Route path="/invoices/:id/edit" element={<InvoiceEditor />} />
+              <Route path="/quick-bill" element={<QuickBillPage />} />
+              <Route path="/quotations" element={<QuotationsPage />} />
+              <Route path="/quotations/new" element={<QuotationsPage />} />
+              <Route path="/quotations/:id" element={<QuotationsPage />} />
+              <Route path="/quotations/:id/edit" element={<QuotationsPage />} />
+              <Route path="/challans" element={<DeliveryChallansPage />} />
+              <Route path="/challans/new" element={<DeliveryChallansPage />} />
+              <Route path="/challans/:id" element={<DeliveryChallansPage />} />
+              <Route path="/purchase-orders" element={<PurchaseOrdersPage />} />
+              <Route path="/purchase-orders/new" element={<PurchaseOrdersPage />} />
+              <Route path="/purchase-orders/:id" element={<PurchaseOrdersPage />} />
+              <Route path="/recurring" element={<RecurringInvoicesPage />} />
+              <Route path="/recurring/new" element={<RecurringInvoicesPage />} />
+              <Route path="/recurring/:id" element={<RecurringInvoicesPage />} />
               <Route path="/products" element={<ProductsPage />} />
               <Route path="/clients" element={<ClientsPage />} />
               <Route path="/reports" element={<ReportsPage />} />
