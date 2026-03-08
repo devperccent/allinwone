@@ -5,6 +5,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useInvoiceCalculations, formatINR } from '@/hooks/useInvoiceCalculations';
 import type { Client, InvoiceItemFormData, Invoice, InvoiceItem } from '@/types';
+import type { InvoiceTemplate } from '@/components/invoice/invoiceTemplates';
 import { InvoicePdfPreview } from '@/components/invoice/InvoicePdfPreview';
 import { InvoiceEditorHeader } from '@/components/invoice/InvoiceEditorHeader';
 import { InvoiceForm } from '@/components/invoice/InvoiceForm';
