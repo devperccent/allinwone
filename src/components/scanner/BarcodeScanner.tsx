@@ -49,7 +49,6 @@ export function BarcodeScanner({ open, onOpenChange, onScan }: BarcodeScannerPro
           fps: 10,
           qrbox: { width: 250, height: 150 },
           aspectRatio: 1.5,
-          supportedScanTypes: [Html5QrcodeScanType.SCAN_TYPE_CAMERA],
         },
         (decodedText) => {
           onScan(decodedText);
