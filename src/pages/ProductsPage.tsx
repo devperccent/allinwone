@@ -307,12 +307,12 @@ export default function ProductsPage() {
       </div>
 
       {/* Products Grid */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {filteredProducts.length === 0 ? (
-          <div className="col-span-full text-center py-12 rounded-xl border border-border bg-card">
-            <Package className="w-12 h-12 mx-auto text-muted-foreground/50 mb-3" />
-            <p className="text-muted-foreground">No products found</p>
-            <Button variant="link" onClick={() => setIsAddDialogOpen(true)} className="mt-2">
+          <div className="col-span-full text-center py-10 rounded-lg border border-border bg-card">
+            <Package className="w-10 h-10 mx-auto text-muted-foreground/40 mb-2" />
+            <p className="text-sm text-muted-foreground">No products found</p>
+            <Button variant="link" size="sm" onClick={() => setIsAddDialogOpen(true)} className="mt-1">
               Add your first product
             </Button>
           </div>
