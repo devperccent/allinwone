@@ -190,7 +190,9 @@ export function AppSidebar({ onNavigate }: AppSidebarProps) {
         {filterNav(documentNavigation).length > 0 && renderSectionLabel('Documents')}
         {filterNav(documentNavigation).map(renderNavItem)}
 
+        {renderSectionLabel('Manage')}
         {filterNav(managementNavigation).map(renderNavItem)}
+      </nav>
 
       {/* Keyboard shortcut hint */}
       {!isCollapsed && (
