@@ -96,6 +96,8 @@ export function InvoiceForm({
   showPaymentInfo,
   onShowPaymentInfoChange,
   paymentToggleId = 'paymentToggle',
+  template = 'modern',
+  onTemplateChange,
 }: InvoiceFormProps) {
   const sensors = useSensors(
     useSensor(PointerSensor),
