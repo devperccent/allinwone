@@ -221,8 +221,8 @@ export default function PurchaseBillEditor() {
           </div>
 
           {/* Line Items */}
-          <div className="rounded-xl border border-border bg-card p-5">
-            <h3 className="text-lg font-semibold mb-4">Line Items</h3>
+          <div className="rounded-lg border border-border bg-card p-4">
+            <h3 className="text-sm font-semibold mb-3">Line Items</h3>
             <div className="space-y-3">
               {items.map((item) => {
                 const itemAmount = item.qty * item.rate * (1 + item.tax_rate / 100);
