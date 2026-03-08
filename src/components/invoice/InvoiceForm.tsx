@@ -69,6 +69,8 @@ interface InvoiceFormProps {
   showPaymentInfo: boolean;
   onShowPaymentInfoChange: (v: boolean) => void;
   paymentToggleId?: string;
+  template?: InvoiceTemplate;
+  onTemplateChange?: (t: InvoiceTemplate) => void;
 }
 
 export function InvoiceForm({
