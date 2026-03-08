@@ -35,6 +35,7 @@ export default function InvoiceEditor() {
   const [emailDialogOpen, setEmailDialogOpen] = useState(false);
   const [emailRecipient, setEmailRecipient] = useState('');
   const [finalizeDialogOpen, setFinalizeDialogOpen] = useState(false);
+  const [template, setTemplate] = useState<InvoiceTemplate>('modern');
 
   // Database hooks
   const { clients, isLoading: clientsLoading } = useClients();
