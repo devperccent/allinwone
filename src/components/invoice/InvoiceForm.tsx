@@ -263,7 +263,7 @@ export function InvoiceForm({
       <InvoiceTotals calculations={calculations} />
 
       {/* Notes */}
-      <div className="rounded-xl border border-border bg-card p-5">
+      <div className="rounded-lg border border-border bg-card p-4">
         <Label htmlFor="notes">Notes / Terms</Label>
         <Textarea
           id="notes"
