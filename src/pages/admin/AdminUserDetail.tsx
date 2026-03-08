@@ -110,12 +110,29 @@ export default function AdminUserDetail() {
 
       {/* Tabs for data */}
       <Tabs defaultValue="invoices">
-        <TabsList>
-          <TabsTrigger value="invoices"><FileText className="h-4 w-4 mr-1" /> Invoices ({invoices.length})</TabsTrigger>
-          <TabsTrigger value="clients"><Users className="h-4 w-4 mr-1" /> Clients ({clients.length})</TabsTrigger>
-          <TabsTrigger value="products"><Package className="h-4 w-4 mr-1" /> Products ({products.length})</TabsTrigger>
-          <TabsTrigger value="modules"><LayoutGrid className="h-4 w-4 mr-1" /> Modules</TabsTrigger>
-        </TabsList>
+        <div className="overflow-x-auto -mx-6 px-6">
+          <TabsList className="w-max">
+            <TabsTrigger value="invoices" className="gap-1">
+              <FileText className="h-4 w-4" />
+              <span className="hidden sm:inline">Invoices</span>
+              <span className="text-xs">({invoices.length})</span>
+            </TabsTrigger>
+            <TabsTrigger value="clients" className="gap-1">
+              <Users className="h-4 w-4" />
+              <span className="hidden sm:inline">Clients</span>
+              <span className="text-xs">({clients.length})</span>
+            </TabsTrigger>
+            <TabsTrigger value="products" className="gap-1">
+              <Package className="h-4 w-4" />
+              <span className="hidden sm:inline">Products</span>
+              <span className="text-xs">({products.length})</span>
+            </TabsTrigger>
+            <TabsTrigger value="modules" className="gap-1">
+              <LayoutGrid className="h-4 w-4" />
+              <span className="hidden sm:inline">Modules</span>
+            </TabsTrigger>
+          </TabsList>
+        </div>
 
         <TabsContent value="invoices">
           <Card>
