@@ -179,7 +179,7 @@ export default function RecurringInvoicesPage() {
               )}
             >
               <CardContent className="p-4">
-                <div className="flex items-center justify-between gap-4">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
                       <span className="font-semibold">{template.template_name}</span>
@@ -196,63 +196,65 @@ export default function RecurringInvoicesPage() {
                     <p className="text-sm text-muted-foreground mt-1">
                       {template.client?.name || 'No client'} • Next:{' '}
                       {format(new Date(template.next_generate_date), 'dd MMM yyyy')}
-                      <span className="text-xs ml-1">
+                      <span className="text-xs ml-1 hidden sm:inline">
                         ({formatDistanceToNow(new Date(template.next_generate_date), { addSuffix: true })})
                       </span>
                     </p>
                   </div>
-                  <div className="text-right flex-shrink-0">
-                    <p className="font-bold">{formatINR(Number(template.grand_total))}</p>
-                    <p className="text-xs text-muted-foreground">per cycle</p>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Switch
-                      checked={template.is_active}
-                      onCheckedChange={(checked) =>
-                        updateTemplate.mutate({ id: template.id, is_active: checked })
-                      }
-                    />
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon" className="h-8 w-8">
-                          <MoreHorizontal className="w-4 h-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem asChild>
-                          <Link to={`/recurring/${template.id}`}>
-                            <Eye className="w-4 h-4 mr-2" />
-                            View
-                          </Link>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem asChild>
-                          <Link to={`/recurring/${template.id}/edit`}>
-                            <Pencil className="w-4 h-4 mr-2" />
-                            Edit
-                          </Link>
-                        </DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem
-                          onClick={() => generateInvoice.mutate(template.id)}
-                          disabled={isGenerating}
-                        >
-                          {isGenerating ? (
-                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                          ) : (
-                            <Play className="w-4 h-4 mr-2" />
-                          )}
-                          Generate Now
-                        </DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem
-                          onClick={() => deleteTemplate.mutate(template.id)}
-                          className="text-destructive focus:text-destructive"
-                        >
-                          <Trash2 className="w-4 h-4 mr-2" />
-                          Delete
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
+                  <div className="flex items-center justify-between sm:justify-end gap-3">
+                    <div className="text-left sm:text-right flex-shrink-0">
+                      <p className="font-bold">{formatINR(Number(template.grand_total))}</p>
+                      <p className="text-xs text-muted-foreground">per cycle</p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Switch
+                        checked={template.is_active}
+                        onCheckedChange={(checked) =>
+                          updateTemplate.mutate({ id: template.id, is_active: checked })
+                        }
+                      />
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="icon" className="h-8 w-8">
+                            <MoreHorizontal className="w-4 h-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem asChild>
+                            <Link to={`/recurring/${template.id}`}>
+                              <Eye className="w-4 h-4 mr-2" />
+                              View
+                            </Link>
+                          </DropdownMenuItem>
+                          <DropdownMenuItem asChild>
+                            <Link to={`/recurring/${template.id}/edit`}>
+                              <Pencil className="w-4 h-4 mr-2" />
+                              Edit
+                            </Link>
+                          </DropdownMenuItem>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem
+                            onClick={() => generateInvoice.mutate(template.id)}
+                            disabled={isGenerating}
+                          >
+                            {isGenerating ? (
+                              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                            ) : (
+                              <Play className="w-4 h-4 mr-2" />
+                            )}
+                            Generate Now
+                          </DropdownMenuItem>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem
+                            onClick={() => deleteTemplate.mutate(template.id)}
+                            className="text-destructive focus:text-destructive"
+                          >
+                            <Trash2 className="w-4 h-4 mr-2" />
+                            Delete
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </div>
                   </div>
                 </div>
               </CardContent>

@@ -198,24 +198,26 @@ export default function SettingsPage() {
       </div>
 
       <Tabs defaultValue="business" className="space-y-6">
-        <TabsList className="bg-muted/50 w-full sm:w-auto">
-          <TabsTrigger value="business" className="gap-2 flex-1 sm:flex-none">
-            <Building2 className="w-4 h-4" />
-            <span className="hidden sm:inline">Business</span>
-          </TabsTrigger>
-          <TabsTrigger value="invoice" className="gap-2 flex-1 sm:flex-none">
-            <CreditCard className="w-4 h-4" />
-            <span className="hidden sm:inline">Invoice</span>
-          </TabsTrigger>
-          <TabsTrigger value="notifications" className="gap-2 flex-1 sm:flex-none">
-            <Bell className="w-4 h-4" />
-            <span className="hidden sm:inline">Notifications</span>
-          </TabsTrigger>
-          <TabsTrigger value="modules" className="gap-2 flex-1 sm:flex-none">
-            <LayoutGrid className="w-4 h-4" />
-            <span className="hidden sm:inline">Modules</span>
-          </TabsTrigger>
-        </TabsList>
+        <div className="overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0">
+          <TabsList className="bg-muted/50 w-max sm:w-auto">
+            <TabsTrigger value="business" className="gap-2">
+              <Building2 className="w-4 h-4" />
+              <span className="hidden sm:inline">Business</span>
+            </TabsTrigger>
+            <TabsTrigger value="invoice" className="gap-2">
+              <CreditCard className="w-4 h-4" />
+              <span className="hidden sm:inline">Invoice</span>
+            </TabsTrigger>
+            <TabsTrigger value="notifications" className="gap-2">
+              <Bell className="w-4 h-4" />
+              <span className="hidden sm:inline">Notifications</span>
+            </TabsTrigger>
+            <TabsTrigger value="modules" className="gap-2">
+              <LayoutGrid className="w-4 h-4" />
+              <span className="hidden sm:inline">Modules</span>
+            </TabsTrigger>
+          </TabsList>
+        </div>
 
         <TabsContent value="business">
           <Card>

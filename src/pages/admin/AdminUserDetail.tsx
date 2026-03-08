@@ -62,16 +62,16 @@ export default function AdminUserDetail() {
   const totalRevenue = invoices.filter((i: any) => i.status === 'paid').reduce((s: number, i: any) => s + Number(i.grand_total), 0);
 
   return (
-    <div className="space-y-6 p-6">
-      <div className="flex items-center gap-4">
-        <Button variant="ghost" size="icon" onClick={() => navigate('/admin')}>
+    <div className="space-y-6 p-4 sm:p-6">
+      <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+        <Button variant="ghost" size="icon" onClick={() => navigate('/admin')} className="self-start">
           <ArrowLeft className="h-4 w-4" />
         </Button>
-        <div>
-          <h1 className="text-2xl font-bold">{profile.org_name}</h1>
-          <p className="text-muted-foreground">{profile.email}</p>
+        <div className="flex-1 min-w-0">
+          <h1 className="text-xl sm:text-2xl font-bold truncate">{profile.org_name}</h1>
+          <p className="text-muted-foreground text-sm truncate">{profile.email}</p>
         </div>
-        <Badge variant={profile.onboarding_completed ? 'default' : 'secondary'} className="ml-auto">
+        <Badge variant={profile.onboarding_completed ? 'default' : 'secondary'} className="self-start sm:self-auto">
           {profile.onboarding_completed ? 'Active' : 'Pending Setup'}
         </Badge>
       </div>
@@ -110,21 +110,38 @@ export default function AdminUserDetail() {
 
       {/* Tabs for data */}
       <Tabs defaultValue="invoices">
-        <TabsList>
-          <TabsTrigger value="invoices"><FileText className="h-4 w-4 mr-1" /> Invoices ({invoices.length})</TabsTrigger>
-          <TabsTrigger value="clients"><Users className="h-4 w-4 mr-1" /> Clients ({clients.length})</TabsTrigger>
-          <TabsTrigger value="products"><Package className="h-4 w-4 mr-1" /> Products ({products.length})</TabsTrigger>
-          <TabsTrigger value="modules"><LayoutGrid className="h-4 w-4 mr-1" /> Modules</TabsTrigger>
-        </TabsList>
+        <div className="overflow-x-auto -mx-6 px-6">
+          <TabsList className="w-max">
+            <TabsTrigger value="invoices" className="gap-1">
+              <FileText className="h-4 w-4" />
+              <span className="hidden sm:inline">Invoices</span>
+              <span className="text-xs">({invoices.length})</span>
+            </TabsTrigger>
+            <TabsTrigger value="clients" className="gap-1">
+              <Users className="h-4 w-4" />
+              <span className="hidden sm:inline">Clients</span>
+              <span className="text-xs">({clients.length})</span>
+            </TabsTrigger>
+            <TabsTrigger value="products" className="gap-1">
+              <Package className="h-4 w-4" />
+              <span className="hidden sm:inline">Products</span>
+              <span className="text-xs">({products.length})</span>
+            </TabsTrigger>
+            <TabsTrigger value="modules" className="gap-1">
+              <LayoutGrid className="h-4 w-4" />
+              <span className="hidden sm:inline">Modules</span>
+            </TabsTrigger>
+          </TabsList>
+        </div>
 
         <TabsContent value="invoices">
           <Card>
-            <CardContent className="pt-4">
+            <CardContent className="pt-4 overflow-x-auto">
               <Table>
                 <TableHeader>
                   <TableRow>
                     <TableHead>Invoice #</TableHead>
-                    <TableHead>Date</TableHead>
+                    <TableHead className="hidden sm:table-cell">Date</TableHead>
                     <TableHead>Status</TableHead>
                     <TableHead className="text-right">Amount</TableHead>
                   </TableRow>
@@ -135,7 +152,7 @@ export default function AdminUserDetail() {
                   ) : invoices.map((inv: any) => (
                     <TableRow key={inv.id}>
                       <TableCell className="font-medium">{inv.invoice_number}</TableCell>
-                      <TableCell>{format(new Date(inv.date_issued), 'dd MMM yyyy')}</TableCell>
+                      <TableCell className="hidden sm:table-cell">{format(new Date(inv.date_issued), 'dd MMM yyyy')}</TableCell>
                       <TableCell>
                         <Badge variant={inv.status === 'paid' ? 'default' : inv.status === 'finalized' ? 'secondary' : 'outline'}>
                           {inv.status}
@@ -152,14 +169,14 @@ export default function AdminUserDetail() {
 
         <TabsContent value="clients">
           <Card>
-            <CardContent className="pt-4">
+            <CardContent className="pt-4 overflow-x-auto">
               <Table>
                 <TableHeader>
                   <TableRow>
                     <TableHead>Name</TableHead>
-                    <TableHead>Email</TableHead>
-                    <TableHead>Phone</TableHead>
-                    <TableHead className="text-right">Credit Balance</TableHead>
+                    <TableHead className="hidden sm:table-cell">Email</TableHead>
+                    <TableHead className="hidden sm:table-cell">Phone</TableHead>
+                    <TableHead className="text-right">Credit</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -168,8 +185,8 @@ export default function AdminUserDetail() {
                   ) : clients.map((c: any) => (
                     <TableRow key={c.id}>
                       <TableCell className="font-medium">{c.name}</TableCell>
-                      <TableCell>{c.email || '—'}</TableCell>
-                      <TableCell>{c.phone || '—'}</TableCell>
+                      <TableCell className="hidden sm:table-cell">{c.email || '—'}</TableCell>
+                      <TableCell className="hidden sm:table-cell">{c.phone || '—'}</TableCell>
                       <TableCell className="text-right">{formatINR(Number(c.credit_balance))}</TableCell>
                     </TableRow>
                   ))}
@@ -181,13 +198,13 @@ export default function AdminUserDetail() {
 
         <TabsContent value="products">
           <Card>
-            <CardContent className="pt-4">
+            <CardContent className="pt-4 overflow-x-auto">
               <Table>
                 <TableHeader>
                   <TableRow>
                     <TableHead>Name</TableHead>
-                    <TableHead>SKU</TableHead>
-                    <TableHead>Type</TableHead>
+                    <TableHead className="hidden sm:table-cell">SKU</TableHead>
+                    <TableHead className="hidden sm:table-cell">Type</TableHead>
                     <TableHead className="text-right">Price</TableHead>
                     <TableHead className="text-right">Stock</TableHead>
                   </TableRow>
@@ -198,8 +215,8 @@ export default function AdminUserDetail() {
                   ) : products.map((p: any) => (
                     <TableRow key={p.id}>
                       <TableCell className="font-medium">{p.name}</TableCell>
-                      <TableCell>{p.sku}</TableCell>
-                      <TableCell className="capitalize">{p.type}</TableCell>
+                      <TableCell className="hidden sm:table-cell">{p.sku}</TableCell>
+                      <TableCell className="hidden sm:table-cell capitalize">{p.type}</TableCell>
                       <TableCell className="text-right">{formatINR(Number(p.selling_price))}</TableCell>
                       <TableCell className="text-right">{p.stock_quantity}</TableCell>
                     </TableRow>
