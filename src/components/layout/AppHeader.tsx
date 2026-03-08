@@ -2,6 +2,7 @@ import { Search, Plus, Moon, Sun, Menu, Settings, LogOut } from 'lucide-react';
 import { modKey } from '@/lib/platform';
 import { Button } from '@/components/ui/button';
 import { NotificationBell } from './NotificationBell';
+import { OfflineIndicator } from './OfflineIndicator';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTheme } from '@/hooks/useTheme';
