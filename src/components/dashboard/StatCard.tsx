@@ -21,13 +21,13 @@ export function StatCard({
   return (
     <div className="stat-card">
       <div className="flex items-start justify-between">
-        <div>
-          <p className="text-sm font-medium text-muted-foreground">{title}</p>
-          <p className="mt-2 text-3xl font-bold tabular-nums">{value}</p>
+        <div className="space-y-1">
+          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">{title}</p>
+          <p className="text-2xl font-bold tabular-nums">{value}</p>
           {change && (
             <p
               className={cn(
-                'mt-2 text-sm font-medium',
+                'text-xs',
                 changeType === 'positive' && 'text-success',
                 changeType === 'negative' && 'text-destructive',
                 changeType === 'neutral' && 'text-muted-foreground'
@@ -37,8 +37,8 @@ export function StatCard({
             </p>
           )}
         </div>
-        <div className={cn('p-3 rounded-xl bg-muted/50', iconColor)}>
-          <Icon className="w-6 h-6" />
+        <div className={cn('p-2 rounded-lg bg-muted/50', iconColor)}>
+          <Icon className="w-5 h-5" />
         </div>
       </div>
     </div>
