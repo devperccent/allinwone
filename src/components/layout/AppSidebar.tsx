@@ -211,7 +211,7 @@ export function AppSidebar({ onNavigate }: AppSidebarProps) {
           <DropdownMenuTrigger asChild>
             <button
               className={cn(
-                'flex items-center gap-3 w-full px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200',
+                'flex items-center gap-3 w-full px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 group',
                 'text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground',
                 isCollapsed && 'justify-center'
               )}
