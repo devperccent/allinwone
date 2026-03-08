@@ -136,12 +136,12 @@ export default function AdminUserDetail() {
 
         <TabsContent value="invoices">
           <Card>
-            <CardContent className="pt-4">
+            <CardContent className="pt-4 overflow-x-auto">
               <Table>
                 <TableHeader>
                   <TableRow>
                     <TableHead>Invoice #</TableHead>
-                    <TableHead>Date</TableHead>
+                    <TableHead className="hidden sm:table-cell">Date</TableHead>
                     <TableHead>Status</TableHead>
                     <TableHead className="text-right">Amount</TableHead>
                   </TableRow>
@@ -152,7 +152,7 @@ export default function AdminUserDetail() {
                   ) : invoices.map((inv: any) => (
                     <TableRow key={inv.id}>
                       <TableCell className="font-medium">{inv.invoice_number}</TableCell>
-                      <TableCell>{format(new Date(inv.date_issued), 'dd MMM yyyy')}</TableCell>
+                      <TableCell className="hidden sm:table-cell">{format(new Date(inv.date_issued), 'dd MMM yyyy')}</TableCell>
                       <TableCell>
                         <Badge variant={inv.status === 'paid' ? 'default' : inv.status === 'finalized' ? 'secondary' : 'outline'}>
                           {inv.status}
