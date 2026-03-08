@@ -209,6 +209,40 @@ export default function AdminUserDetail() {
             </CardContent>
           </Card>
         </TabsContent>
+        <TabsContent value="modules">
+          <Card>
+            <CardHeader>
+              <CardTitle>Active Modules</CardTitle>
+              <CardDescription>
+                Control which features this user sees. Disabled modules hide the related sidebar links, dashboard widgets, and routes.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {ALL_MODULES.map((mod) => (
+                <div key={mod.key} className="flex items-center justify-between">
+                  <div>
+                    <p className="font-medium">{mod.label}</p>
+                    <p className="text-sm text-muted-foreground">{mod.description}</p>
+                  </div>
+                  <Switch
+                    checked={modulesState.includes(mod.key)}
+                    onCheckedChange={() =>
+                      setModulesState(prev =>
+                        prev.includes(mod.key) ? prev.filter(k => k !== mod.key) : [...prev, mod.key]
+                      )
+                    }
+                  />
+                </div>
+              ))}
+              <div className="flex justify-end pt-4 border-t">
+                <Button onClick={handleSaveModules} disabled={savingModules}>
+                  {savingModules && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
+                  Save Modules for User
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
       </Tabs>
     </div>
   );
