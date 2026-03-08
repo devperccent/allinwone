@@ -32,7 +32,7 @@ export default function Dashboard() {
   const { quotations, isLoading: quotationsLoading } = useQuotations();
   const { challans, isLoading: challansLoading } = useDeliveryChallans();
   const { purchaseOrders, isLoading: posLoading } = usePurchaseOrders();
-  const { isModuleEnabled } = useEnabledModules();
+  const isLoading = invoicesLoading || productsLoading;
 
   if (isLoading) {
     return (
