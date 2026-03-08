@@ -24,6 +24,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 interface AppHeaderProps {
   searchOpen: boolean;
   onSearchOpenChange: (open: boolean) => void;
+  onOpenShortcuts?: () => void;
 }
 
 export function AppHeader({ searchOpen, onSearchOpenChange }: AppHeaderProps) {
