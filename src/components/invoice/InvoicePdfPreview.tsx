@@ -311,68 +311,68 @@ export function InvoicePdfPreview({
       </div>
 
       {/* ═══ SUMMARY ═══ */}
-      <div className="px-6 pb-3">
-        <div className="flex justify-between gap-4">
-          <div className="flex-1">
-            {calculations.grandTotal > 0 && (
-              <div>
-                <h4 className="text-[7px] font-bold uppercase tracking-[1.2px] mb-1" style={{ color: p.accent }}>Amount in Words</h4>
-                <p className="text-[9.5px] italic leading-relaxed" style={{ color: GRAY_700 }}>{numberToWords(calculations.grandTotal)}</p>
-              </div>
-            )}
-          </div>
-          <div className="w-52 p-3" style={{ border: `1px solid ${GRAY_200}`, borderRadius: p.borderRadius }}>
+      <div className="px-4 pb-2">
+        <div className="flex flex-col gap-2">
+          {/* Totals */}
+          <div className="ml-auto w-full max-w-[200px] p-2" style={{ border: `1px solid ${GRAY_200}`, borderRadius: p.borderRadius }}>
             <div className="flex justify-between py-0.5">
-              <span className="text-[8.5px]" style={{ color: GRAY_500 }}>Subtotal</span>
-              <span className="text-[8.5px] font-semibold tabular-nums">{formatINR(calculations.subtotal)}</span>
+              <span className="text-[7.5px]" style={{ color: GRAY_500 }}>Subtotal</span>
+              <span className="text-[7.5px] font-semibold tabular-nums">{formatINR(calculations.subtotal)}</span>
             </div>
             {calculations.totalDiscount > 0 && (
               <div className="flex justify-between py-0.5">
-                <span className="text-[8.5px]" style={{ color: GRAY_500 }}>Discount</span>
-                <span className="text-[8.5px] font-semibold tabular-nums" style={{ color: GREEN }}>-{formatINR(calculations.totalDiscount)}</span>
+                <span className="text-[7.5px]" style={{ color: GRAY_500 }}>Discount</span>
+                <span className="text-[7.5px] font-semibold tabular-nums" style={{ color: GREEN }}>-{formatINR(calculations.totalDiscount)}</span>
               </div>
             )}
             {isIntraState ? (
               <>
                 <div className="flex justify-between py-0.5">
-                  <span className="text-[8.5px]" style={{ color: GRAY_500 }}>CGST</span>
-                  <span className="text-[8.5px] font-semibold tabular-nums">{formatINR(calculations.gstBreakdown.cgst)}</span>
+                  <span className="text-[7.5px]" style={{ color: GRAY_500 }}>CGST</span>
+                  <span className="text-[7.5px] font-semibold tabular-nums">{formatINR(calculations.gstBreakdown.cgst)}</span>
                 </div>
                 <div className="flex justify-between py-0.5">
-                  <span className="text-[8.5px]" style={{ color: GRAY_500 }}>SGST</span>
-                  <span className="text-[8.5px] font-semibold tabular-nums">{formatINR(calculations.gstBreakdown.sgst)}</span>
+                  <span className="text-[7.5px]" style={{ color: GRAY_500 }}>SGST</span>
+                  <span className="text-[7.5px] font-semibold tabular-nums">{formatINR(calculations.gstBreakdown.sgst)}</span>
                 </div>
               </>
             ) : (
               <div className="flex justify-between py-0.5">
-                <span className="text-[8.5px]" style={{ color: GRAY_500 }}>IGST</span>
-                <span className="text-[8.5px] font-semibold tabular-nums">{formatINR(calculations.gstBreakdown.igst)}</span>
+                <span className="text-[7.5px]" style={{ color: GRAY_500 }}>IGST</span>
+                <span className="text-[7.5px] font-semibold tabular-nums">{formatINR(calculations.gstBreakdown.igst)}</span>
               </div>
             )}
-            <div className="flex justify-between pt-2 mt-2" style={{ borderTop: `2px solid ${p.accent}` }}>
-              <span className="text-[11px] font-bold" style={{ color: GRAY_900 }}>Grand Total</span>
-              <span className="text-[14px] font-bold tabular-nums" style={{ color: p.accent }}>
+            <div className="flex justify-between pt-1.5 mt-1.5" style={{ borderTop: `2px solid ${p.accent}` }}>
+              <span className="text-[9px] font-bold" style={{ color: GRAY_900 }}>Grand Total</span>
+              <span className="text-[11px] font-bold tabular-nums" style={{ color: p.accent }}>
                 {formatINR(calculations.grandTotal)}
               </span>
             </div>
           </div>
+          {/* Amount in words */}
+          {calculations.grandTotal > 0 && (
+            <div>
+              <h4 className="text-[6px] font-bold uppercase tracking-[1.2px] mb-0.5" style={{ color: p.accent }}>Amount in Words</h4>
+              <p className="text-[8px] italic leading-relaxed" style={{ color: GRAY_700 }}>{numberToWords(calculations.grandTotal)}</p>
+            </div>
+          )}
         </div>
       </div>
 
       {/* ═══ NOTES ═══ */}
       {notes && (
-        <div className="px-6 pb-3">
-          <h4 className="text-[7px] font-bold uppercase tracking-[1.2px] mb-1" style={{ color: p.accent }}>Notes & Terms</h4>
-          <p className="text-[8.5px] whitespace-pre-wrap leading-relaxed" style={{ color: GRAY_500 }}>{notes}</p>
+        <div className="px-4 pb-2">
+          <h4 className="text-[6px] font-bold uppercase tracking-[1.2px] mb-0.5" style={{ color: p.accent }}>Notes & Terms</h4>
+          <p className="text-[7.5px] whitespace-pre-wrap leading-relaxed break-words" style={{ color: GRAY_500 }}>{notes}</p>
         </div>
       )}
 
       {/* ═══ AUTHORIZED SIGNATORY ═══ */}
-      <div className="px-6 pb-3 flex justify-end">
-        <div className="w-40 text-center">
-          <div className="mt-8 mb-1.5" style={{ borderBottom: `1px solid ${GRAY_700}` }} />
-          <p className="text-[7px]" style={{ color: GRAY_500 }}>Authorized Signatory</p>
-          <p className="text-[7.5px] font-semibold mt-0.5" style={{ color: GRAY_700 }}>{orgName}</p>
+      <div className="px-4 pb-2 flex justify-end">
+        <div className="w-32 text-center">
+          <div className="mt-6 mb-1" style={{ borderBottom: `1px solid ${GRAY_700}` }} />
+          <p className="text-[6px]" style={{ color: GRAY_500 }}>Authorized Signatory</p>
+          <p className="text-[6.5px] font-semibold mt-0.5" style={{ color: GRAY_700 }}>{orgName}</p>
         </div>
       </div>
 
