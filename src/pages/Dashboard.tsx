@@ -18,6 +18,8 @@ import { RecentQuotations } from '@/components/dashboard/RecentQuotations';
 import { RecentChallans } from '@/components/dashboard/RecentChallans';
 import { RecentPurchaseOrders } from '@/components/dashboard/RecentPurchaseOrders';
 import { LowStockAlert } from '@/components/dashboard/LowStockAlert';
+import { ExpiringBatchesAlert } from '@/components/dashboard/ExpiringBatchesAlert';
+import { LowStockAutoPO } from '@/components/dashboard/LowStockAutoPO';
 import { ActivityFeed } from '@/components/dashboard/ActivityFeed';
 import { formatINR } from '@/hooks/useInvoiceCalculations';
 import { useInvoices } from '@/hooks/useInvoices';
