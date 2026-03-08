@@ -121,9 +121,9 @@ export default function Dashboard() {
             <span className="hidden sm:inline">Activity</span>
           </TabsTrigger>
           {lowStockProducts.length > 0 && (
-            <TabsTrigger value="alerts" className="gap-1.5">
+            <TabsTrigger value="alerts" className="gap-1.5 shrink-0">
               <AlertTriangle className="w-4 h-4" />
-              Alerts
+              <span className="hidden sm:inline">Alerts</span>
               <span className="ml-1 text-xs bg-destructive text-destructive-foreground rounded-full px-1.5 py-0.5">
                 {lowStockProducts.length}
               </span>
