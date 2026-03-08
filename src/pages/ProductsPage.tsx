@@ -321,10 +321,8 @@ export default function ProductsPage() {
           />
           <kbd className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none hidden sm:inline-flex h-5 min-w-[20px] items-center justify-center rounded border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground">/</kbd>
         </div>
+        <BarcodeScanButton onScan={(code) => setSearchQuery(code)} />
       </div>
-
-      {/* Products Grid */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {filteredProducts.length === 0 ? (
           <div className="col-span-full text-center py-12 rounded-xl border border-border bg-card">
             <Package className="w-12 h-12 mx-auto text-muted-foreground/50 mb-3" />
