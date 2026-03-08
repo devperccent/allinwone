@@ -1,4 +1,6 @@
 import { Plus, Search } from 'lucide-react';
+import type { InvoiceTemplate } from './invoiceTemplates';
+import { TemplateSelector } from './TemplateSelector';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
