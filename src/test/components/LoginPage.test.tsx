@@ -74,9 +74,10 @@ describe('LoginPage', () => {
     const passwordInput = screen.getByLabelText('Password');
     expect(passwordInput).toHaveAttribute('type', 'password');
     
-    // Find and click the toggle button (eye icon)
-    const toggleButtons = screen.getAllByRole('button');
-    const eyeToggle = toggleButtons.find(btn => btn.querySelector('svg') && !btn.textContent);
+    // The eye toggle is inside the password field's container
+    const container = passwordInput.closest('.relative');
+    const eyeToggle = container?.querySelector('button');
+    expect(eyeToggle).toBeTruthy();
     if (eyeToggle) {
       fireEvent.click(eyeToggle);
       expect(passwordInput).toHaveAttribute('type', 'text');
