@@ -85,7 +85,7 @@ const App = () => (
               <Route path="/recurring/:id" element={<ModuleRoute><RecurringInvoicesPage /></ModuleRoute>} />
               <Route path="/products" element={<ProductsPage />} />
               <Route path="/clients" element={<ClientsPage />} />
-              <Route path="/reports" element={<ReportsPage />} />
+              <Route path="/reports" element={<ModuleRoute><ReportsPage /></ModuleRoute>} />
               <Route path="/settings" element={<SettingsPage />} />
               <Route path="/help" element={<HelpPage />} />
               <Route path="/admin" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
