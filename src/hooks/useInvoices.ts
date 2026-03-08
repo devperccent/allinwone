@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useCallback } from 'react';
+import { computeItemAmount } from '@/utils/invoiceUtils';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import type { Invoice, InvoiceItem, InvoiceItemFormData, PaymentMode } from '@/types';
