@@ -445,6 +445,7 @@ export default function InvoiceEditor() {
                       template={template}
                     />
                   </div>
+                </div>
               </div>
             </ResizablePanel>
           </ResizablePanelGroup>
