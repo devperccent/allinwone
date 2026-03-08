@@ -53,20 +53,20 @@ export function LowStockAutoPO() {
   };
 
   return (
-    <div className="rounded-xl border border-border bg-card p-5">
-      <div className="flex items-center gap-2 mb-4">
-        <ShoppingCart className="w-5 h-5 text-primary" />
-        <h3 className="font-semibold">Reorder Suggestions</h3>
-        <Badge variant="secondary" className="text-xs">{lowStockProducts.length} low</Badge>
+    <div className="rounded-lg border border-border bg-card p-4">
+      <div className="flex items-center gap-2 mb-3">
+        <ShoppingCart className="w-4 h-4 text-primary" />
+        <h3 className="text-sm font-semibold">Reorder Suggestions</h3>
+        <Badge variant="secondary" className="text-[10px] h-5">{lowStockProducts.length} low</Badge>
       </div>
-      <div className="space-y-3 max-h-60 overflow-y-auto">
+      <div className="space-y-2 max-h-60 overflow-y-auto">
         {lowStockProducts.slice(0, 8).map((product) => {
           const hasSup = !!(product as any).default_supplier_name;
           return (
-            <div key={product.id} className="flex items-center justify-between p-2 rounded-lg bg-muted/30">
+            <div key={product.id} className="flex items-center justify-between p-2 rounded-md bg-muted/30">
               <div>
-                <p className="text-sm font-medium">{product.name}</p>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-xs font-medium">{product.name}</p>
+                <p className="text-[10px] text-muted-foreground">
                   Stock: {product.stock_quantity} / Min: {product.low_stock_limit}
                   {hasSup && ` • ${(product as any).default_supplier_name}`}
                 </p>
@@ -75,7 +75,7 @@ export function LowStockAutoPO() {
                 <Button
                   size="sm"
                   variant="outline"
-                  className="gap-1 text-xs"
+                  className="gap-1 text-xs h-7"
                   disabled={creatingFor === product.id}
                   onClick={() => handleCreatePO(product)}
                 >
@@ -86,7 +86,7 @@ export function LowStockAutoPO() {
                 <Button
                   size="sm"
                   variant="ghost"
-                  className="gap-1 text-xs text-muted-foreground"
+                  className="gap-1 text-xs text-muted-foreground h-7"
                   onClick={() => navigate('/purchase-orders/new')}
                 >
                   <ArrowRight className="w-3 h-3" />
