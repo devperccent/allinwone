@@ -497,9 +497,70 @@ export type Database = {
           },
         ]
       }
+      product_batches: {
+        Row: {
+          batch_number: string
+          created_at: string
+          expiry_date: string | null
+          id: string
+          product_id: string
+          profile_id: string
+          purchase_bill_id: string | null
+          quantity: number
+          updated_at: string
+        }
+        Insert: {
+          batch_number: string
+          created_at?: string
+          expiry_date?: string | null
+          id?: string
+          product_id: string
+          profile_id: string
+          purchase_bill_id?: string | null
+          quantity?: number
+          updated_at?: string
+        }
+        Update: {
+          batch_number?: string
+          created_at?: string
+          expiry_date?: string | null
+          id?: string
+          product_id?: string
+          profile_id?: string
+          purchase_bill_id?: string | null
+          quantity?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_batches_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "product_batches_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "product_batches_purchase_bill_id_fkey"
+            columns: ["purchase_bill_id"]
+            isOneToOne: false
+            referencedRelation: "purchase_bills"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       products: {
         Row: {
+          barcode: string | null
           created_at: string
+          default_supplier_gstin: string | null
+          default_supplier_name: string | null
           description: string | null
           hsn_code: string | null
           id: string
@@ -514,7 +575,10 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          barcode?: string | null
           created_at?: string
+          default_supplier_gstin?: string | null
+          default_supplier_name?: string | null
           description?: string | null
           hsn_code?: string | null
           id?: string
@@ -529,7 +593,10 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          barcode?: string | null
           created_at?: string
+          default_supplier_gstin?: string | null
+          default_supplier_name?: string | null
           description?: string | null
           hsn_code?: string | null
           id?: string
@@ -563,6 +630,7 @@ export type Database = {
           created_at: string
           email: string | null
           enabled_modules: string[]
+          expiry_alert_days: number
           gstin: string | null
           id: string
           invoice_prefix: string
@@ -590,6 +658,7 @@ export type Database = {
           created_at?: string
           email?: string | null
           enabled_modules?: string[]
+          expiry_alert_days?: number
           gstin?: string | null
           id?: string
           invoice_prefix?: string
@@ -617,6 +686,7 @@ export type Database = {
           created_at?: string
           email?: string | null
           enabled_modules?: string[]
+          expiry_alert_days?: number
           gstin?: string | null
           id?: string
           invoice_prefix?: string
@@ -636,6 +706,128 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      purchase_bill_items: {
+        Row: {
+          amount: number
+          batch_number: string | null
+          bill_id: string
+          created_at: string
+          description: string
+          expiry_date: string | null
+          id: string
+          product_id: string | null
+          qty: number
+          rate: number
+          sort_order: number
+          tax_rate: number
+        }
+        Insert: {
+          amount?: number
+          batch_number?: string | null
+          bill_id: string
+          created_at?: string
+          description: string
+          expiry_date?: string | null
+          id?: string
+          product_id?: string | null
+          qty?: number
+          rate?: number
+          sort_order?: number
+          tax_rate?: number
+        }
+        Update: {
+          amount?: number
+          batch_number?: string | null
+          bill_id?: string
+          created_at?: string
+          description?: string
+          expiry_date?: string | null
+          id?: string
+          product_id?: string | null
+          qty?: number
+          rate?: number
+          sort_order?: number
+          tax_rate?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "purchase_bill_items_bill_id_fkey"
+            columns: ["bill_id"]
+            isOneToOne: false
+            referencedRelation: "purchase_bills"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "purchase_bill_items_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      purchase_bills: {
+        Row: {
+          bill_date: string
+          bill_number: string
+          created_at: string
+          grand_total: number
+          id: string
+          notes: string | null
+          profile_id: string
+          received_date: string | null
+          status: string
+          subtotal: number
+          supplier_address: string | null
+          supplier_gstin: string | null
+          supplier_name: string
+          total_tax: number
+          updated_at: string
+        }
+        Insert: {
+          bill_date?: string
+          bill_number: string
+          created_at?: string
+          grand_total?: number
+          id?: string
+          notes?: string | null
+          profile_id: string
+          received_date?: string | null
+          status?: string
+          subtotal?: number
+          supplier_address?: string | null
+          supplier_gstin?: string | null
+          supplier_name: string
+          total_tax?: number
+          updated_at?: string
+        }
+        Update: {
+          bill_date?: string
+          bill_number?: string
+          created_at?: string
+          grand_total?: number
+          id?: string
+          notes?: string | null
+          profile_id?: string
+          received_date?: string | null
+          status?: string
+          subtotal?: number
+          supplier_address?: string | null
+          supplier_gstin?: string | null
+          supplier_name?: string
+          total_tax?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "purchase_bills_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       purchase_orders: {
         Row: {
@@ -982,6 +1174,7 @@ export type Database = {
     }
     Functions: {
       finalize_invoice: { Args: { p_invoice_id: string }; Returns: boolean }
+      finalize_purchase_bill: { Args: { p_bill_id: string }; Returns: boolean }
       generate_invoice_number: {
         Args: { p_profile_id: string }
         Returns: string

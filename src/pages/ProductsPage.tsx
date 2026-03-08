@@ -1,4 +1,5 @@
 import { useState, useRef, useMemo } from 'react';
+import { BarcodeScanButton } from '@/components/scanner/BarcodeScanner';
 import {
   Plus,
   Search,
@@ -76,11 +77,13 @@ export default function ProductsPage() {
     low_stock_limit: '10',
     useCustomGst: false,
     tax_rate: '18',
+    barcode: '',
   });
 
   const filteredProducts = products.filter((product) =>
     product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    product.sku.toLowerCase().includes(searchQuery.toLowerCase())
+    product.sku.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    ((product as any).barcode || '').toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   // Page shortcuts: / → focus search, A → add product
@@ -115,6 +118,7 @@ export default function ProductsPage() {
           low_stock_limit: '10',
           useCustomGst: false,
           tax_rate: '18',
+          barcode: '',
         });
       },
     });
@@ -218,6 +222,15 @@ export default function ProductsPage() {
                   />
                 </div>
               </div>
+              <div className="grid gap-2">
+                <Label htmlFor="barcode">Barcode / EAN</Label>
+                <Input 
+                  id="barcode" 
+                  placeholder="Scan or type barcode"
+                  value={formData.barcode}
+                  onChange={(e) => setFormData(prev => ({ ...prev, barcode: e.target.value }))}
+                />
+              </div>
               <div className="flex items-center justify-between p-3 rounded-lg border border-border bg-muted/30">
                 <div>
                   <Label htmlFor="customGst" className="text-sm font-medium cursor-pointer">Custom GST Rate</Label>
@@ -308,6 +321,7 @@ export default function ProductsPage() {
           />
           <kbd className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none hidden sm:inline-flex h-5 min-w-[20px] items-center justify-center rounded border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground">/</kbd>
         </div>
+        <BarcodeScanButton onScan={(code) => setSearchQuery(code)} />
       </div>
 
       {/* Products Grid */}
