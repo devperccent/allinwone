@@ -501,7 +501,6 @@ export default function BulkImportExportPage() {
   return (
     <div className="space-y-4 animate-fade-in">
       <h1 className="text-xl font-bold">Data Manager</h1>
-      </div>
 
       <Tabs defaultValue="import-excel" className="space-y-6">
         <TabsList className="bg-muted/50 w-full flex-wrap h-auto gap-1 p-1">
