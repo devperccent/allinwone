@@ -428,23 +428,21 @@ export default function InvoiceEditor() {
             <ResizableHandle withHandle />
             <ResizablePanel defaultSize={40} minSize={25}>
               <div className="h-full overflow-y-auto pl-4">
-                <div className="rounded-xl border border-border bg-muted/30 p-4 h-full overflow-hidden">
-                  <div className="origin-top-left w-full" style={{ transform: 'scale(1)', maxWidth: '100%' }}>
-                    <InvoicePdfPreview
-                      invoiceNumber={invoiceNumber || 'DRAFT'}
-                      dateIssued={dateIssued}
-                      dateDue={dateDue}
-                      client={selectedClient}
-                      items={items}
-                      calculations={calculations}
-                      profileStateCode={profileStateCode}
-                      notes={notes}
-                      profile={profile}
-                      status={currentInvoice?.status || 'draft'}
-                      showPaymentInfo={showPaymentInfo}
-                      template={template}
-                    />
-                  </div>
+                <div className="rounded-xl border border-border bg-muted/30 p-3 h-full overflow-hidden">
+                  <InvoicePdfPreview
+                    invoiceNumber={invoiceNumber || 'DRAFT'}
+                    dateIssued={dateIssued}
+                    dateDue={dateDue}
+                    client={selectedClient}
+                    items={items}
+                    calculations={calculations}
+                    profileStateCode={profileStateCode}
+                    notes={notes}
+                    profile={profile}
+                    status={currentInvoice?.status || 'draft'}
+                    showPaymentInfo={showPaymentInfo}
+                    template={template}
+                  />
                 </div>
               </div>
             </ResizablePanel>
