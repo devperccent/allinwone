@@ -1147,6 +1147,85 @@ export type Database = {
           },
         ]
       }
+      tds_entries: {
+        Row: {
+          certificate_number: string | null
+          client_id: string | null
+          created_at: string
+          date_deducted: string
+          financial_year: string
+          gross_amount: number
+          id: string
+          invoice_id: string | null
+          notes: string | null
+          profile_id: string
+          quarter: string
+          status: string
+          tds_amount: number
+          tds_rate: number
+          tds_section: string
+          updated_at: string
+        }
+        Insert: {
+          certificate_number?: string | null
+          client_id?: string | null
+          created_at?: string
+          date_deducted?: string
+          financial_year: string
+          gross_amount?: number
+          id?: string
+          invoice_id?: string | null
+          notes?: string | null
+          profile_id: string
+          quarter: string
+          status?: string
+          tds_amount?: number
+          tds_rate?: number
+          tds_section?: string
+          updated_at?: string
+        }
+        Update: {
+          certificate_number?: string | null
+          client_id?: string | null
+          created_at?: string
+          date_deducted?: string
+          financial_year?: string
+          gross_amount?: number
+          id?: string
+          invoice_id?: string | null
+          notes?: string | null
+          profile_id?: string
+          quarter?: string
+          status?: string
+          tds_amount?: number
+          tds_rate?: number
+          tds_section?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tds_entries_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tds_entries_invoice_id_fkey"
+            columns: ["invoice_id"]
+            isOneToOne: false
+            referencedRelation: "invoices"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tds_entries_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           created_at: string
