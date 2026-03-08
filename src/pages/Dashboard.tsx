@@ -28,6 +28,9 @@ import { Skeleton } from '@/components/ui/skeleton';
 export default function Dashboard() {
   const { invoices, totalRevenue, pendingAmount, isLoading: invoicesLoading } = useInvoices();
   const { products, lowStockProducts, isLoading: productsLoading } = useProducts();
+  const { quotations, isLoading: quotationsLoading } = useQuotations();
+  const { challans, isLoading: challansLoading } = useDeliveryChallans();
+  const { purchaseOrders, isLoading: posLoading } = usePurchaseOrders();
 
   const isLoading = invoicesLoading || productsLoading;
 
