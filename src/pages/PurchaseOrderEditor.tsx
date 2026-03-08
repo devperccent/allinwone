@@ -177,8 +177,8 @@ export default function PurchaseOrderEditor() {
       <div className="flex-1 pt-4 md:pt-6 overflow-y-auto">
         <div className="max-w-4xl mx-auto space-y-6">
           {/* Supplier */}
-          <div className="rounded-xl border border-border bg-card p-5">
-            <h3 className="text-lg font-semibold mb-4">Supplier Details</h3>
+          <div className="rounded-lg border border-border bg-card p-4">
+            <h3 className="text-sm font-semibold mb-3">Supplier Details</h3>
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="sm:col-span-2">
                 <Label htmlFor="po-supplier">Supplier Name *</Label>
