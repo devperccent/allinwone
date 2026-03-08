@@ -11,6 +11,11 @@ import {
   ShieldCheck,
   Keyboard,
   BookOpen,
+  Zap,
+  FileCheck,
+  Truck,
+  ClipboardList,
+  RefreshCw,
 } from 'lucide-react';
 import { useIsAdmin } from '@/hooks/useAdmin';
 import inwLogo from '@/assets/inw-logomark.png';
@@ -29,13 +34,28 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { Separator } from '@/components/ui/separator';
 
-const navigation = [
+const mainNavigation = [
   { name: 'Dashboard', href: '/', icon: LayoutDashboard, shortcut: 'D' },
+  { name: 'Quick Bill', href: '/quick-bill', icon: Zap, shortcut: '' },
   { name: 'Invoices', href: '/invoices', icon: FileText, shortcut: 'I' },
+  { name: 'Quotations', href: '/quotations', icon: FileCheck, shortcut: '' },
+];
+
+const documentNavigation = [
+  { name: 'Challans', href: '/challans', icon: Truck, shortcut: '' },
+  { name: 'Purchase Orders', href: '/purchase-orders', icon: ClipboardList, shortcut: '' },
+  { name: 'Recurring', href: '/recurring', icon: RefreshCw, shortcut: '' },
+];
+
+const managementNavigation = [
   { name: 'Products', href: '/products', icon: Package, shortcut: 'P' },
   { name: 'Clients', href: '/clients', icon: Users, shortcut: 'C' },
   { name: 'Reports', href: '/reports', icon: TrendingUp, shortcut: 'R' },
+];
+
+const bottomNavigation = [
   { name: 'Settings', href: '/settings', icon: Settings, shortcut: 'S' },
   { name: 'Help & Docs', href: '/help', icon: BookOpen, shortcut: '' },
 ];
@@ -67,10 +87,68 @@ export function AppSidebar({ onNavigate }: AppSidebarProps) {
     .slice(0, 2)
     .toUpperCase() || 'IN';
 
-  const allNavItems = [
-    ...navigation,
-    ...(isAdmin ? [{ name: 'Admin', href: '/admin', icon: ShieldCheck, shortcut: '' }] : []),
-  ];
+  const renderNavItem = (item: typeof mainNavigation[0]) => {
+    const isActive = location.pathname === item.href || 
+      (item.href !== '/' && location.pathname.startsWith(item.href));
+    
+    const linkContent = (
+      <Link
+        key={item.name}
+        to={item.href}
+        onClick={onNavigate}
+        className={cn(
+          'flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200',
+          isActive
+            ? 'bg-sidebar-accent text-sidebar-accent-foreground'
+            : 'text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground'
+        )}
+      >
+        <item.icon className={cn('w-5 h-5 flex-shrink-0', isActive && 'text-primary')} />
+        {!isCollapsed && (
+          <>
+            <span className="flex-1">{item.name}</span>
+            {item.shortcut && !isMobile && (
+              <span className="flex items-center gap-0.5">
+                <kbd className="inline-flex h-5 min-w-[20px] items-center justify-center rounded border bg-sidebar-accent/60 px-1 font-mono text-[10px] font-medium text-sidebar-foreground/50">
+                  {modKey}
+                </kbd>
+                <kbd className="inline-flex h-5 min-w-[20px] items-center justify-center rounded border bg-sidebar-accent/60 px-1 font-mono text-[10px] font-medium text-sidebar-foreground/50">
+                  ⇧
+                </kbd>
+                <kbd className="inline-flex h-5 min-w-[20px] items-center justify-center rounded border bg-sidebar-accent/60 px-1 font-mono text-[10px] font-medium text-sidebar-foreground/50">
+                  {item.shortcut}
+                </kbd>
+              </span>
+            )}
+          </>
+        )}
+      </Link>
+    );
+
+    if (isCollapsed) {
+      return (
+        <Tooltip key={item.name}>
+          <TooltipTrigger asChild>
+            {linkContent}
+          </TooltipTrigger>
+          <TooltipContent side="right">
+            <span>{item.name}</span>
+          </TooltipContent>
+        </Tooltip>
+      );
+    }
+
+    return <div key={item.name}>{linkContent}</div>;
+  };
+
+  const renderSectionLabel = (label: string) => {
+    if (isCollapsed) return <Separator className="my-2" />;
+    return (
+      <p className="px-3 pt-3 pb-1 text-[10px] font-semibold uppercase tracking-wider text-sidebar-foreground/40">
+        {label}
+      </p>
+    );
+  };
 
   return (
     <aside
@@ -91,65 +169,20 @@ export function AppSidebar({ onNavigate }: AppSidebarProps) {
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
-        {allNavItems.map((item) => {
-          const isActive = location.pathname === item.href || 
-            (item.href !== '/' && location.pathname.startsWith(item.href));
-          
-          const linkContent = (
-            <Link
-              key={item.name}
-              to={item.href}
-              onClick={onNavigate}
-              className={cn(
-                'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200',
-                isActive
-                  ? 'bg-sidebar-accent text-sidebar-accent-foreground'
-                  : 'text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground'
-              )}
-            >
-              <item.icon className={cn('w-5 h-5 flex-shrink-0', isActive && 'text-primary')} />
-              {!isCollapsed && (
-                <>
-                  <span className="flex-1">{item.name}</span>
-                  {item.shortcut && !isMobile && (
-                    <span className="flex items-center gap-0.5">
-                      <kbd className="inline-flex h-5 min-w-[20px] items-center justify-center rounded border bg-sidebar-accent/60 px-1 font-mono text-[10px] font-medium text-sidebar-foreground/50">
-                        {modKey}
-                      </kbd>
-                      <kbd className="inline-flex h-5 min-w-[20px] items-center justify-center rounded border bg-sidebar-accent/60 px-1 font-mono text-[10px] font-medium text-sidebar-foreground/50">
-                        ⇧
-                      </kbd>
-                      <kbd className="inline-flex h-5 min-w-[20px] items-center justify-center rounded border bg-sidebar-accent/60 px-1 font-mono text-[10px] font-medium text-sidebar-foreground/50">
-                        {item.shortcut}
-                      </kbd>
-                    </span>
-                  )}
-                </>
-              )}
-            </Link>
-          );
+      <nav className="flex-1 px-3 py-2 space-y-0.5 overflow-y-auto">
+        {renderSectionLabel('Billing')}
+        {mainNavigation.map(renderNavItem)}
 
-          if (isCollapsed && item.shortcut) {
-            return (
-              <Tooltip key={item.name}>
-                <TooltipTrigger asChild>
-                  {linkContent}
-                </TooltipTrigger>
-                <TooltipContent side="right" className="flex items-center gap-2">
-                  <span>{item.name}</span>
-                  <span className="flex items-center gap-0.5">
-                    <kbd className="inline-flex h-5 min-w-[20px] items-center justify-center rounded border bg-muted px-1 font-mono text-[10px] font-medium text-muted-foreground">{modKey}</kbd>
-                    <kbd className="inline-flex h-5 min-w-[20px] items-center justify-center rounded border bg-muted px-1 font-mono text-[10px] font-medium text-muted-foreground">⇧</kbd>
-                    <kbd className="inline-flex h-5 min-w-[20px] items-center justify-center rounded border bg-muted px-1 font-mono text-[10px] font-medium text-muted-foreground">{item.shortcut}</kbd>
-                  </span>
-                </TooltipContent>
-              </Tooltip>
-            );
-          }
+        {renderSectionLabel('Documents')}
+        {documentNavigation.map(renderNavItem)}
 
-          return <div key={item.name}>{linkContent}</div>;
-        })}
+        {renderSectionLabel('Manage')}
+        {managementNavigation.map(renderNavItem)}
+
+        {renderSectionLabel('')}
+        {bottomNavigation.map(renderNavItem)}
+
+        {isAdmin && renderNavItem({ name: 'Admin', href: '/admin', icon: ShieldCheck, shortcut: '' })}
       </nav>
 
       {/* Keyboard shortcut hint */}
