@@ -188,14 +188,8 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="space-y-6 animate-fade-in">
-      {/* Header */}
-      <div>
-        <h1 className="text-2xl md:text-3xl font-bold">Settings</h1>
-        <p className="text-muted-foreground mt-1 text-sm md:text-base">
-          Manage your business profile and preferences
-        </p>
-      </div>
+    <div className="space-y-5 animate-fade-in max-w-3xl">
+      <h1 className="text-xl font-bold">Settings</h1>
 
       <Tabs defaultValue="business" className="space-y-6">
         <div className="overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0">
