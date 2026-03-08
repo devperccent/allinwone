@@ -134,7 +134,7 @@ export function useDeliveryChallans() {
       id,
       items,
       ...updates
-    }: Partial<DeliveryChallan> & { id: string; items?: Omit<ChallanItem, 'id' | 'challan_id'>[] }) => {
+    }: Partial<Omit<DeliveryChallan, 'items'>> & { id: string; items?: Omit<ChallanItem, 'id' | 'challan_id'>[] }) => {
       const { data, error } = await supabase
         .from('delivery_challans')
         .update(updates)

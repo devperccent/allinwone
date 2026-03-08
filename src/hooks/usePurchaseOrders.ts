@@ -140,7 +140,7 @@ export function usePurchaseOrders() {
       id,
       items,
       ...updates
-    }: Partial<PurchaseOrder> & { id: string; items?: Omit<POItem, 'id' | 'po_id'>[] }) => {
+    }: Partial<Omit<PurchaseOrder, 'items'>> & { id: string; items?: Omit<POItem, 'id' | 'po_id'>[] }) => {
       const { data, error } = await supabase
         .from('purchase_orders')
         .update(updates)

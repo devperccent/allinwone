@@ -154,7 +154,7 @@ export function useQuotations() {
       id,
       items,
       ...updates
-    }: Partial<Quotation> & { id: string; items?: Omit<QuotationItem, 'id' | 'quotation_id'>[] }) => {
+    }: Partial<Omit<Quotation, 'items'>> & { id: string; items?: Omit<QuotationItem, 'id' | 'quotation_id'>[] }) => {
       const { data, error } = await supabase
         .from('quotations')
         .update(updates)
