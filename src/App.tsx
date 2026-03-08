@@ -68,15 +68,17 @@ const App = () => (
               <Route path="/invoices/:id/edit" element={<InvoiceEditor />} />
               <Route path="/quick-bill" element={<QuickBillPage />} />
               <Route path="/quotations" element={<QuotationsPage />} />
-              <Route path="/quotations/new" element={<QuotationsPage />} />
-              <Route path="/quotations/:id" element={<QuotationsPage />} />
-              <Route path="/quotations/:id/edit" element={<QuotationsPage />} />
+              <Route path="/quotations/new" element={<QuotationEditor />} />
+              <Route path="/quotations/:id" element={<QuotationEditor />} />
+              <Route path="/quotations/:id/edit" element={<QuotationEditor />} />
               <Route path="/challans" element={<DeliveryChallansPage />} />
-              <Route path="/challans/new" element={<DeliveryChallansPage />} />
-              <Route path="/challans/:id" element={<DeliveryChallansPage />} />
+              <Route path="/challans/new" element={<ChallanEditor />} />
+              <Route path="/challans/:id" element={<ChallanEditor />} />
+              <Route path="/challans/:id/edit" element={<ChallanEditor />} />
               <Route path="/purchase-orders" element={<PurchaseOrdersPage />} />
-              <Route path="/purchase-orders/new" element={<PurchaseOrdersPage />} />
-              <Route path="/purchase-orders/:id" element={<PurchaseOrdersPage />} />
+              <Route path="/purchase-orders/new" element={<PurchaseOrderEditor />} />
+              <Route path="/purchase-orders/:id" element={<PurchaseOrderEditor />} />
+              <Route path="/purchase-orders/:id/edit" element={<PurchaseOrderEditor />} />
               <Route path="/recurring" element={<RecurringInvoicesPage />} />
               <Route path="/recurring/new" element={<RecurringInvoicesPage />} />
               <Route path="/recurring/:id" element={<RecurringInvoicesPage />} />
