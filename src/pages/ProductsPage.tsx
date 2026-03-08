@@ -1,5 +1,6 @@
 import { useState, useRef, useMemo } from 'react';
 import { BarcodeScanButton } from '@/components/scanner/BarcodeScanner';
+import { useProductBatches } from '@/hooks/useProductBatches';
 import {
   Plus,
   Search,
@@ -12,6 +13,7 @@ import {
   History,
   ArrowDownRight,
   ArrowUpRight,
+  Calendar,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -336,85 +338,13 @@ export default function ProductsPage() {
           </div>
         ) : (
           filteredProducts.map((product) => (
-            <div
+            <ProductCard
               key={product.id}
-              className={cn(
-                'rounded-xl border bg-card p-5 transition-all hover:shadow-md',
-                isLowStock(product) ? 'border-warning/50' : 'border-border'
-              )}
-            >
-              <div className="flex items-start justify-between">
-                <div>
-                  <div className="flex items-center gap-2">
-                    <h3 className="font-semibold">{product.name}</h3>
-                    {isLowStock(product) && (
-                      <AlertTriangle className="w-4 h-4 text-warning" />
-                    )}
-                  </div>
-                  <p className="text-sm text-muted-foreground">SKU: {product.sku}</p>
-                </div>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon" className="h-8 w-8">
-                      <MoreHorizontal className="w-4 h-4" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    {product.type === 'goods' && (
-                      <DropdownMenuItem onClick={() => {
-                        setSelectedProduct(product);
-                        setStockSheetOpen(true);
-                      }}>
-                        <History className="w-4 h-4 mr-2" />
-                        Stock History
-                      </DropdownMenuItem>
-                    )}
-                    <DropdownMenuItem>
-                      <Pencil className="w-4 h-4 mr-2" />
-                      Edit
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem 
-                      onClick={() => deleteProduct.mutate(product.id)}
-                      className="text-destructive focus:text-destructive"
-                    >
-                      <Trash2 className="w-4 h-4 mr-2" />
-                      Delete
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </div>
-              
-              <div className="mt-4 flex items-center gap-2">
-                <Badge variant="secondary" className="text-xs">
-                  {product.type === 'goods' ? 'Goods' : 'Service'}
-                </Badge>
-                {product.hsn_code && (
-                  <Badge variant="outline" className="text-xs">
-                    HSN: {product.hsn_code}
-                  </Badge>
-                )}
-              </div>
-              
-              <div className="mt-4 flex items-end justify-between">
-                <div>
-                  <p className="text-2xl font-bold">{formatINR(Number(product.selling_price))}</p>
-                </div>
-                {product.type === 'goods' && (
-                  <div className="text-right">
-                    <p className={cn(
-                      'text-sm font-medium',
-                      isLowStock(product) ? 'text-warning' : 'text-muted-foreground'
-                    )}>
-                      {product.stock_quantity} in stock
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      Min: {product.low_stock_limit}
-                    </p>
-                  </div>
-                )}
-              </div>
-            </div>
+              product={product}
+              isLowStock={isLowStock(product)}
+              onStockHistory={() => { setSelectedProduct(product); setStockSheetOpen(true); }}
+              onDelete={() => deleteProduct.mutate(product.id)}
+            />
           ))
         )}
       </div>
@@ -429,6 +359,98 @@ export default function ProductsPage() {
   );
 }
 
+function ProductCard({
+  product,
+  isLowStock: lowStock,
+  onStockHistory,
+  onDelete,
+}: {
+  product: Product;
+  isLowStock: boolean;
+  onStockHistory: () => void;
+  onDelete: () => void;
+}) {
+  const { batches } = useProductBatches(product.type === 'goods' ? product.id : undefined);
+
+  const nearestExpiry = batches.find(b => b.expiry_date && new Date(b.expiry_date) > new Date());
+  const expiredCount = batches.filter(b => b.expiry_date && new Date(b.expiry_date) <= new Date()).length;
+
+  return (
+    <div
+      className={cn(
+        'rounded-xl border bg-card p-5 transition-all hover:shadow-md',
+        lowStock ? 'border-warning/50' : 'border-border'
+      )}
+    >
+      <div className="flex items-start justify-between">
+        <div>
+          <div className="flex items-center gap-2">
+            <h3 className="font-semibold">{product.name}</h3>
+            {lowStock && <AlertTriangle className="w-4 h-4 text-warning" />}
+          </div>
+          <p className="text-sm text-muted-foreground">SKU: {product.sku}</p>
+          {(product as any).barcode && (
+            <p className="text-xs text-muted-foreground">Barcode: {(product as any).barcode}</p>
+          )}
+        </div>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="icon" className="h-8 w-8"><MoreHorizontal className="w-4 h-4" /></Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            {product.type === 'goods' && (
+              <DropdownMenuItem onClick={onStockHistory}>
+                <History className="w-4 h-4 mr-2" />Stock History
+              </DropdownMenuItem>
+            )}
+            <DropdownMenuItem><Pencil className="w-4 h-4 mr-2" />Edit</DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={onDelete} className="text-destructive focus:text-destructive">
+              <Trash2 className="w-4 h-4 mr-2" />Delete
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
+
+      <div className="mt-4 flex items-center gap-2 flex-wrap">
+        <Badge variant="secondary" className="text-xs">{product.type === 'goods' ? 'Goods' : 'Service'}</Badge>
+        {product.hsn_code && <Badge variant="outline" className="text-xs">HSN: {product.hsn_code}</Badge>}
+        {batches.length > 0 && (
+          <Badge variant="outline" className="text-xs">{batches.length} batch{batches.length > 1 ? 'es' : ''}</Badge>
+        )}
+        {expiredCount > 0 && (
+          <Badge className="text-xs bg-destructive text-destructive-foreground">{expiredCount} expired</Badge>
+        )}
+      </div>
+
+      <div className="mt-4 flex items-end justify-between">
+        <div>
+          <p className="text-2xl font-bold">{formatINR(Number(product.selling_price))}</p>
+        </div>
+        {product.type === 'goods' && (
+          <div className="text-right">
+            <p className={cn('text-sm font-medium', lowStock ? 'text-warning' : 'text-muted-foreground')}>
+              {product.stock_quantity} in stock
+            </p>
+            <p className="text-xs text-muted-foreground">Min: {product.low_stock_limit}</p>
+          </div>
+        )}
+      </div>
+
+      {/* Nearest expiry indicator */}
+      {nearestExpiry && nearestExpiry.expiry_date && (
+        <div className="mt-3 flex items-center gap-1.5 text-xs text-muted-foreground border-t border-border pt-3">
+          <Calendar className="w-3 h-3" />
+          <span>
+            Next expiry: <span className="font-medium">{format(new Date(nearestExpiry.expiry_date), 'dd MMM yyyy')}</span>
+            {' '}({nearestExpiry.batch_number}, qty: {nearestExpiry.quantity})
+          </span>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function StockHistorySheet({
   product,
   open,
@@ -439,10 +461,11 @@ function StockHistorySheet({
   onOpenChange: (open: boolean) => void;
 }) {
   const { logs, isLoading } = useInventoryLogs(product?.id);
+  const { batches, isLoading: batchesLoading } = useProductBatches(product?.id);
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent className="sm:max-w-md">
+      <SheetContent className="sm:max-w-md overflow-y-auto">
         <SheetHeader>
           <SheetTitle className="flex items-center gap-2">
             <History className="w-5 h-5" />
@@ -453,7 +476,56 @@ function StockHistorySheet({
           </SheetDescription>
         </SheetHeader>
 
+        {/* Batches Section */}
+        {batches.length > 0 && (
+          <div className="mt-6">
+            <h4 className="text-sm font-semibold mb-2 flex items-center gap-1.5">
+              <Calendar className="w-4 h-4" />
+              Batch & Expiry Tracking
+            </h4>
+            <div className="space-y-2">
+              {batches.map((batch) => {
+                const isExpired = batch.expiry_date && new Date(batch.expiry_date) <= new Date();
+                const daysLeft = batch.expiry_date
+                  ? Math.ceil((new Date(batch.expiry_date).getTime() - Date.now()) / (1000 * 60 * 60 * 24))
+                  : null;
+                return (
+                  <div key={batch.id} className="flex items-center justify-between p-2.5 rounded-lg border border-border bg-muted/30">
+                    <div>
+                      <p className="text-sm font-medium">{batch.batch_number}</p>
+                      <p className="text-xs text-muted-foreground">Qty: {batch.quantity}</p>
+                    </div>
+                    <div className="text-right">
+                      {batch.expiry_date ? (
+                        <>
+                          <Badge className={cn(
+                            'text-xs',
+                            isExpired
+                              ? 'bg-destructive text-destructive-foreground'
+                              : daysLeft !== null && daysLeft <= 30
+                                ? 'bg-warning/20 text-warning'
+                                : 'bg-muted text-muted-foreground'
+                          )}>
+                            {isExpired ? 'EXPIRED' : `${daysLeft}d left`}
+                          </Badge>
+                          <p className="text-xs text-muted-foreground mt-0.5">
+                            {format(new Date(batch.expiry_date), 'dd MMM yyyy')}
+                          </p>
+                        </>
+                      ) : (
+                        <span className="text-xs text-muted-foreground">No expiry</span>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* Stock Logs */}
         <div className="mt-6 space-y-3">
+          <h4 className="text-sm font-semibold">Movement History</h4>
           {isLoading ? (
             [...Array(4)].map((_, i) => (
               <Skeleton key={i} className="h-14 w-full" />
@@ -465,23 +537,16 @@ function StockHistorySheet({
             </div>
           ) : (
             logs.map((log) => (
-              <div
-                key={log.id}
-                className="flex items-center gap-3 p-3 rounded-lg border border-border bg-card"
-              >
+              <div key={log.id} className="flex items-center gap-3 p-3 rounded-lg border border-border bg-card">
                 <div className={cn(
                   'p-2 rounded-full',
                   log.change_amount < 0 ? 'bg-destructive/10 text-destructive' : 'bg-success/10 text-success'
                 )}>
-                  {log.change_amount < 0 ? (
-                    <ArrowDownRight className="w-4 h-4" />
-                  ) : (
-                    <ArrowUpRight className="w-4 h-4" />
-                  )}
+                  {log.change_amount < 0 ? <ArrowDownRight className="w-4 h-4" /> : <ArrowUpRight className="w-4 h-4" />}
                 </div>
                 <div className="flex-1">
                   <p className="text-sm font-medium">
-                    {log.reason === 'invoice_deduction' ? 'Invoice Deduction' : log.reason}
+                    {log.reason === 'invoice_deduction' ? 'Invoice Deduction' : log.reason === 'purchase_inward' ? 'Purchase Inward' : log.reason}
                   </p>
                   <p className="text-xs text-muted-foreground">
                     {format(new Date(log.created_at), 'dd MMM yyyy, hh:mm a')}
