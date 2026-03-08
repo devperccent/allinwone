@@ -275,6 +275,7 @@ const SECTIONS: DocSection[] = [
     icon: TrendingUp,
     title: 'Reports & Analytics',
     description: 'GST summaries, revenue charts, and data exports',
+    module: 'reports',
     articles: [
       {
         id: 'rep-gst',
