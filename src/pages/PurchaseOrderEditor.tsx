@@ -226,8 +226,8 @@ export default function PurchaseOrderEditor() {
                 const itemAmount = item.qty * item.rate * (1 + item.tax_rate / 100);
                 return (
                   <div key={item.id} className="p-3 rounded-lg border bg-card">
-                    <div className="grid grid-cols-1 sm:grid-cols-12 gap-3 items-center">
-                      <div className="sm:col-span-4">
+                     <div className="grid grid-cols-2 sm:grid-cols-12 gap-3 items-center">
+                       <div className="col-span-2 sm:col-span-4">
                         <Popover>
                           <PopoverTrigger asChild>
                             <Button variant="outline" className="w-full justify-between font-normal text-sm">
