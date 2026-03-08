@@ -47,7 +47,7 @@ const statusConfig: Record<string, { label: string; className: string }> = {
 export default function QuotationsPage() {
   const navigate = useNavigate();
   const searchRef = useRef<HTMLInputElement>(null);
-  const { quotations, isLoading, convertToInvoice, deleteQuotation, isConverting } = useQuotations();
+  const { quotations, isLoading, convertToInvoice, deleteQuotation, updateQuotation, isConverting } = useQuotations();
 
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
