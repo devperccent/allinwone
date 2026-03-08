@@ -427,7 +427,8 @@ export default function QuickBillPage() {
             )}
           </Button>
         </CardContent>
-      </Card>
+        </Card>
+      </div>
     </div>
   );
 }
