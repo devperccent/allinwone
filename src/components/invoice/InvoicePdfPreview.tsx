@@ -213,8 +213,8 @@ export function InvoicePdfPreview({
       </div>
 
       {/* ═══ ITEMS TABLE ═══ */}
-      <div className="px-6 pb-3 overflow-x-auto">
-        <table className="w-full border-collapse min-w-[400px]">
+      <div className="px-4 pb-2 overflow-x-auto">
+        <table className="w-full border-collapse" style={{ minWidth: '280px' }}>
           <thead>
             <tr style={{
               backgroundColor: p.tableStyle === 'minimal' ? 'transparent' : p.tableHeaderBg,
