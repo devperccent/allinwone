@@ -6,6 +6,7 @@ import { PurchaseOrderPdfDocument } from '@/components/pdf/PurchaseOrderPdfDocum
 import type { Invoice, InvoiceItem, Client, Profile } from '@/types';
 import type { DeliveryChallan, ChallanItem } from '@/hooks/useDeliveryChallans';
 import type { PurchaseOrder, POItem } from '@/hooks/usePurchaseOrders';
+import type { InvoiceTemplate } from '@/components/invoice/invoiceTemplates';
 import QRCode from 'qrcode';
 
 interface UsePdfDownloadOptions {
@@ -14,6 +15,7 @@ interface UsePdfDownloadOptions {
   client: Client | null;
   profile: Profile;
   showPaymentInfo?: boolean;
+  template?: InvoiceTemplate;
 }
 
 interface ChallanPdfOptions {
