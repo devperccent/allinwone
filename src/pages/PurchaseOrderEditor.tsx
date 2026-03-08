@@ -307,7 +307,7 @@ export default function PurchaseOrderEditor() {
           </div>
 
           {/* Notes */}
-          <div className="rounded-xl border border-border bg-card p-5">
+          <div className="rounded-lg border border-border bg-card p-4">
             <Label htmlFor="po-notes">Notes</Label>
             <Textarea id="po-notes" value={notes} onChange={e => setNotes(e.target.value)} placeholder="Payment terms, special instructions..." className="mt-1.5" rows={3} />
           </div>

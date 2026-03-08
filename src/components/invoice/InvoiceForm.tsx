@@ -283,7 +283,7 @@ export function InvoiceForm({
       )}
 
       {/* Payment Info Toggle */}
-      <div className="rounded-xl border border-border bg-card p-5 flex items-center justify-between">
+      <div className="rounded-lg border border-border bg-card p-4 flex items-center justify-between">
         <div>
           <Label htmlFor={paymentToggleId} className="text-sm font-semibold">Show Payment Info</Label>
           <p className="text-xs text-muted-foreground mt-0.5">Include bank details & UPI QR on the invoice</p>
