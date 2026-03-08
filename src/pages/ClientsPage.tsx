@@ -233,18 +233,18 @@ export default function ClientsPage() {
 
       {/* Summary Card */}
       {totalCreditBalance > 0 && (
-        <div className="rounded-xl border border-warning/30 bg-warning/5 p-4">
-          <div className="flex items-center justify-between">
+      <div className="rounded-xl border border-warning/30 bg-warning/5 p-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-warning/10">
+              <div className="p-2 rounded-lg bg-warning/10 shrink-0">
                 <IndianRupee className="w-5 h-5 text-warning" />
               </div>
               <div>
-                <p className="text-sm text-muted-foreground">Total Outstanding Credit (Udhaar)</p>
-                <p className="text-2xl font-bold text-warning">{formatINR(totalCreditBalance)}</p>
+                <p className="text-xs sm:text-sm text-muted-foreground">Total Outstanding Credit (Udhaar)</p>
+                <p className="text-xl sm:text-2xl font-bold text-warning">{formatINR(totalCreditBalance)}</p>
               </div>
             </div>
-            <Badge variant="outline" className="border-warning text-warning">
+            <Badge variant="outline" className="border-warning text-warning self-start sm:self-center whitespace-nowrap">
               {clients.filter(c => Number(c.credit_balance) > 0).length} clients with pending
             </Badge>
           </div>

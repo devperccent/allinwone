@@ -105,25 +105,25 @@ export default function Dashboard() {
 
       {/* Tabbed content area */}
       <Tabs defaultValue="overview" className="space-y-4">
-        <TabsList className="bg-muted/50">
-          <TabsTrigger value="overview" className="gap-1.5">
+        <TabsList className="bg-muted/50 w-full sm:w-auto overflow-x-auto flex-nowrap justify-start">
+          <TabsTrigger value="overview" className="gap-1.5 shrink-0">
             <TrendingUp className="w-4 h-4" />
-            Overview
+            <span className="hidden sm:inline">Overview</span>
           </TabsTrigger>
           {hasDocModules && (
-            <TabsTrigger value="documents" className="gap-1.5">
+            <TabsTrigger value="documents" className="gap-1.5 shrink-0">
               <FileText className="w-4 h-4" />
-              Documents
+              <span className="hidden sm:inline">Documents</span>
             </TabsTrigger>
           )}
-          <TabsTrigger value="activity" className="gap-1.5">
+          <TabsTrigger value="activity" className="gap-1.5 shrink-0">
             <Activity className="w-4 h-4" />
-            Activity
+            <span className="hidden sm:inline">Activity</span>
           </TabsTrigger>
           {lowStockProducts.length > 0 && (
-            <TabsTrigger value="alerts" className="gap-1.5">
+            <TabsTrigger value="alerts" className="gap-1.5 shrink-0">
               <AlertTriangle className="w-4 h-4" />
-              Alerts
+              <span className="hidden sm:inline">Alerts</span>
               <span className="ml-1 text-xs bg-destructive text-destructive-foreground rounded-full px-1.5 py-0.5">
                 {lowStockProducts.length}
               </span>
