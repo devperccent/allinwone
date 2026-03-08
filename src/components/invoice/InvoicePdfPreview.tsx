@@ -2,6 +2,8 @@ import { useMemo, useEffect, useState } from 'react';
 import { formatINR, numberToWords } from '@/hooks/useInvoiceCalculations';
 import { INDIAN_STATES } from '@/types';
 import type { Client, Profile, InvoiceItemFormData, InvoiceCalculation } from '@/types';
+import type { InvoiceTemplate } from './invoiceTemplates';
+import { TEMPLATE_PALETTES } from './invoiceTemplates';
 import QRCode from 'qrcode';
 
 interface InvoicePdfPreviewProps {
@@ -16,12 +18,9 @@ interface InvoicePdfPreviewProps {
   profile?: Profile | null;
   status?: string;
   showPaymentInfo?: boolean;
+  template?: InvoiceTemplate;
 }
 
-const TEAL = '#03556E';
-const TEAL_DARK = '#024558';
-const TEAL_LIGHT = '#E8F4F8';
-const TEAL_LIGHTER = '#F5FAFB';
 const GRAY_900 = '#111827';
 const GRAY_700 = '#374151';
 const GRAY_500 = '#6b7280';
@@ -60,8 +59,10 @@ export function InvoicePdfPreview({
   profile,
   status = 'draft',
   showPaymentInfo = true,
+  template = 'modern',
 }: InvoicePdfPreviewProps) {
   const [qrCodeUrl, setQrCodeUrl] = useState<string>('');
+  const p = TEMPLATE_PALETTES[template];
 
   const orgName = profile?.org_name || 'Your Business Name';
   const orgAddress = profile?.address || '123, Business Park, Mumbai, Maharashtra 400001';
@@ -94,17 +95,22 @@ export function InvoicePdfPreview({
   const totalQty = validItems.reduce((sum, i) => sum + i.qty, 0);
   const statusStyle = getStatusStyle(status);
 
+  const fontFamily = p.fontStyle === 'serif' ? "'Georgia', 'Times New Roman', serif" : p.fontStyle === 'clean' ? "'Inter', 'Helvetica', sans-serif" : "'Plus Jakarta Sans', sans-serif";
+
   return (
-    <div className="bg-white text-gray-800 rounded-lg shadow-lg overflow-hidden select-none" style={{ fontSize: '10px', colorScheme: 'light' }}>
+    <div className="bg-white text-gray-800 rounded-lg shadow-lg overflow-hidden select-none" style={{ fontSize: '10px', colorScheme: 'light', fontFamily }}>
       {/* ═══ ACCENT BAR ═══ */}
-      <div className="h-1" style={{ backgroundColor: TEAL }} />
+      {p.showAccentBar && <div className="h-1" style={{ backgroundColor: p.accent }} />}
+      {!p.showAccentBar && template === 'classic' && (
+        <div className="h-0.5" style={{ backgroundColor: p.accent }} />
+      )}
 
       {/* ═══ HEADER ═══ */}
       <div className="px-6 pt-5 pb-4">
         <div className="flex justify-between items-start">
           <div className="flex-1">
             {profile?.logo_url && (
-              <img src={profile.logo_url} alt="Logo" className="h-10 w-10 object-contain mb-2 rounded" />
+              <img src={profile.logo_url} alt="Logo" className="h-10 w-10 object-contain mb-2" style={{ borderRadius: p.borderRadius }} />
             )}
             <h1 className="text-lg font-bold leading-tight" style={{ color: GRAY_900 }}>{orgName}</h1>
             {orgAddress && <p className="text-[8px] mt-1 leading-snug" style={{ color: GRAY_500 }}>{orgAddress}</p>}
@@ -114,12 +120,28 @@ export function InvoicePdfPreview({
             {orgEmail && <p className="text-[8px]" style={{ color: GRAY_500 }}>Email: {orgEmail}</p>}
           </div>
           <div className="text-right flex flex-col items-end">
-            <p className="text-[7px] uppercase tracking-[2px] mb-0.5" style={{ color: GRAY_400 }}>Invoice</p>
-            <h2 className="text-xl font-bold tracking-wide" style={{ color: TEAL }}>TAX INVOICE</h2>
-            <p className="text-[10px] font-semibold mt-1" style={{ color: GRAY_500 }}>{invoiceNumber || '—'}</p>
+            {template === 'minimal' ? (
+              <>
+                <h2 className="text-xl font-light uppercase tracking-[4px]" style={{ color: GRAY_900 }}>Invoice</h2>
+                <p className="text-[10px] font-medium mt-1.5" style={{ color: GRAY_500 }}>{invoiceNumber || '—'}</p>
+              </>
+            ) : template === 'classic' ? (
+              <>
+                <h2 className="text-xl font-bold uppercase tracking-[2px]" style={{ color: p.accent }}>Tax Invoice</h2>
+                <div className="mt-1 px-2 py-0.5" style={{ borderBottom: `2px solid ${p.accent}` }}>
+                  <p className="text-[10px] font-semibold" style={{ color: p.accent }}>{invoiceNumber || '—'}</p>
+                </div>
+              </>
+            ) : (
+              <>
+                <p className="text-[7px] uppercase tracking-[2px] mb-0.5" style={{ color: GRAY_400 }}>Invoice</p>
+                <h2 className="text-xl font-bold tracking-wide" style={{ color: p.accent }}>TAX INVOICE</h2>
+                <p className="text-[10px] font-semibold mt-1" style={{ color: GRAY_500 }}>{invoiceNumber || '—'}</p>
+              </>
+            )}
             <span
-              className="mt-2 inline-block px-2.5 py-0.5 rounded-full text-[7.5px] font-bold uppercase tracking-wider"
-              style={{ backgroundColor: statusStyle.bg, color: statusStyle.color }}
+              className="mt-2 inline-block px-2.5 py-0.5 text-[7.5px] font-bold uppercase tracking-wider"
+              style={{ backgroundColor: statusStyle.bg, color: statusStyle.color, borderRadius: template === 'modern' ? '9999px' : template === 'classic' ? '0' : '2px' }}
             >
               {status.toUpperCase()}
             </span>
@@ -128,32 +150,45 @@ export function InvoicePdfPreview({
       </div>
 
       {/* ═══ META STRIP ═══ */}
-      <div className="grid grid-cols-4 divide-x" style={{ backgroundColor: GRAY_100, borderTop: `0.5px solid ${GRAY_200}`, borderBottom: `0.5px solid ${GRAY_200}` }}>
-        <div className="py-2 text-center">
-          <p className="text-[6.5px] uppercase tracking-wider mb-0.5" style={{ color: GRAY_400 }}>Date Issued</p>
-          <p className="text-[8.5px] font-bold" style={{ color: GRAY_900 }}>{formatDate(dateIssued)}</p>
+      {template === 'minimal' ? (
+        <div className="mx-6 mb-3 grid grid-cols-4 gap-3 py-2" style={{ borderTop: `1px solid ${GRAY_200}`, borderBottom: `1px solid ${GRAY_200}` }}>
+          {[
+            { label: 'Date Issued', value: formatDate(dateIssued) },
+            { label: 'Due Date', value: dateDue ? formatDate(dateDue) : '—' },
+            { label: 'Place of Supply', value: client ? INDIAN_STATES[client.state_code] : INDIAN_STATES[profileStateCode] },
+            { label: 'Supply Type', value: isIntraState ? 'Intra-State' : 'Inter-State' },
+          ].map(m => (
+            <div key={m.label}>
+              <p className="text-[6.5px] uppercase tracking-wider mb-0.5" style={{ color: GRAY_400 }}>{m.label}</p>
+              <p className="text-[8.5px] font-medium" style={{ color: GRAY_900 }}>{m.value}</p>
+            </div>
+          ))}
         </div>
-        <div className="py-2 text-center">
-          <p className="text-[6.5px] uppercase tracking-wider mb-0.5" style={{ color: GRAY_400 }}>Due Date</p>
-          <p className="text-[8.5px] font-bold" style={{ color: GRAY_900 }}>{dateDue ? formatDate(dateDue) : '—'}</p>
+      ) : (
+        <div className="grid grid-cols-4 divide-x" style={{ backgroundColor: template === 'classic' ? p.accentLight : GRAY_100, borderTop: `0.5px solid ${GRAY_200}`, borderBottom: `0.5px solid ${GRAY_200}` }}>
+          {[
+            { label: 'Date Issued', value: formatDate(dateIssued) },
+            { label: 'Due Date', value: dateDue ? formatDate(dateDue) : '—' },
+            { label: 'Place of Supply', value: client ? INDIAN_STATES[client.state_code] : INDIAN_STATES[profileStateCode] },
+            { label: 'Supply Type', value: isIntraState ? 'Intra-State' : 'Inter-State' },
+          ].map(m => (
+            <div key={m.label} className="py-2 text-center">
+              <p className="text-[6.5px] uppercase tracking-wider mb-0.5" style={{ color: GRAY_400 }}>{m.label}</p>
+              <p className="text-[8.5px] font-bold" style={{ color: GRAY_900 }}>{m.value}</p>
+            </div>
+          ))}
         </div>
-        <div className="py-2 text-center">
-          <p className="text-[6.5px] uppercase tracking-wider mb-0.5" style={{ color: GRAY_400 }}>Place of Supply</p>
-          <p className="text-[8.5px] font-bold" style={{ color: GRAY_900 }}>
-            {client ? INDIAN_STATES[client.state_code] : INDIAN_STATES[profileStateCode]}
-          </p>
-        </div>
-        <div className="py-2 text-center">
-          <p className="text-[6.5px] uppercase tracking-wider mb-0.5" style={{ color: GRAY_400 }}>Supply Type</p>
-          <p className="text-[8.5px] font-bold" style={{ color: GRAY_900 }}>{isIntraState ? 'Intra-State' : 'Inter-State'}</p>
-        </div>
-      </div>
+      )}
 
       {/* ═══ BILL TO & FROM ═══ */}
       <div className="px-6 pt-4 pb-3">
         <div className="grid grid-cols-2 gap-3">
-          <div className="p-3 rounded-md" style={{ border: `1px solid ${GRAY_200}`, borderLeft: `3px solid ${TEAL}` }}>
-            <h4 className="text-[7px] font-bold uppercase tracking-[1.5px] mb-2" style={{ color: TEAL }}>Bill To</h4>
+          <div className="p-3" style={{
+            border: `1px solid ${GRAY_200}`,
+            borderLeft: template !== 'minimal' ? `3px solid ${p.accent}` : `1px solid ${GRAY_200}`,
+            borderRadius: p.borderRadius,
+          }}>
+            <h4 className="text-[7px] font-bold uppercase tracking-[1.5px] mb-2" style={{ color: p.accent }}>Bill To</h4>
             {client ? (
               <>
                 <p className="text-[10.5px] font-bold" style={{ color: GRAY_900 }}>{client.name}</p>
@@ -167,8 +202,8 @@ export function InvoicePdfPreview({
               <p className="text-[8px] italic" style={{ color: GRAY_400 }}>Walk-in Customer</p>
             )}
           </div>
-          <div className="p-3 rounded-md" style={{ border: `1px solid ${GRAY_200}` }}>
-            <h4 className="text-[7px] font-bold uppercase tracking-[1.5px] mb-2" style={{ color: TEAL }}>From</h4>
+          <div className="p-3" style={{ border: `1px solid ${GRAY_200}`, borderRadius: p.borderRadius }}>
+            <h4 className="text-[7px] font-bold uppercase tracking-[1.5px] mb-2" style={{ color: p.accent }}>From</h4>
             <p className="text-[10.5px] font-bold" style={{ color: GRAY_900 }}>{orgName}</p>
             {orgAddress && <p className="text-[8px] leading-snug mt-0.5" style={{ color: GRAY_500 }}>{orgAddress}</p>}
             {orgGstin && <p className="text-[8px]" style={{ color: GRAY_500 }}>GSTIN: {orgGstin}</p>}
@@ -181,21 +216,28 @@ export function InvoicePdfPreview({
       <div className="px-6 pb-3">
         <table className="w-full border-collapse">
           <thead>
-            <tr style={{ backgroundColor: TEAL }}>
-              <th className="text-left py-2 px-1.5 text-white text-[7.5px] font-bold uppercase tracking-wider rounded-l">#</th>
-              <th className="text-left py-2 px-1.5 text-white text-[7.5px] font-bold uppercase tracking-wider">Description</th>
-              <th className="text-right py-2 px-1.5 text-white text-[7.5px] font-bold uppercase tracking-wider">Qty</th>
-              <th className="text-right py-2 px-1.5 text-white text-[7.5px] font-bold uppercase tracking-wider">Rate</th>
-              <th className="text-right py-2 px-1.5 text-white text-[7.5px] font-bold uppercase tracking-wider">Disc.</th>
+            <tr style={{
+              backgroundColor: p.tableStyle === 'minimal' ? 'transparent' : p.tableHeaderBg,
+              borderBottom: p.tableStyle === 'minimal' ? `1.5px solid ${GRAY_900}` : 'none',
+            }}>
+              {['#', 'Description', 'Qty', 'Rate', 'Disc.'].map((h, i) => (
+                <th key={h} className={`${i <= 1 ? 'text-left' : 'text-right'} py-2 px-1.5 text-[7.5px] font-bold uppercase tracking-wider`}
+                  style={{
+                    color: p.tableStyle === 'minimal' ? GRAY_900 : p.tableHeaderText,
+                    borderRadius: i === 0 && p.tableStyle === 'filled' ? `${p.borderRadius} 0 0 ${p.borderRadius}` : undefined,
+                  }}>
+                  {h}
+                </th>
+              ))}
               {isIntraState ? (
                 <>
-                  <th className="text-right py-2 px-1.5 text-white text-[7.5px] font-bold uppercase tracking-wider">CGST</th>
-                  <th className="text-right py-2 px-1.5 text-white text-[7.5px] font-bold uppercase tracking-wider">SGST</th>
+                  <th className="text-right py-2 px-1.5 text-[7.5px] font-bold uppercase tracking-wider" style={{ color: p.tableStyle === 'minimal' ? GRAY_900 : p.tableHeaderText }}>CGST</th>
+                  <th className="text-right py-2 px-1.5 text-[7.5px] font-bold uppercase tracking-wider" style={{ color: p.tableStyle === 'minimal' ? GRAY_900 : p.tableHeaderText }}>SGST</th>
                 </>
               ) : (
-                <th className="text-right py-2 px-1.5 text-white text-[7.5px] font-bold uppercase tracking-wider">IGST</th>
+                <th className="text-right py-2 px-1.5 text-[7.5px] font-bold uppercase tracking-wider" style={{ color: p.tableStyle === 'minimal' ? GRAY_900 : p.tableHeaderText }}>IGST</th>
               )}
-              <th className="text-right py-2 px-1.5 text-white text-[7.5px] font-bold uppercase tracking-wider rounded-r">Amount</th>
+              <th className="text-right py-2 px-1.5 text-[7.5px] font-bold uppercase tracking-wider" style={{ color: p.tableStyle === 'minimal' ? GRAY_900 : p.tableHeaderText }}>Amount</th>
             </tr>
           </thead>
           <tbody>
@@ -213,7 +255,10 @@ export function InvoicePdfPreview({
                 const isAlt = index % 2 === 1;
 
                 return (
-                  <tr key={item.id} style={{ borderBottom: `0.5px solid ${GRAY_200}`, backgroundColor: isAlt ? TEAL_LIGHTER : 'transparent' }}>
+                  <tr key={item.id} style={{
+                    borderBottom: `0.5px solid ${GRAY_200}`,
+                    backgroundColor: p.tableStyle === 'filled' && isAlt ? p.tableAltBg : 'transparent',
+                  }}>
                     <td className="py-2 px-1.5 text-[8.5px]" style={{ color: GRAY_400 }}>{index + 1}</td>
                     <td className="py-2 px-1.5">
                       <span className="text-[8.5px] font-semibold" style={{ color: GRAY_900 }}>{item.description}</span>
@@ -254,9 +299,9 @@ export function InvoicePdfPreview({
         </table>
 
         {/* Items summary */}
-        {validItems.length > 0 && (
-          <div className="mt-1 px-2 py-1.5 rounded flex justify-between items-center" style={{ backgroundColor: TEAL_LIGHT }}>
-            <span className="text-[7.5px] font-semibold" style={{ color: TEAL }}>
+        {validItems.length > 0 && template !== 'minimal' && (
+          <div className="mt-1 px-2 py-1.5 flex justify-between items-center" style={{ backgroundColor: p.accentLight, borderRadius: p.borderRadius }}>
+            <span className="text-[7.5px] font-semibold" style={{ color: p.accent }}>
               {validItems.length} item{validItems.length !== 1 ? 's' : ''} · {totalQty} unit{totalQty !== 1 ? 's' : ''}
             </span>
             <span className="text-[7.5px]" style={{ color: GRAY_500 }}>
@@ -272,12 +317,12 @@ export function InvoicePdfPreview({
           <div className="flex-1">
             {calculations.grandTotal > 0 && (
               <div>
-                <h4 className="text-[7px] font-bold uppercase tracking-[1.2px] mb-1" style={{ color: TEAL }}>Amount in Words</h4>
+                <h4 className="text-[7px] font-bold uppercase tracking-[1.2px] mb-1" style={{ color: p.accent }}>Amount in Words</h4>
                 <p className="text-[9.5px] italic leading-relaxed" style={{ color: GRAY_700 }}>{numberToWords(calculations.grandTotal)}</p>
               </div>
             )}
           </div>
-          <div className="w-52 p-3 rounded-md" style={{ border: `1px solid ${GRAY_200}` }}>
+          <div className="w-52 p-3" style={{ border: `1px solid ${GRAY_200}`, borderRadius: p.borderRadius }}>
             <div className="flex justify-between py-0.5">
               <span className="text-[8.5px]" style={{ color: GRAY_500 }}>Subtotal</span>
               <span className="text-[8.5px] font-semibold tabular-nums">{formatINR(calculations.subtotal)}</span>
@@ -305,9 +350,9 @@ export function InvoicePdfPreview({
                 <span className="text-[8.5px] font-semibold tabular-nums">{formatINR(calculations.gstBreakdown.igst)}</span>
               </div>
             )}
-            <div className="flex justify-between pt-2 mt-2" style={{ borderTop: `2px solid ${TEAL}` }}>
+            <div className="flex justify-between pt-2 mt-2" style={{ borderTop: `2px solid ${p.accent}` }}>
               <span className="text-[11px] font-bold" style={{ color: GRAY_900 }}>Grand Total</span>
-              <span className="text-[14px] font-bold tabular-nums" style={{ color: TEAL }}>
+              <span className="text-[14px] font-bold tabular-nums" style={{ color: p.accent }}>
                 {formatINR(calculations.grandTotal)}
               </span>
             </div>
@@ -318,7 +363,7 @@ export function InvoicePdfPreview({
       {/* ═══ NOTES ═══ */}
       {notes && (
         <div className="px-6 pb-3">
-          <h4 className="text-[7px] font-bold uppercase tracking-[1.2px] mb-1" style={{ color: TEAL }}>Notes & Terms</h4>
+          <h4 className="text-[7px] font-bold uppercase tracking-[1.2px] mb-1" style={{ color: p.accent }}>Notes & Terms</h4>
           <p className="text-[8.5px] whitespace-pre-wrap leading-relaxed" style={{ color: GRAY_500 }}>{notes}</p>
         </div>
       )}
@@ -336,7 +381,7 @@ export function InvoicePdfPreview({
       {showPaymentInfo && (
         <div className="px-6 py-3 flex justify-between items-start" style={{ backgroundColor: GRAY_100, borderTop: `1px solid ${GRAY_200}` }}>
           <div className="flex-1">
-            <h4 className="text-[7px] font-bold uppercase tracking-[1.2px] mb-1.5" style={{ color: TEAL }}>Payment Information</h4>
+            <h4 className="text-[7px] font-bold uppercase tracking-[1.2px] mb-1.5" style={{ color: p.accent }}>Payment Information</h4>
             <div className="flex gap-5 mt-1 flex-wrap">
               {orgBankName && (
                 <div>
@@ -366,7 +411,7 @@ export function InvoicePdfPreview({
           </div>
           {qrCodeUrl && (
             <div className="text-center ml-4">
-              <p className="text-[7px] font-bold uppercase tracking-wider mb-0.5" style={{ color: TEAL }}>Scan to Pay</p>
+              <p className="text-[7px] font-bold uppercase tracking-wider mb-0.5" style={{ color: p.accent }}>Scan to Pay</p>
               <img src={qrCodeUrl} alt="UPI QR Code" className="w-16 h-16" />
               <p className="text-[6.5px] mt-0.5" style={{ color: GRAY_400 }}>UPI Payment</p>
             </div>
@@ -375,13 +420,15 @@ export function InvoicePdfPreview({
       )}
 
       {/* ═══ THANK YOU ═══ */}
-      <div className="py-3 text-center" style={{ backgroundColor: TEAL }}>
-        <p className="text-[10px] font-semibold text-white tracking-wide">Thank you for your business!</p>
-        <p className="text-[7px] text-white/70 mt-0.5">Questions? Contact {orgEmail || orgPhone || orgName}</p>
-      </div>
+      {p.showThankYou && (
+        <div className="py-3 text-center" style={{ backgroundColor: p.accent }}>
+          <p className="text-[10px] font-semibold text-white tracking-wide">Thank you for your business!</p>
+          <p className="text-[7px] text-white/70 mt-0.5">Questions? Contact {orgEmail || orgPhone || orgName}</p>
+        </div>
+      )}
 
       {/* ═══ LEGAL FOOTER ═══ */}
-      <div className="py-2 text-center">
+      <div className="py-2 text-center" style={{ borderTop: !p.showThankYou ? `1px solid ${GRAY_200}` : 'none' }}>
         <p className="text-[6.5px]" style={{ color: GRAY_400 }}>
           This is a computer-generated invoice and does not require a physical signature.
         </p>
