@@ -169,14 +169,14 @@ export default function AdminUserDetail() {
 
         <TabsContent value="clients">
           <Card>
-            <CardContent className="pt-4">
+            <CardContent className="pt-4 overflow-x-auto">
               <Table>
                 <TableHeader>
                   <TableRow>
                     <TableHead>Name</TableHead>
-                    <TableHead>Email</TableHead>
-                    <TableHead>Phone</TableHead>
-                    <TableHead className="text-right">Credit Balance</TableHead>
+                    <TableHead className="hidden sm:table-cell">Email</TableHead>
+                    <TableHead className="hidden sm:table-cell">Phone</TableHead>
+                    <TableHead className="text-right">Credit</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -185,8 +185,8 @@ export default function AdminUserDetail() {
                   ) : clients.map((c: any) => (
                     <TableRow key={c.id}>
                       <TableCell className="font-medium">{c.name}</TableCell>
-                      <TableCell>{c.email || '—'}</TableCell>
-                      <TableCell>{c.phone || '—'}</TableCell>
+                      <TableCell className="hidden sm:table-cell">{c.email || '—'}</TableCell>
+                      <TableCell className="hidden sm:table-cell">{c.phone || '—'}</TableCell>
                       <TableCell className="text-right">{formatINR(Number(c.credit_balance))}</TableCell>
                     </TableRow>
                   ))}
