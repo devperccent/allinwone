@@ -98,7 +98,7 @@ export function InvoicePdfPreview({
   const fontFamily = p.fontStyle === 'serif' ? "'Georgia', 'Times New Roman', serif" : p.fontStyle === 'clean' ? "'Inter', 'Helvetica', sans-serif" : "'Plus Jakarta Sans', sans-serif";
 
   return (
-    <div className="bg-white text-gray-800 rounded-lg shadow-lg overflow-hidden select-none" style={{ fontSize: '10px', colorScheme: 'light', fontFamily }}>
+    <div className="bg-white text-gray-800 rounded-lg shadow-lg overflow-hidden select-none w-full min-w-0" style={{ fontSize: '10px', colorScheme: 'light', fontFamily }}>
       {/* ═══ ACCENT BAR ═══ */}
       {p.showAccentBar && <div className="h-1" style={{ backgroundColor: p.accent }} />}
       {!p.showAccentBar && template === 'classic' && (
