@@ -59,10 +59,38 @@ export default function SettingsPage() {
   // Notification preferences
   const [notifPrefs, setNotifPrefs] = useState<NotificationPreferences>(getNotificationPreferences);
 
+  // Module preferences
+  const [enabledModules, setEnabledModules] = useState<string[]>(
+    ALL_MODULES.map(m => m.key)
+  );
+
   const updateNotifPref = (key: keyof NotificationPreferences, value: boolean) => {
     const updated = { ...notifPrefs, [key]: value };
     setNotifPrefs(updated);
     saveNotificationPreferences(updated);
+  };
+
+  const toggleModule = (key: string) => {
+    setEnabledModules(prev =>
+      prev.includes(key) ? prev.filter(k => k !== key) : [...prev, key]
+    );
+  };
+
+  const handleSaveModules = async () => {
+    if (!authProfile) return;
+    try {
+      await updateProfile({
+        id: authProfile.id,
+        enabled_modules: enabledModules,
+      });
+      await refreshProfile();
+      toast({
+        title: 'Modules updated',
+        description: 'Your active modules have been saved.',
+      });
+    } catch (error: any) {
+      toast({ title: 'Error', description: error.message, variant: 'destructive' });
+    }
   };
 
   // Load profile data
