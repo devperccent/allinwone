@@ -98,7 +98,7 @@ export function InvoicePdfPreview({
   const fontFamily = p.fontStyle === 'serif' ? "'Georgia', 'Times New Roman', serif" : p.fontStyle === 'clean' ? "'Inter', 'Helvetica', sans-serif" : "'Plus Jakarta Sans', sans-serif";
 
   return (
-    <div className="bg-white text-gray-800 rounded-lg shadow-lg overflow-hidden select-none" style={{ fontSize: '10px', colorScheme: 'light', fontFamily }}>
+    <div className="bg-white text-gray-800 rounded-lg shadow-lg overflow-hidden select-none w-full min-w-0" style={{ fontSize: '10px', colorScheme: 'light', fontFamily }}>
       {/* ═══ ACCENT BAR ═══ */}
       {p.showAccentBar && <div className="h-1" style={{ backgroundColor: p.accent }} />}
       {!p.showAccentBar && template === 'classic' && (
@@ -213,8 +213,8 @@ export function InvoicePdfPreview({
       </div>
 
       {/* ═══ ITEMS TABLE ═══ */}
-      <div className="px-6 pb-3">
-        <table className="w-full border-collapse">
+      <div className="px-6 pb-3 overflow-x-auto">
+        <table className="w-full border-collapse min-w-[400px]">
           <thead>
             <tr style={{
               backgroundColor: p.tableStyle === 'minimal' ? 'transparent' : p.tableHeaderBg,
