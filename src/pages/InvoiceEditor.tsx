@@ -286,6 +286,7 @@ export default function InvoiceEditor() {
       client: selectedClient,
       profile,
       showPaymentInfo,
+      template,
     });
   };
 
