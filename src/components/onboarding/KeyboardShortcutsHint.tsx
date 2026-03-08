@@ -5,6 +5,20 @@ import { modKey } from '@/lib/platform';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 const STORAGE_KEY = 'inw-shortcuts-hint-dismissed';
+const ENABLED_KEY = 'inw-shortcuts-hint-enabled';
+
+export function isKeyboardHintsEnabled(): boolean {
+  return localStorage.getItem(ENABLED_KEY) === 'true';
+}
+
+export function setKeyboardHintsEnabled(enabled: boolean) {
+  localStorage.setItem(ENABLED_KEY, enabled ? 'true' : 'false');
+  if (!enabled) {
+    localStorage.setItem(STORAGE_KEY, 'true');
+  } else {
+    localStorage.removeItem(STORAGE_KEY);
+  }
+}
 
 interface KeyboardShortcutsHintProps {
   onOpenShortcuts: () => void;
