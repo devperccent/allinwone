@@ -80,18 +80,12 @@ export default function PurchaseOrdersPage() {
   }
 
   return (
-    <div className="space-y-6 animate-fade-in">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl md:text-3xl font-bold">Purchase Orders</h1>
-          <p className="text-muted-foreground mt-1 text-sm md:text-base">
-            Track orders placed with suppliers
-          </p>
-        </div>
-        <Button asChild className="gap-2">
+    <div className="space-y-4 animate-fade-in">
+      <div className="flex items-center justify-between gap-3">
+        <h1 className="text-xl font-bold">Purchase Orders</h1>
+        <Button asChild size="sm" className="gap-1.5 h-8 text-xs">
           <Link to="/purchase-orders/new">
-            <Plus className="w-4 h-4" />
+            <Plus className="w-3.5 h-3.5" />
             New PO
           </Link>
         </Button>

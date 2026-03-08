@@ -86,16 +86,11 @@ export default function ReportsPage() {
   }
 
   return (
-    <div className="space-y-6 animate-fade-in">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl md:text-3xl font-bold">Reports & Analytics</h1>
-          <p className="text-muted-foreground mt-1 text-sm md:text-base">
-            Track your business performance, GST liability, and outstanding payments
-          </p>
-        </div>
-        <Button variant="outline" size="sm" className="gap-2 w-full sm:w-auto" onClick={() => exportInvoicesToCSV(invoices)}>
-          <Download className="w-4 h-4" /> Export All to CSV
+    <div className="space-y-4 animate-fade-in">
+      <div className="flex items-center justify-between gap-3">
+        <h1 className="text-xl font-bold">Reports</h1>
+        <Button variant="ghost" size="sm" className="gap-1.5 h-8 text-xs text-muted-foreground" onClick={() => exportInvoicesToCSV(invoices)}>
+          <Download className="w-3.5 h-3.5" /> Export CSV
         </Button>
       </div>
 
