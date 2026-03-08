@@ -184,10 +184,14 @@ export function useInvoices() {
   });
 
   const markAsPaid = useMutation({
-    mutationFn: async ({ invoiceId, paymentMode }: { invoiceId: string; paymentMode: PaymentMode }) => {
+    mutationFn: async ({ invoiceId, paymentMode, paymentDate }: { invoiceId: string; paymentMode: PaymentMode; paymentDate?: string }) => {
       const { data, error } = await supabase
         .from('invoices')
-        .update({ status: 'paid', payment_mode: paymentMode })
+        .update({ 
+          status: 'paid', 
+          payment_mode: paymentMode,
+          payment_date: paymentDate || new Date().toISOString().split('T')[0],
+        })
         .eq('id', invoiceId)
         .select()
         .single();
