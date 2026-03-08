@@ -292,10 +292,10 @@ export default function QuickBillPage() {
             })}
           </div>
         </ScrollArea>
-      </div>
+        </div>
 
-      {/* Cart Sidebar */}
-      <Card className="w-full lg:w-96 flex flex-col min-h-0 lg:h-full">
+        {/* Cart Sidebar */}
+        <Card className="w-full lg:w-96 flex flex-col min-h-0 lg:h-full flex-shrink-0 max-h-[40vh] lg:max-h-full overflow-hidden">
         <CardContent className="flex-1 flex flex-col p-4 min-h-0">
           {/* Cart Header */}
           <div className="flex items-center justify-between mb-4">
