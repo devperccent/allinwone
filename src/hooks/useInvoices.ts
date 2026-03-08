@@ -87,7 +87,7 @@ export function useInvoices() {
           rate: item.rate,
           tax_rate: item.tax_rate,
           discount: item.discount,
-          amount: item.qty * item.rate,
+          amount: computeItemAmount(item),
           sort_order: index,
         }));
       
