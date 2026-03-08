@@ -219,7 +219,7 @@ export default function QuickBillPage() {
   }
 
   return (
-    <div className="h-[calc(100vh-4rem)] flex flex-col lg:flex-row gap-4 animate-fade-in">
+    <div className="h-[calc(100vh-4rem)] flex flex-col gap-4 animate-fade-in overflow-hidden">
       {/* Product Grid */}
       <div className="flex-1 flex flex-col min-h-0">
         {/* Header */}
