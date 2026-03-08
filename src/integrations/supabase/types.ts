@@ -562,6 +562,7 @@ export type Database = {
           business_type: string | null
           created_at: string
           email: string | null
+          enabled_modules: string[]
           gstin: string | null
           id: string
           invoice_prefix: string
@@ -588,6 +589,7 @@ export type Database = {
           business_type?: string | null
           created_at?: string
           email?: string | null
+          enabled_modules?: string[]
           gstin?: string | null
           id?: string
           invoice_prefix?: string
@@ -614,6 +616,7 @@ export type Database = {
           business_type?: string | null
           created_at?: string
           email?: string | null
+          enabled_modules?: string[]
           gstin?: string | null
           id?: string
           invoice_prefix?: string
