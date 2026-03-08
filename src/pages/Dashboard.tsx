@@ -105,7 +105,7 @@ export default function Dashboard() {
 
       {/* Tabbed content area */}
       <Tabs defaultValue="overview" className="space-y-4">
-        <TabsList className="bg-muted/50">
+        <TabsList className="bg-muted/50 w-full sm:w-auto overflow-x-auto flex-nowrap justify-start">
           <TabsTrigger value="overview" className="gap-1.5">
             <TrendingUp className="w-4 h-4" />
             Overview
