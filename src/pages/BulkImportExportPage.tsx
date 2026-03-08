@@ -501,7 +501,7 @@ export default function BulkImportExportPage() {
   return (
     <div className="space-y-6 animate-fade-in">
       <div>
-        <h1 className="text-2xl md:text-3xl font-bold">Bulk Import / Export</h1>
+        <h1 className="text-2xl md:text-3xl font-bold">Data Manager</h1>
         <p className="text-muted-foreground mt-1 text-sm md:text-base">
           Import data from Excel, CSV, or Tally. Export for your CA or accountant.
         </p>
