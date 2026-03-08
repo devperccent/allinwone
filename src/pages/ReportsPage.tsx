@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { BarChart3, FileText, TrendingUp, Calendar, Download, Receipt } from 'lucide-react';
+import { BarChart3, FileText, TrendingUp, Calendar, Download, Receipt, Wallet, LineChart, Users, FileJson } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -8,6 +8,11 @@ import { useInvoices } from '@/hooks/useInvoices';
 import { Skeleton } from '@/components/ui/skeleton';
 import { exportInvoicesToCSV } from '@/utils/csvExport';
 import { GSTReport } from '@/components/reports/GSTReport';
+import { ProfitLossReport } from '@/components/reports/ProfitLossReport';
+import { GSTR3BExport } from '@/components/reports/GSTR3BExport';
+import { TDSManagement } from '@/components/reports/TDSManagement';
+import { CashFlowForecast } from '@/components/reports/CashFlowForecast';
+import { PartyLedger } from '@/components/reports/PartyLedger';
 import {
   BarChart,
   Bar,
@@ -32,27 +37,16 @@ export default function ReportsPage() {
     const finalizedInvoices = invoices.filter((i) => i.status === 'finalized');
 
     const thisMonthRevenue = paidInvoices
-      .filter((i) => {
-        const d = new Date(i.date_issued);
-        return d.getMonth() === thisMonth && d.getFullYear() === thisYear;
-      })
+      .filter((i) => { const d = new Date(i.date_issued); return d.getMonth() === thisMonth && d.getFullYear() === thisYear; })
       .reduce((s, i) => s + Number(i.grand_total), 0);
 
     const lastMonthRevenue = paidInvoices
-      .filter((i) => {
-        const d = new Date(i.date_issued);
-        return d.getMonth() === lastMonth && d.getFullYear() === lastMonthYear;
-      })
+      .filter((i) => { const d = new Date(i.date_issued); return d.getMonth() === lastMonth && d.getFullYear() === lastMonthYear; })
       .reduce((s, i) => s + Number(i.grand_total), 0);
 
-    const growth = lastMonthRevenue > 0
-      ? ((thisMonthRevenue - lastMonthRevenue) / lastMonthRevenue) * 100
-      : 0;
+    const growth = lastMonthRevenue > 0 ? ((thisMonthRevenue - lastMonthRevenue) / lastMonthRevenue) * 100 : 0;
 
-    // Outstanding
-    const totalOutstanding = finalizedInvoices.reduce(
-      (s, i) => s + Number(i.grand_total), 0
-    );
+    const totalOutstanding = finalizedInvoices.reduce((s, i) => s + Number(i.grand_total), 0);
     const overdue = finalizedInvoices
       .filter((i) => i.date_due && new Date(i.date_due) < now)
       .reduce((s, i) => s + Number(i.grand_total), 0);
@@ -60,29 +54,18 @@ export default function ReportsPage() {
     const sevenDaysFromNow = new Date(now);
     sevenDaysFromNow.setDate(sevenDaysFromNow.getDate() + 7);
     const dueThisWeek = finalizedInvoices
-      .filter((i) => {
-        if (!i.date_due) return false;
-        const due = new Date(i.date_due);
-        return due >= now && due <= sevenDaysFromNow;
-      })
+      .filter((i) => { if (!i.date_due) return false; const due = new Date(i.date_due); return due >= now && due <= sevenDaysFromNow; })
       .reduce((s, i) => s + Number(i.grand_total), 0);
 
-    // Monthly chart data (last 6 months)
     const chartData = [];
     for (let i = 5; i >= 0; i--) {
       const m = new Date(thisYear, thisMonth - i, 1);
       const monthName = m.toLocaleString('en-IN', { month: 'short' });
       const revenue = paidInvoices
-        .filter((inv) => {
-          const d = new Date(inv.date_issued);
-          return d.getMonth() === m.getMonth() && d.getFullYear() === m.getFullYear();
-        })
+        .filter((inv) => { const d = new Date(inv.date_issued); return d.getMonth() === m.getMonth() && d.getFullYear() === m.getFullYear(); })
         .reduce((s, inv) => s + Number(inv.grand_total), 0);
       const tax = paidInvoices
-        .filter((inv) => {
-          const d = new Date(inv.date_issued);
-          return d.getMonth() === m.getMonth() && d.getFullYear() === m.getFullYear();
-        })
+        .filter((inv) => { const d = new Date(inv.date_issued); return d.getMonth() === m.getMonth() && d.getFullYear() === m.getFullYear(); })
         .reduce((s, inv) => s + Number(inv.total_tax), 0);
       chartData.push({ month: monthName, revenue, tax });
     }
@@ -104,7 +87,6 @@ export default function ReportsPage() {
 
   return (
     <div className="space-y-6 animate-fade-in">
-      {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl md:text-3xl font-bold">Reports & Analytics</h1>
@@ -112,30 +94,36 @@ export default function ReportsPage() {
             Track your business performance, GST liability, and outstanding payments
           </p>
         </div>
-        <Button
-          variant="outline"
-          size="sm"
-          className="gap-2 w-full sm:w-auto"
-          onClick={() => exportInvoicesToCSV(invoices)}
-        >
-          <Download className="w-4 h-4" />
-          Export All to CSV
+        <Button variant="outline" size="sm" className="gap-2 w-full sm:w-auto" onClick={() => exportInvoicesToCSV(invoices)}>
+          <Download className="w-4 h-4" /> Export All to CSV
         </Button>
       </div>
 
       <Tabs defaultValue="sales" className="space-y-6">
-        <TabsList className="bg-muted/50 w-full sm:w-auto">
-          <TabsTrigger value="sales" className="gap-2 flex-1 sm:flex-none">
-            <TrendingUp className="w-4 h-4" />
-            <span className="hidden sm:inline">Sales</span>
+        <TabsList className="bg-muted/50 w-full flex-wrap h-auto gap-1 p-1">
+          <TabsTrigger value="sales" className="gap-1.5 text-xs sm:text-sm">
+            <TrendingUp className="w-3.5 h-3.5" /><span className="hidden sm:inline">Sales</span>
           </TabsTrigger>
-          <TabsTrigger value="gst" className="gap-2 flex-1 sm:flex-none">
-            <Receipt className="w-4 h-4" />
-            <span className="hidden sm:inline">GST & Tax</span>
+          <TabsTrigger value="pnl" className="gap-1.5 text-xs sm:text-sm">
+            <Wallet className="w-3.5 h-3.5" /><span className="hidden sm:inline">P&L</span>
           </TabsTrigger>
-          <TabsTrigger value="outstanding" className="gap-2 flex-1 sm:flex-none">
-            <Calendar className="w-4 h-4" />
-            <span className="hidden sm:inline">Outstanding</span>
+          <TabsTrigger value="gst" className="gap-1.5 text-xs sm:text-sm">
+            <Receipt className="w-3.5 h-3.5" /><span className="hidden sm:inline">GST</span>
+          </TabsTrigger>
+          <TabsTrigger value="gstr3b" className="gap-1.5 text-xs sm:text-sm">
+            <FileJson className="w-3.5 h-3.5" /><span className="hidden sm:inline">GSTR-3B</span>
+          </TabsTrigger>
+          <TabsTrigger value="tds" className="gap-1.5 text-xs sm:text-sm">
+            <FileText className="w-3.5 h-3.5" /><span className="hidden sm:inline">TDS</span>
+          </TabsTrigger>
+          <TabsTrigger value="cashflow" className="gap-1.5 text-xs sm:text-sm">
+            <LineChart className="w-3.5 h-3.5" /><span className="hidden sm:inline">Cash Flow</span>
+          </TabsTrigger>
+          <TabsTrigger value="ledger" className="gap-1.5 text-xs sm:text-sm">
+            <Users className="w-3.5 h-3.5" /><span className="hidden sm:inline">Ledger</span>
+          </TabsTrigger>
+          <TabsTrigger value="outstanding" className="gap-1.5 text-xs sm:text-sm">
+            <Calendar className="w-3.5 h-3.5" /><span className="hidden sm:inline">Outstanding</span>
           </TabsTrigger>
         </TabsList>
 
@@ -145,13 +133,8 @@ export default function ReportsPage() {
             <Card className="hover:shadow-md transition-shadow">
               <CardHeader>
                 <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-lg bg-primary/10">
-                    <TrendingUp className="w-5 h-5 text-primary" />
-                  </div>
-                  <div>
-                    <CardTitle className="text-lg">This Month</CardTitle>
-                    <CardDescription>Revenue collected</CardDescription>
-                  </div>
+                  <div className="p-2 rounded-lg bg-primary/10"><TrendingUp className="w-5 h-5 text-primary" /></div>
+                  <div><CardTitle className="text-lg">This Month</CardTitle><CardDescription>Revenue collected</CardDescription></div>
                 </div>
               </CardHeader>
               <CardContent>
@@ -161,83 +144,48 @@ export default function ReportsPage() {
                 </p>
               </CardContent>
             </Card>
-
             <Card className="hover:shadow-md transition-shadow">
               <CardHeader>
                 <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-lg bg-muted">
-                    <BarChart3 className="w-5 h-5 text-muted-foreground" />
-                  </div>
-                  <div>
-                    <CardTitle className="text-lg">Last Month</CardTitle>
-                    <CardDescription>Revenue collected</CardDescription>
-                  </div>
+                  <div className="p-2 rounded-lg bg-muted"><BarChart3 className="w-5 h-5 text-muted-foreground" /></div>
+                  <div><CardTitle className="text-lg">Last Month</CardTitle><CardDescription>Revenue collected</CardDescription></div>
                 </div>
               </CardHeader>
-              <CardContent>
-                <p className="text-2xl font-bold">{formatINR(stats.lastMonthRevenue)}</p>
-              </CardContent>
+              <CardContent><p className="text-2xl font-bold">{formatINR(stats.lastMonthRevenue)}</p></CardContent>
             </Card>
-
             <Card className="hover:shadow-md transition-shadow">
               <CardHeader>
                 <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-lg bg-primary/10">
-                    <FileText className="w-5 h-5 text-primary" />
-                  </div>
-                  <div>
-                    <CardTitle className="text-lg">Total Invoices</CardTitle>
-                    <CardDescription>All time</CardDescription>
-                  </div>
+                  <div className="p-2 rounded-lg bg-primary/10"><FileText className="w-5 h-5 text-primary" /></div>
+                  <div><CardTitle className="text-lg">Total Invoices</CardTitle><CardDescription>All time</CardDescription></div>
                 </div>
               </CardHeader>
               <CardContent>
                 <p className="text-2xl font-bold">{invoices.length}</p>
-                <p className="text-sm text-muted-foreground mt-1">
-                  {invoices.filter((i) => i.status === 'paid').length} paid
-                </p>
+                <p className="text-sm text-muted-foreground mt-1">{invoices.filter((i) => i.status === 'paid').length} paid</p>
               </CardContent>
             </Card>
           </div>
 
-          {/* Revenue Chart */}
           <Card>
             <CardHeader>
               <div className="flex items-center gap-3">
                 <BarChart3 className="w-5 h-5 text-primary" />
-                <div>
-                  <CardTitle>Monthly Revenue & Tax</CardTitle>
-                  <CardDescription>Revenue and tax collection over the last 6 months</CardDescription>
-                </div>
+                <div><CardTitle>Monthly Revenue & Tax</CardTitle><CardDescription>Last 6 months</CardDescription></div>
               </div>
             </CardHeader>
             <CardContent>
               {stats.chartData.every((d) => d.revenue === 0) ? (
                 <div className="h-64 flex items-center justify-center bg-muted/30 rounded-lg">
-                  <div className="text-center text-muted-foreground">
-                    <BarChart3 className="w-12 h-12 mx-auto mb-3 opacity-50" />
-                    <p>Charts will populate as you create and finalize invoices</p>
-                  </div>
+                  <div className="text-center text-muted-foreground"><BarChart3 className="w-12 h-12 mx-auto mb-3 opacity-50" /><p>Charts will populate as you create and finalize invoices</p></div>
                 </div>
               ) : (
                 <ResponsiveContainer width="100%" height={280}>
                   <BarChart data={stats.chartData}>
                     <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
-                    <XAxis dataKey="month" className="text-muted-foreground" tick={{ fontSize: 12 }} />
-                    <YAxis
-                      tickFormatter={(v) => `₹${(v / 1000).toFixed(0)}k`}
-                      className="text-muted-foreground"
-                      tick={{ fontSize: 12 }}
-                    />
-                    <Tooltip
-                      formatter={(value: number, name: string) => [formatINR(value), name === 'revenue' ? 'Revenue' : 'Tax']}
-                      contentStyle={{
-                        borderRadius: '8px',
-                        border: '1px solid hsl(var(--border))',
-                        backgroundColor: 'hsl(var(--card))',
-                        color: 'hsl(var(--card-foreground))',
-                      }}
-                    />
+                    <XAxis dataKey="month" tick={{ fontSize: 12 }} />
+                    <YAxis tickFormatter={(v) => `₹${(v / 1000).toFixed(0)}k`} tick={{ fontSize: 12 }} />
+                    <Tooltip formatter={(value: number, name: string) => [formatINR(value), name === 'revenue' ? 'Revenue' : 'Tax']} contentStyle={{ borderRadius: '8px', border: '1px solid hsl(var(--border))', backgroundColor: 'hsl(var(--card))', color: 'hsl(var(--card-foreground))' }} />
                     <Bar dataKey="revenue" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} name="revenue" />
                     <Bar dataKey="tax" fill="hsl(var(--primary) / 0.4)" radius={[4, 4, 0, 0]} name="tax" />
                   </BarChart>
@@ -247,10 +195,23 @@ export default function ReportsPage() {
           </Card>
         </TabsContent>
 
-        {/* ═══ GST & TAX TAB ═══ */}
-        <TabsContent value="gst">
-          <GSTReport invoices={invoices} />
-        </TabsContent>
+        {/* ═══ P&L TAB ═══ */}
+        <TabsContent value="pnl"><ProfitLossReport /></TabsContent>
+
+        {/* ═══ GST TAB ═══ */}
+        <TabsContent value="gst"><GSTReport invoices={invoices} /></TabsContent>
+
+        {/* ═══ GSTR-3B TAB ═══ */}
+        <TabsContent value="gstr3b"><GSTR3BExport /></TabsContent>
+
+        {/* ═══ TDS TAB ═══ */}
+        <TabsContent value="tds"><TDSManagement /></TabsContent>
+
+        {/* ═══ CASH FLOW TAB ═══ */}
+        <TabsContent value="cashflow"><CashFlowForecast /></TabsContent>
+
+        {/* ═══ LEDGER TAB ═══ */}
+        <TabsContent value="ledger"><PartyLedger /></TabsContent>
 
         {/* ═══ OUTSTANDING TAB ═══ */}
         <TabsContent value="outstanding" className="space-y-6">
@@ -258,56 +219,32 @@ export default function ReportsPage() {
             <Card className="hover:shadow-md transition-shadow">
               <CardHeader>
                 <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-lg bg-amber-500/10">
-                    <Calendar className="w-5 h-5 text-amber-500" />
-                  </div>
-                  <div>
-                    <CardTitle className="text-lg">Total Outstanding</CardTitle>
-                    <CardDescription>Unpaid finalized invoices</CardDescription>
-                  </div>
+                  <div className="p-2 rounded-lg bg-amber-500/10"><Calendar className="w-5 h-5 text-amber-500" /></div>
+                  <div><CardTitle className="text-lg">Total Outstanding</CardTitle><CardDescription>Unpaid finalized invoices</CardDescription></div>
                 </div>
               </CardHeader>
-              <CardContent>
-                <p className="text-2xl font-bold text-amber-600">{formatINR(stats.totalOutstanding)}</p>
-              </CardContent>
+              <CardContent><p className="text-2xl font-bold text-amber-600">{formatINR(stats.totalOutstanding)}</p></CardContent>
             </Card>
-
             <Card className="hover:shadow-md transition-shadow">
               <CardHeader>
                 <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-lg bg-destructive/10">
-                    <Calendar className="w-5 h-5 text-destructive" />
-                  </div>
-                  <div>
-                    <CardTitle className="text-lg">Overdue</CardTitle>
-                    <CardDescription>Past due date</CardDescription>
-                  </div>
+                  <div className="p-2 rounded-lg bg-destructive/10"><Calendar className="w-5 h-5 text-destructive" /></div>
+                  <div><CardTitle className="text-lg">Overdue</CardTitle><CardDescription>Past due date</CardDescription></div>
                 </div>
               </CardHeader>
-              <CardContent>
-                <p className="text-2xl font-bold text-destructive">{formatINR(stats.overdue)}</p>
-              </CardContent>
+              <CardContent><p className="text-2xl font-bold text-destructive">{formatINR(stats.overdue)}</p></CardContent>
             </Card>
-
             <Card className="hover:shadow-md transition-shadow">
               <CardHeader>
                 <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-lg bg-primary/10">
-                    <Calendar className="w-5 h-5 text-primary" />
-                  </div>
-                  <div>
-                    <CardTitle className="text-lg">Due This Week</CardTitle>
-                    <CardDescription>Coming up in 7 days</CardDescription>
-                  </div>
+                  <div className="p-2 rounded-lg bg-primary/10"><Calendar className="w-5 h-5 text-primary" /></div>
+                  <div><CardTitle className="text-lg">Due This Week</CardTitle><CardDescription>Coming up in 7 days</CardDescription></div>
                 </div>
               </CardHeader>
-              <CardContent>
-                <p className="text-2xl font-bold">{formatINR(stats.dueThisWeek)}</p>
-              </CardContent>
+              <CardContent><p className="text-2xl font-bold">{formatINR(stats.dueThisWeek)}</p></CardContent>
             </Card>
           </div>
 
-          {/* Overdue invoices list */}
           {invoices.filter((i) => i.status === 'finalized' && i.date_due && new Date(i.date_due) < new Date()).length > 0 && (
             <Card>
               <CardHeader>
@@ -320,23 +257,14 @@ export default function ReportsPage() {
                     .filter((i) => i.status === 'finalized' && i.date_due && new Date(i.date_due) < new Date())
                     .sort((a, b) => new Date(a.date_due!).getTime() - new Date(b.date_due!).getTime())
                     .map((inv) => {
-                      const daysOverdue = Math.ceil(
-                        (new Date().getTime() - new Date(inv.date_due!).getTime()) / (1000 * 60 * 60 * 24)
-                      );
+                      const daysOverdue = Math.ceil((new Date().getTime() - new Date(inv.date_due!).getTime()) / (1000 * 60 * 60 * 24));
                       return (
-                        <div
-                          key={inv.id}
-                          className="flex items-center justify-between p-3 rounded-lg border border-destructive/20 bg-destructive/5"
-                        >
+                        <div key={inv.id} className="flex items-center justify-between p-3 rounded-lg border border-destructive/20 bg-destructive/5">
                           <div>
                             <p className="font-medium text-sm">{inv.invoice_number}</p>
-                            <p className="text-xs text-muted-foreground">
-                              {inv.client?.name || 'Walk-in'} · {daysOverdue} day{daysOverdue !== 1 ? 's' : ''} overdue
-                            </p>
+                            <p className="text-xs text-muted-foreground">{inv.client?.name || 'Walk-in'} · {daysOverdue} day{daysOverdue !== 1 ? 's' : ''} overdue</p>
                           </div>
-                          <p className="font-semibold text-destructive tabular-nums">
-                            {formatINR(Number(inv.grand_total))}
-                          </p>
+                          <p className="font-semibold text-destructive tabular-nums">{formatINR(Number(inv.grand_total))}</p>
                         </div>
                       );
                     })}
