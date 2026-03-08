@@ -412,6 +412,7 @@ export default function InvoiceEditor() {
                   profile={profile}
                   status={currentInvoice?.status || 'draft'}
                   showPaymentInfo={showPaymentInfo}
+                  template={template}
                 />
               </div>
             </TabsContent>
