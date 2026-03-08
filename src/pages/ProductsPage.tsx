@@ -358,24 +358,21 @@ function ProductCard({
   return (
     <div
       className={cn(
-        'rounded-xl border bg-card p-5 transition-all hover:shadow-md',
+        'rounded-lg border bg-card p-4 transition-colors hover:bg-muted/20',
         lowStock ? 'border-warning/50' : 'border-border'
       )}
     >
       <div className="flex items-start justify-between">
-        <div>
-          <div className="flex items-center gap-2">
-            <h3 className="font-semibold">{product.name}</h3>
-            {lowStock && <AlertTriangle className="w-4 h-4 text-warning" />}
+        <div className="min-w-0">
+          <div className="flex items-center gap-1.5">
+            <h3 className="font-medium text-sm truncate">{product.name}</h3>
+            {lowStock && <AlertTriangle className="w-3.5 h-3.5 text-warning shrink-0" />}
           </div>
-          <p className="text-sm text-muted-foreground">SKU: {product.sku}</p>
-          {(product as any).barcode && (
-            <p className="text-xs text-muted-foreground">Barcode: {(product as any).barcode}</p>
-          )}
+          <p className="text-xs text-muted-foreground mt-0.5">{product.sku}{product.hsn_code ? ` · HSN ${product.hsn_code}` : ''}</p>
         </div>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon" className="h-8 w-8"><MoreHorizontal className="w-4 h-4" /></Button>
+            <Button variant="ghost" size="icon" className="h-7 w-7 shrink-0"><MoreHorizontal className="w-3.5 h-3.5" /></Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             {product.type === 'goods' && (
@@ -392,39 +389,22 @@ function ProductCard({
         </DropdownMenu>
       </div>
 
-      <div className="mt-4 flex items-center gap-2 flex-wrap">
-        <Badge variant="secondary" className="text-xs">{product.type === 'goods' ? 'Goods' : 'Service'}</Badge>
-        {product.hsn_code && <Badge variant="outline" className="text-xs">HSN: {product.hsn_code}</Badge>}
-        {batches.length > 0 && (
-          <Badge variant="outline" className="text-xs">{batches.length} batch{batches.length > 1 ? 'es' : ''}</Badge>
-        )}
-        {expiredCount > 0 && (
-          <Badge className="text-xs bg-destructive text-destructive-foreground">{expiredCount} expired</Badge>
-        )}
-      </div>
-
-      <div className="mt-4 flex items-end justify-between">
-        <div>
-          <p className="text-2xl font-bold">{formatINR(Number(product.selling_price))}</p>
-        </div>
+      <div className="mt-3 flex items-end justify-between">
+        <p className="text-lg font-bold tabular-nums">{formatINR(Number(product.selling_price))}</p>
         {product.type === 'goods' && (
-          <div className="text-right">
-            <p className={cn('text-sm font-medium', lowStock ? 'text-warning' : 'text-muted-foreground')}>
-              {product.stock_quantity} in stock
-            </p>
-            <p className="text-xs text-muted-foreground">Min: {product.low_stock_limit}</p>
-          </div>
+          <p className={cn('text-xs font-medium tabular-nums', lowStock ? 'text-warning' : 'text-muted-foreground')}>
+            {product.stock_quantity} in stock
+          </p>
+        )}
+        {product.type === 'service' && (
+          <span className="text-xs text-muted-foreground">Service</span>
         )}
       </div>
 
-      {/* Nearest expiry indicator */}
       {nearestExpiry && nearestExpiry.expiry_date && (
-        <div className="mt-3 flex items-center gap-1.5 text-xs text-muted-foreground border-t border-border pt-3">
+        <div className="mt-2 flex items-center gap-1 text-[11px] text-muted-foreground border-t border-border pt-2">
           <Calendar className="w-3 h-3" />
-          <span>
-            Next expiry: <span className="font-medium">{format(new Date(nearestExpiry.expiry_date), 'dd MMM yyyy')}</span>
-            {' '}({nearestExpiry.batch_number}, qty: {nearestExpiry.quantity})
-          </span>
+          <span>Expires {format(new Date(nearestExpiry.expiry_date), 'dd MMM yyyy')}</span>
         </div>
       )}
     </div>
