@@ -29,11 +29,10 @@ export function KeyboardShortcutsHint({ onOpenShortcuts }: KeyboardShortcutsHint
   const isMobile = useIsMobile();
 
   useEffect(() => {
-    // Don't show on mobile or if already dismissed
     if (isMobile) return;
+    if (!isKeyboardHintsEnabled()) return;
     const dismissed = localStorage.getItem(STORAGE_KEY);
     if (!dismissed) {
-      // Delay showing to let the page load first
       const timer = setTimeout(() => setVisible(true), 2000);
       return () => clearTimeout(timer);
     }

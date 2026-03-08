@@ -529,24 +529,41 @@ export default function SettingsPage() {
       </Tabs>
 
       <Card className="border-dashed">
-        <CardContent className="flex items-center justify-between py-5">
-          <div>
-            <p className="font-medium">Platform Walkthrough</p>
-            <p className="text-sm text-muted-foreground">
-              Replay the guided tour to rediscover features and shortcuts
-            </p>
+        <CardContent className="space-y-4 py-5">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="font-medium">Keyboard Shortcut Hints</p>
+              <p className="text-sm text-muted-foreground">
+                Show a popup with keyboard shortcut tips when you open the app
+              </p>
+            </div>
+            <Switch
+              checked={keyboardHints}
+              onCheckedChange={(v) => {
+                setKeyboardHints(v);
+                setKeyboardHintsEnabled(v);
+              }}
+            />
           </div>
-          <Button
-            variant="outline"
-            className="gap-2 shrink-0"
-            onClick={() => {
-              resetWalkthrough();
-              setWalkthroughOpen(true);
-            }}
-          >
-            <RotateCcw className="w-4 h-4" />
-            Restart Tour
-          </Button>
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="font-medium">Platform Walkthrough</p>
+              <p className="text-sm text-muted-foreground">
+                Replay the guided tour to rediscover features and shortcuts
+              </p>
+            </div>
+            <Button
+              variant="outline"
+              className="gap-2 shrink-0"
+              onClick={() => {
+                resetWalkthrough();
+                setWalkthroughOpen(true);
+              }}
+            >
+              <RotateCcw className="w-4 h-4" />
+              Restart Tour
+            </Button>
+          </div>
         </CardContent>
       </Card>
     </div>
