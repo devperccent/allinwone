@@ -21,10 +21,14 @@ interface InvoicePdfPreviewProps {
 const TEAL = '#03556E';
 const TEAL_DARK = '#024558';
 const TEAL_LIGHT = '#E8F4F8';
-const TEAL_LIGHTER = '#F3FAFB';
-const GRAY = '#6b7280';
-const GRAY_LIGHT = '#9ca3af';
-const BORDER = '#e5e7eb';
+const TEAL_LIGHTER = '#F5FAFB';
+const GRAY_900 = '#111827';
+const GRAY_700 = '#374151';
+const GRAY_500 = '#6b7280';
+const GRAY_400 = '#9ca3af';
+const GRAY_200 = '#e5e7eb';
+const GRAY_100 = '#f3f4f6';
+const GREEN = '#059669';
 
 function formatDate(dateStr: string): string {
   try {
@@ -37,10 +41,10 @@ function formatDate(dateStr: string): string {
 
 function getStatusStyle(status: string) {
   switch (status) {
-    case 'paid': return { bg: '#dcfce7', color: '#16a34a' };
+    case 'paid': return { bg: '#dcfce7', color: '#059669' };
     case 'finalized': return { bg: '#dbeafe', color: '#2563eb' };
     case 'cancelled': return { bg: '#fee2e2', color: '#dc2626' };
-    default: return { bg: '#f3f4f6', color: GRAY };
+    default: return { bg: GRAY_100, color: GRAY_500 };
   }
 }
 
@@ -68,6 +72,7 @@ export function InvoicePdfPreview({
   const orgBankName = profile?.bank_account_name || '';
   const orgBankAccount = profile?.bank_account_number || '';
   const orgBankIfsc = profile?.bank_ifsc || '';
+  const orgPan = profile?.pan_number || '';
 
   useEffect(() => {
     const generateQR = async () => {
@@ -91,24 +96,29 @@ export function InvoicePdfPreview({
 
   return (
     <div className="bg-white text-gray-800 rounded-lg shadow-lg overflow-hidden select-none" style={{ fontSize: '10px', colorScheme: 'light' }}>
+      {/* ═══ ACCENT BAR ═══ */}
+      <div className="h-1" style={{ backgroundColor: TEAL }} />
+
       {/* ═══ HEADER ═══ */}
-      <div className="px-6 pt-5 pb-4" style={{ backgroundColor: TEAL }}>
+      <div className="px-6 pt-5 pb-4">
         <div className="flex justify-between items-start">
           <div className="flex-1">
             {profile?.logo_url && (
               <img src={profile.logo_url} alt="Logo" className="h-10 w-10 object-contain mb-2 rounded" />
             )}
-            <h1 className="text-lg font-bold text-white leading-tight">{orgName}</h1>
-            {orgAddress && <p className="text-white/75 text-[8.5px] mt-1 leading-snug">{orgAddress}</p>}
-            {orgGstin && <p className="text-white/75 text-[8.5px]">GSTIN: {orgGstin}</p>}
-            {orgPhone && <p className="text-white/75 text-[8.5px]">Phone: {orgPhone}</p>}
-            {orgEmail && <p className="text-white/75 text-[8.5px]">Email: {orgEmail}</p>}
+            <h1 className="text-lg font-bold leading-tight" style={{ color: GRAY_900 }}>{orgName}</h1>
+            {orgAddress && <p className="text-[8px] mt-1 leading-snug" style={{ color: GRAY_500 }}>{orgAddress}</p>}
+            {orgGstin && <p className="text-[8px]" style={{ color: GRAY_500 }}>GSTIN: {orgGstin}</p>}
+            {orgPan && <p className="text-[8px]" style={{ color: GRAY_500 }}>PAN: {orgPan}</p>}
+            {orgPhone && <p className="text-[8px]" style={{ color: GRAY_500 }}>Phone: {orgPhone}</p>}
+            {orgEmail && <p className="text-[8px]" style={{ color: GRAY_500 }}>Email: {orgEmail}</p>}
           </div>
           <div className="text-right flex flex-col items-end">
-            <h2 className="text-xl font-bold text-white tracking-wider">TAX INVOICE</h2>
-            <p className="text-white/80 text-[10.5px] font-medium mt-1">{invoiceNumber || '—'}</p>
+            <p className="text-[7px] uppercase tracking-[2px] mb-0.5" style={{ color: GRAY_400 }}>Invoice</p>
+            <h2 className="text-xl font-bold tracking-wide" style={{ color: TEAL }}>TAX INVOICE</h2>
+            <p className="text-[10px] font-semibold mt-1" style={{ color: GRAY_500 }}>{invoiceNumber || '—'}</p>
             <span
-              className="mt-2 inline-block px-2.5 py-0.5 rounded-full text-[8px] font-bold uppercase tracking-wider"
+              className="mt-2 inline-block px-2.5 py-0.5 rounded-full text-[7.5px] font-bold uppercase tracking-wider"
               style={{ backgroundColor: statusStyle.bg, color: statusStyle.color }}
             >
               {status.toUpperCase()}
@@ -117,54 +127,52 @@ export function InvoicePdfPreview({
         </div>
       </div>
 
-      {/* ═══ DATE RIBBON ═══ */}
-      <div className="flex items-center justify-end gap-5 px-6 py-1.5" style={{ backgroundColor: TEAL_DARK }}>
-        <div className="flex items-center gap-1">
-          <span className="text-white/50 text-[8px]">Issued:</span>
-          <span className="text-white text-[8px] font-bold">{formatDate(dateIssued)}</span>
+      {/* ═══ META STRIP ═══ */}
+      <div className="grid grid-cols-4 divide-x" style={{ backgroundColor: GRAY_100, borderTop: `0.5px solid ${GRAY_200}`, borderBottom: `0.5px solid ${GRAY_200}` }}>
+        <div className="py-2 text-center">
+          <p className="text-[6.5px] uppercase tracking-wider mb-0.5" style={{ color: GRAY_400 }}>Date Issued</p>
+          <p className="text-[8.5px] font-bold" style={{ color: GRAY_900 }}>{formatDate(dateIssued)}</p>
         </div>
-        {dateDue && (
-          <div className="flex items-center gap-1">
-            <span className="text-white/50 text-[8px]">Due:</span>
-            <span className="text-white text-[8px] font-bold">{formatDate(dateDue)}</span>
-          </div>
-        )}
-        <div className="flex items-center gap-1">
-          <span className="text-white/50 text-[8px]">Supply:</span>
-          <span className="text-white text-[8px] font-bold">
+        <div className="py-2 text-center">
+          <p className="text-[6.5px] uppercase tracking-wider mb-0.5" style={{ color: GRAY_400 }}>Due Date</p>
+          <p className="text-[8.5px] font-bold" style={{ color: GRAY_900 }}>{dateDue ? formatDate(dateDue) : '—'}</p>
+        </div>
+        <div className="py-2 text-center">
+          <p className="text-[6.5px] uppercase tracking-wider mb-0.5" style={{ color: GRAY_400 }}>Place of Supply</p>
+          <p className="text-[8.5px] font-bold" style={{ color: GRAY_900 }}>
             {client ? INDIAN_STATES[client.state_code] : INDIAN_STATES[profileStateCode]}
-          </span>
+          </p>
         </div>
-        <div className="flex items-center gap-1">
-          <span className="text-white/50 text-[8px]">Type:</span>
-          <span className="text-white text-[8px] font-bold">{isIntraState ? 'Intra-State' : 'Inter-State'}</span>
+        <div className="py-2 text-center">
+          <p className="text-[6.5px] uppercase tracking-wider mb-0.5" style={{ color: GRAY_400 }}>Supply Type</p>
+          <p className="text-[8.5px] font-bold" style={{ color: GRAY_900 }}>{isIntraState ? 'Intra-State' : 'Inter-State'}</p>
         </div>
       </div>
 
       {/* ═══ BILL TO & FROM ═══ */}
       <div className="px-6 pt-4 pb-3">
         <div className="grid grid-cols-2 gap-3">
-          <div className="p-3 rounded-md" style={{ backgroundColor: TEAL_LIGHTER, border: `0.5px solid ${BORDER}` }}>
-            <h4 className="text-[7.5px] font-bold uppercase tracking-widest mb-1.5" style={{ color: TEAL }}>Bill To</h4>
+          <div className="p-3 rounded-md" style={{ border: `1px solid ${GRAY_200}`, borderLeft: `3px solid ${TEAL}` }}>
+            <h4 className="text-[7px] font-bold uppercase tracking-[1.5px] mb-2" style={{ color: TEAL }}>Bill To</h4>
             {client ? (
               <>
-                <p className="text-[10.5px] font-bold">{client.name}</p>
-                {client.billing_address && <p className="text-[8.5px] leading-snug" style={{ color: GRAY }}>{client.billing_address}</p>}
-                {client.gstin && <p className="text-[8.5px]" style={{ color: GRAY }}>GSTIN: {client.gstin}</p>}
-                <p className="text-[8.5px]" style={{ color: GRAY }}>State: {INDIAN_STATES[client.state_code]} ({client.state_code})</p>
-                {client.phone && <p className="text-[8.5px]" style={{ color: GRAY }}>Phone: {client.phone}</p>}
-                {client.email && <p className="text-[8.5px]" style={{ color: GRAY }}>Email: {client.email}</p>}
+                <p className="text-[10.5px] font-bold" style={{ color: GRAY_900 }}>{client.name}</p>
+                {client.billing_address && <p className="text-[8px] leading-snug mt-0.5" style={{ color: GRAY_500 }}>{client.billing_address}</p>}
+                {client.gstin && <p className="text-[8px]" style={{ color: GRAY_500 }}>GSTIN: {client.gstin}</p>}
+                <p className="text-[8px]" style={{ color: GRAY_500 }}>State: {INDIAN_STATES[client.state_code]} ({client.state_code})</p>
+                {client.phone && <p className="text-[8px]" style={{ color: GRAY_500 }}>Phone: {client.phone}</p>}
+                {client.email && <p className="text-[8px]" style={{ color: GRAY_500 }}>Email: {client.email}</p>}
               </>
             ) : (
-              <p className="text-[8.5px] italic" style={{ color: GRAY }}>Walk-in Customer</p>
+              <p className="text-[8px] italic" style={{ color: GRAY_400 }}>Walk-in Customer</p>
             )}
           </div>
-          <div className="p-3 rounded-md" style={{ backgroundColor: TEAL_LIGHTER, border: `0.5px solid ${BORDER}` }}>
-            <h4 className="text-[7.5px] font-bold uppercase tracking-widest mb-1.5" style={{ color: TEAL }}>From</h4>
-            <p className="text-[10.5px] font-bold">{orgName}</p>
-            {orgAddress && <p className="text-[8.5px] leading-snug" style={{ color: GRAY }}>{orgAddress}</p>}
-            {orgGstin && <p className="text-[8.5px]" style={{ color: GRAY }}>GSTIN: {orgGstin}</p>}
-            <p className="text-[8.5px]" style={{ color: GRAY }}>State: {INDIAN_STATES[profileStateCode]} ({profileStateCode})</p>
+          <div className="p-3 rounded-md" style={{ border: `1px solid ${GRAY_200}` }}>
+            <h4 className="text-[7px] font-bold uppercase tracking-[1.5px] mb-2" style={{ color: TEAL }}>From</h4>
+            <p className="text-[10.5px] font-bold" style={{ color: GRAY_900 }}>{orgName}</p>
+            {orgAddress && <p className="text-[8px] leading-snug mt-0.5" style={{ color: GRAY_500 }}>{orgAddress}</p>}
+            {orgGstin && <p className="text-[8px]" style={{ color: GRAY_500 }}>GSTIN: {orgGstin}</p>}
+            <p className="text-[8px]" style={{ color: GRAY_500 }}>State: {INDIAN_STATES[profileStateCode]} ({profileStateCode})</p>
           </div>
         </div>
       </div>
@@ -173,27 +181,27 @@ export function InvoicePdfPreview({
       <div className="px-6 pb-3">
         <table className="w-full border-collapse">
           <thead>
-            <tr className="rounded" style={{ backgroundColor: TEAL }}>
-              <th className="text-left py-1.5 px-1.5 text-white text-[8px] font-bold uppercase tracking-wider rounded-l">#</th>
-              <th className="text-left py-1.5 px-1.5 text-white text-[8px] font-bold uppercase tracking-wider">Description</th>
-              <th className="text-right py-1.5 px-1.5 text-white text-[8px] font-bold uppercase tracking-wider">Qty</th>
-              <th className="text-right py-1.5 px-1.5 text-white text-[8px] font-bold uppercase tracking-wider">Rate</th>
-              <th className="text-right py-1.5 px-1.5 text-white text-[8px] font-bold uppercase tracking-wider">Disc.</th>
+            <tr style={{ backgroundColor: TEAL }}>
+              <th className="text-left py-2 px-1.5 text-white text-[7.5px] font-bold uppercase tracking-wider rounded-l">#</th>
+              <th className="text-left py-2 px-1.5 text-white text-[7.5px] font-bold uppercase tracking-wider">Description</th>
+              <th className="text-right py-2 px-1.5 text-white text-[7.5px] font-bold uppercase tracking-wider">Qty</th>
+              <th className="text-right py-2 px-1.5 text-white text-[7.5px] font-bold uppercase tracking-wider">Rate</th>
+              <th className="text-right py-2 px-1.5 text-white text-[7.5px] font-bold uppercase tracking-wider">Disc.</th>
               {isIntraState ? (
                 <>
-                  <th className="text-right py-1.5 px-1.5 text-white text-[8px] font-bold uppercase tracking-wider">CGST</th>
-                  <th className="text-right py-1.5 px-1.5 text-white text-[8px] font-bold uppercase tracking-wider">SGST</th>
+                  <th className="text-right py-2 px-1.5 text-white text-[7.5px] font-bold uppercase tracking-wider">CGST</th>
+                  <th className="text-right py-2 px-1.5 text-white text-[7.5px] font-bold uppercase tracking-wider">SGST</th>
                 </>
               ) : (
-                <th className="text-right py-1.5 px-1.5 text-white text-[8px] font-bold uppercase tracking-wider">IGST</th>
+                <th className="text-right py-2 px-1.5 text-white text-[7.5px] font-bold uppercase tracking-wider">IGST</th>
               )}
-              <th className="text-right py-1.5 px-1.5 text-white text-[8px] font-bold uppercase tracking-wider rounded-r">Amount</th>
+              <th className="text-right py-2 px-1.5 text-white text-[7.5px] font-bold uppercase tracking-wider rounded-r">Amount</th>
             </tr>
           </thead>
           <tbody>
             {validItems.length === 0 ? (
               <tr>
-                <td colSpan={isIntraState ? 8 : 7} className="py-6 text-center text-[9px]" style={{ color: GRAY_LIGHT }}>
+                <td colSpan={isIntraState ? 8 : 7} className="py-6 text-center text-[9px]" style={{ color: GRAY_400 }}>
                   No items added
                 </td>
               </tr>
@@ -205,37 +213,37 @@ export function InvoicePdfPreview({
                 const isAlt = index % 2 === 1;
 
                 return (
-                  <tr key={item.id} style={{ borderBottom: `0.5px solid ${BORDER}`, backgroundColor: isAlt ? TEAL_LIGHTER : 'transparent' }}>
-                    <td className="py-1.5 px-1.5 text-[9px]">{index + 1}</td>
-                    <td className="py-1.5 px-1.5">
-                      <span className="text-[9px] font-bold">{item.description}</span>
+                  <tr key={item.id} style={{ borderBottom: `0.5px solid ${GRAY_200}`, backgroundColor: isAlt ? TEAL_LIGHTER : 'transparent' }}>
+                    <td className="py-2 px-1.5 text-[8.5px]" style={{ color: GRAY_400 }}>{index + 1}</td>
+                    <td className="py-2 px-1.5">
+                      <span className="text-[8.5px] font-semibold" style={{ color: GRAY_900 }}>{item.description}</span>
                     </td>
-                    <td className="py-1.5 px-1.5 text-right text-[9px] tabular-nums">{item.qty}</td>
-                    <td className="py-1.5 px-1.5 text-right text-[9px] tabular-nums">{formatINR(item.rate)}</td>
-                    <td className="py-1.5 px-1.5 text-right text-[9px] tabular-nums" style={{ color: discount > 0 ? '#16a34a' : GRAY_LIGHT }}>
+                    <td className="py-2 px-1.5 text-right text-[8.5px] tabular-nums font-semibold">{item.qty}</td>
+                    <td className="py-2 px-1.5 text-right text-[8.5px] tabular-nums">{formatINR(item.rate)}</td>
+                    <td className="py-2 px-1.5 text-right text-[8.5px] tabular-nums" style={{ color: discount > 0 ? GREEN : GRAY_400 }}>
                       {discount > 0 ? `-${formatINR(discount)}` : '—'}
                     </td>
                     {isIntraState ? (
                       <>
-                        <td className="py-1.5 px-1.5 text-right text-[9px] tabular-nums">
+                        <td className="py-2 px-1.5 text-right text-[8.5px] tabular-nums">
                           {formatINR(taxAmount / 2)}
                           <br />
-                          <span className="text-[7px]" style={{ color: GRAY_LIGHT }}>@{item.tax_rate / 2}%</span>
+                          <span className="text-[6.5px]" style={{ color: GRAY_400 }}>@{item.tax_rate / 2}%</span>
                         </td>
-                        <td className="py-1.5 px-1.5 text-right text-[9px] tabular-nums">
+                        <td className="py-2 px-1.5 text-right text-[8.5px] tabular-nums">
                           {formatINR(taxAmount / 2)}
                           <br />
-                          <span className="text-[7px]" style={{ color: GRAY_LIGHT }}>@{item.tax_rate / 2}%</span>
+                          <span className="text-[6.5px]" style={{ color: GRAY_400 }}>@{item.tax_rate / 2}%</span>
                         </td>
                       </>
                     ) : (
-                      <td className="py-1.5 px-1.5 text-right text-[9px] tabular-nums">
+                      <td className="py-2 px-1.5 text-right text-[8.5px] tabular-nums">
                         {formatINR(taxAmount)}
                         <br />
-                        <span className="text-[7px]" style={{ color: GRAY_LIGHT }}>@{item.tax_rate}%</span>
+                        <span className="text-[6.5px]" style={{ color: GRAY_400 }}>@{item.tax_rate}%</span>
                       </td>
                     )}
-                    <td className="py-1.5 px-1.5 text-right text-[9px] font-bold tabular-nums">
+                    <td className="py-2 px-1.5 text-right text-[8.5px] font-bold tabular-nums">
                       {formatINR(itemCalc?.totalAmount || 0)}
                     </td>
                   </tr>
@@ -247,55 +255,58 @@ export function InvoicePdfPreview({
 
         {/* Items summary */}
         {validItems.length > 0 && (
-          <div className="mt-1 px-1.5 py-1 rounded" style={{ backgroundColor: TEAL_LIGHT }}>
-            <span className="text-[8px] font-bold" style={{ color: TEAL }}>
-              {validItems.length} item{validItems.length !== 1 ? 's' : ''} | {totalQty} unit{totalQty !== 1 ? 's' : ''}
+          <div className="mt-1 px-2 py-1.5 rounded flex justify-between items-center" style={{ backgroundColor: TEAL_LIGHT }}>
+            <span className="text-[7.5px] font-semibold" style={{ color: TEAL }}>
+              {validItems.length} item{validItems.length !== 1 ? 's' : ''} · {totalQty} unit{totalQty !== 1 ? 's' : ''}
+            </span>
+            <span className="text-[7.5px]" style={{ color: GRAY_500 }}>
+              Taxable: {formatINR(calculations.subtotal - calculations.totalDiscount)}
             </span>
           </div>
         )}
       </div>
 
-      {/* ═══ SUMMARY (Amount in Words + Totals) ═══ */}
+      {/* ═══ SUMMARY ═══ */}
       <div className="px-6 pb-3">
         <div className="flex justify-between gap-4">
           <div className="flex-1">
             {calculations.grandTotal > 0 && (
               <div>
-                <h4 className="text-[7.5px] font-bold uppercase tracking-widest mb-1" style={{ color: TEAL }}>Amount in Words</h4>
-                <p className="text-[9.5px] italic leading-relaxed">{numberToWords(calculations.grandTotal)}</p>
+                <h4 className="text-[7px] font-bold uppercase tracking-[1.2px] mb-1" style={{ color: TEAL }}>Amount in Words</h4>
+                <p className="text-[9.5px] italic leading-relaxed" style={{ color: GRAY_700 }}>{numberToWords(calculations.grandTotal)}</p>
               </div>
             )}
           </div>
-          <div className="w-52 p-3 rounded-md" style={{ backgroundColor: TEAL_LIGHT, border: `0.5px solid ${BORDER}` }}>
+          <div className="w-52 p-3 rounded-md" style={{ border: `1px solid ${GRAY_200}` }}>
             <div className="flex justify-between py-0.5">
-              <span className="text-[9px]" style={{ color: GRAY }}>Subtotal</span>
-              <span className="text-[9px] font-bold tabular-nums">{formatINR(calculations.subtotal)}</span>
+              <span className="text-[8.5px]" style={{ color: GRAY_500 }}>Subtotal</span>
+              <span className="text-[8.5px] font-semibold tabular-nums">{formatINR(calculations.subtotal)}</span>
             </div>
             {calculations.totalDiscount > 0 && (
               <div className="flex justify-between py-0.5">
-                <span className="text-[9px]" style={{ color: GRAY }}>Discount</span>
-                <span className="text-[9px] font-bold tabular-nums" style={{ color: '#16a34a' }}>-{formatINR(calculations.totalDiscount)}</span>
+                <span className="text-[8.5px]" style={{ color: GRAY_500 }}>Discount</span>
+                <span className="text-[8.5px] font-semibold tabular-nums" style={{ color: GREEN }}>-{formatINR(calculations.totalDiscount)}</span>
               </div>
             )}
             {isIntraState ? (
               <>
                 <div className="flex justify-between py-0.5">
-                  <span className="text-[9px]" style={{ color: GRAY }}>CGST</span>
-                  <span className="text-[9px] font-bold tabular-nums">{formatINR(calculations.gstBreakdown.cgst)}</span>
+                  <span className="text-[8.5px]" style={{ color: GRAY_500 }}>CGST</span>
+                  <span className="text-[8.5px] font-semibold tabular-nums">{formatINR(calculations.gstBreakdown.cgst)}</span>
                 </div>
                 <div className="flex justify-between py-0.5">
-                  <span className="text-[9px]" style={{ color: GRAY }}>SGST</span>
-                  <span className="text-[9px] font-bold tabular-nums">{formatINR(calculations.gstBreakdown.sgst)}</span>
+                  <span className="text-[8.5px]" style={{ color: GRAY_500 }}>SGST</span>
+                  <span className="text-[8.5px] font-semibold tabular-nums">{formatINR(calculations.gstBreakdown.sgst)}</span>
                 </div>
               </>
             ) : (
               <div className="flex justify-between py-0.5">
-                <span className="text-[9px]" style={{ color: GRAY }}>IGST</span>
-                <span className="text-[9px] font-bold tabular-nums">{formatINR(calculations.gstBreakdown.igst)}</span>
+                <span className="text-[8.5px]" style={{ color: GRAY_500 }}>IGST</span>
+                <span className="text-[8.5px] font-semibold tabular-nums">{formatINR(calculations.gstBreakdown.igst)}</span>
               </div>
             )}
-            <div className="flex justify-between pt-2 mt-1.5" style={{ borderTop: `2px solid ${TEAL}` }}>
-              <span className="text-[12px] font-bold" style={{ color: TEAL_DARK }}>Grand Total</span>
+            <div className="flex justify-between pt-2 mt-2" style={{ borderTop: `2px solid ${TEAL}` }}>
+              <span className="text-[11px] font-bold" style={{ color: GRAY_900 }}>Grand Total</span>
               <span className="text-[14px] font-bold tabular-nums" style={{ color: TEAL }}>
                 {formatINR(calculations.grandTotal)}
               </span>
@@ -307,45 +318,48 @@ export function InvoicePdfPreview({
       {/* ═══ NOTES ═══ */}
       {notes && (
         <div className="px-6 pb-3">
-          <h4 className="text-[7.5px] font-bold uppercase tracking-widest mb-1" style={{ color: TEAL }}>Notes & Terms</h4>
-          <p className="text-[9px] whitespace-pre-wrap leading-relaxed" style={{ color: GRAY }}>{notes}</p>
+          <h4 className="text-[7px] font-bold uppercase tracking-[1.2px] mb-1" style={{ color: TEAL }}>Notes & Terms</h4>
+          <p className="text-[8.5px] whitespace-pre-wrap leading-relaxed" style={{ color: GRAY_500 }}>{notes}</p>
         </div>
       )}
 
+      {/* ═══ AUTHORIZED SIGNATORY ═══ */}
+      <div className="px-6 pb-3 flex justify-end">
+        <div className="w-40 text-center">
+          <div className="mt-8 mb-1.5" style={{ borderBottom: `1px solid ${GRAY_700}` }} />
+          <p className="text-[7px]" style={{ color: GRAY_500 }}>Authorized Signatory</p>
+          <p className="text-[7.5px] font-semibold mt-0.5" style={{ color: GRAY_700 }}>{orgName}</p>
+        </div>
+      </div>
+
       {/* ═══ PAYMENT FOOTER ═══ */}
       {showPaymentInfo && (
-        <div className="px-6 py-3 flex justify-between items-end" style={{ borderTop: `1px solid ${BORDER}` }}>
+        <div className="px-6 py-3 flex justify-between items-start" style={{ backgroundColor: GRAY_100, borderTop: `1px solid ${GRAY_200}` }}>
           <div className="flex-1">
-            <h4 className="text-[7.5px] font-bold uppercase tracking-widest mb-1" style={{ color: TEAL }}>Payment Information</h4>
-            <div className="flex gap-5 mt-1">
+            <h4 className="text-[7px] font-bold uppercase tracking-[1.2px] mb-1.5" style={{ color: TEAL }}>Payment Information</h4>
+            <div className="flex gap-5 mt-1 flex-wrap">
               {orgBankName && (
                 <div>
-                  <p className="text-[8px]" style={{ color: GRAY_LIGHT }}>Account Name</p>
-                  <p className="text-[9px]">{orgBankName}</p>
+                  <p className="text-[7px]" style={{ color: GRAY_400 }}>Account Name</p>
+                  <p className="text-[8.5px] font-semibold" style={{ color: GRAY_700 }}>{orgBankName}</p>
                 </div>
               )}
               {orgBankAccount && (
                 <div>
-                  <p className="text-[8px]" style={{ color: GRAY_LIGHT }}>Account No.</p>
-                  <p className="text-[9px]">{orgBankAccount}</p>
+                  <p className="text-[7px]" style={{ color: GRAY_400 }}>Account No.</p>
+                  <p className="text-[8.5px] font-semibold" style={{ color: GRAY_700 }}>{orgBankAccount}</p>
                 </div>
               )}
               {orgBankIfsc && (
                 <div>
-                  <p className="text-[8px]" style={{ color: GRAY_LIGHT }}>IFSC</p>
-                  <p className="text-[9px]">{orgBankIfsc}</p>
+                  <p className="text-[7px]" style={{ color: GRAY_400 }}>IFSC</p>
+                  <p className="text-[8.5px] font-semibold" style={{ color: GRAY_700 }}>{orgBankIfsc}</p>
                 </div>
               )}
               {orgUpi && (
                 <div>
-                  <p className="text-[8px]" style={{ color: GRAY_LIGHT }}>UPI ID</p>
-                  <p className="text-[9px]">{orgUpi}</p>
-                </div>
-              )}
-              {orgEmail && !orgBankName && (
-                <div>
-                  <p className="text-[8px]" style={{ color: GRAY_LIGHT }}>Email</p>
-                  <p className="text-[9px]">{orgEmail}</p>
+                  <p className="text-[7px]" style={{ color: GRAY_400 }}>UPI ID</p>
+                  <p className="text-[8.5px] font-semibold" style={{ color: GRAY_700 }}>{orgUpi}</p>
                 </div>
               )}
             </div>
@@ -354,20 +368,21 @@ export function InvoicePdfPreview({
             <div className="text-center ml-4">
               <p className="text-[7px] font-bold uppercase tracking-wider mb-0.5" style={{ color: TEAL }}>Scan to Pay</p>
               <img src={qrCodeUrl} alt="UPI QR Code" className="w-16 h-16" />
-              <p className="text-[7.5px] mt-0.5" style={{ color: GRAY }}>UPI Payment</p>
+              <p className="text-[6.5px] mt-0.5" style={{ color: GRAY_400 }}>UPI Payment</p>
             </div>
           )}
         </div>
       )}
 
       {/* ═══ THANK YOU ═══ */}
-      <div className="py-2.5 text-center" style={{ backgroundColor: TEAL_LIGHT }}>
-        <p className="text-[10px] font-bold" style={{ color: TEAL }}>Thank you for your business!</p>
+      <div className="py-3 text-center" style={{ backgroundColor: TEAL }}>
+        <p className="text-[10px] font-semibold text-white tracking-wide">Thank you for your business!</p>
+        <p className="text-[7px] text-white/70 mt-0.5">Questions? Contact {orgEmail || orgPhone || orgName}</p>
       </div>
 
       {/* ═══ LEGAL FOOTER ═══ */}
       <div className="py-2 text-center">
-        <p className="text-[7px]" style={{ color: GRAY_LIGHT }}>
+        <p className="text-[6.5px]" style={{ color: GRAY_400 }}>
           This is a computer-generated invoice and does not require a physical signature.
         </p>
       </div>

@@ -6,18 +6,21 @@ import {
   StyleSheet,
   Image,
   Font,
-  Link,
 } from '@react-pdf/renderer';
 import type { Invoice, InvoiceItem, Client, Profile } from '@/types';
 import { INDIAN_STATES } from '@/types';
 
-// Register Plus Jakarta Sans to match the app's system font
+// Register Plus Jakarta Sans
 Font.register({
   family: 'Plus Jakarta Sans',
   fonts: [
     {
       src: 'https://fonts.gstatic.com/s/plusjakartasans/v8/LDIbaomQNQcsA88c7O9yZ4KMCoOg4IA6-91aHEjcWuA_qU79TR_V.ttf',
       fontWeight: 400,
+    },
+    {
+      src: 'https://fonts.gstatic.com/s/plusjakartasans/v8/LDIbaomQNQcsA88c7O9yZ4KMCoOg4IA6-91aHEjcWuA_m0n9TR_V.ttf',
+      fontWeight: 600,
     },
     {
       src: 'https://fonts.gstatic.com/s/plusjakartasans/v8/LDIbaomQNQcsA88c7O9yZ4KMCoOg4IA6-91aHEjcWuA_KE79TR_V.ttf',
@@ -30,202 +33,242 @@ Font.register({
 const TEAL = '#03556E';
 const TEAL_DARK = '#024558';
 const TEAL_LIGHT = '#E8F4F8';
-const TEAL_LIGHTER = '#F3FAFB';
+const TEAL_LIGHTER = '#F5FAFB';
+const TEAL_ACCENT = '#0891b2';
 const WHITE = '#ffffff';
-const GRAY = '#6b7280';
-const GRAY_DARK = '#374151';
-const GRAY_LIGHT = '#9ca3af';
-const BORDER = '#e5e7eb';
-const GREEN = '#16a34a';
+const GRAY_900 = '#111827';
+const GRAY_700 = '#374151';
+const GRAY_500 = '#6b7280';
+const GRAY_400 = '#9ca3af';
+const GRAY_200 = '#e5e7eb';
+const GRAY_100 = '#f3f4f6';
+const GREEN = '#059669';
 const AMBER = '#d97706';
 const RED = '#dc2626';
 
-// ── Styles ──
 const s = StyleSheet.create({
   page: {
     padding: 0,
-    fontSize: 9.5,
+    fontSize: 9,
     fontFamily: 'Plus Jakarta Sans',
-    color: GRAY_DARK,
+    color: GRAY_700,
   },
 
-  // ── Teal header band ──
-  header: {
+  // ── Top accent bar ──
+  accentBar: {
+    height: 4,
     backgroundColor: TEAL,
+  },
+
+  // ── Header ──
+  header: {
     paddingHorizontal: 40,
-    paddingTop: 28,
-    paddingBottom: 22,
+    paddingTop: 24,
+    paddingBottom: 20,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
   },
-  headerLeft: { flex: 1, gap: 2 },
+  headerLeft: { flex: 1, gap: 1 },
   headerRight: { textAlign: 'right', alignItems: 'flex-end' },
-  companyName: { fontSize: 17, fontWeight: 'bold', color: WHITE, marginBottom: 3 },
-  headerDetail: { fontSize: 8.5, color: 'rgba(255,255,255,0.78)', marginBottom: 1.5 },
-  invoiceTitle: { fontSize: 22, fontWeight: 'bold', color: WHITE, letterSpacing: 1.5 },
-  invoiceNumber: { fontSize: 10.5, color: 'rgba(255,255,255,0.85)', marginTop: 3 },
+  companyName: { fontSize: 18, fontWeight: 700, color: GRAY_900, marginBottom: 4 },
+  headerDetail: { fontSize: 8, color: GRAY_500, lineHeight: 1.5 },
+  invoiceLabel: { fontSize: 8, color: GRAY_400, textTransform: 'uppercase', letterSpacing: 2, marginBottom: 2 },
+  invoiceTitle: { fontSize: 26, fontWeight: 700, color: TEAL, letterSpacing: 0.5 },
+  invoiceNumber: { fontSize: 10, color: GRAY_500, marginTop: 3, fontWeight: 600 },
 
-  // ── Status pill ──
+  // ── Status ──
   statusBadge: {
     marginTop: 6,
     paddingHorizontal: 10,
-    paddingVertical: 3,
-    borderRadius: 10,
-    fontSize: 8,
-    fontWeight: 'bold',
+    paddingVertical: 3.5,
+    borderRadius: 12,
+    fontSize: 7.5,
+    fontWeight: 700,
     textTransform: 'uppercase',
     letterSpacing: 0.8,
   },
 
-  // ── Key-dates ribbon (right below header) ──
-  ribbon: {
-    backgroundColor: TEAL_DARK,
+  // ── Meta info strip ──
+  metaStrip: {
     flexDirection: 'row',
     paddingHorizontal: 40,
-    paddingVertical: 8,
-    gap: 30,
-    justifyContent: 'flex-end',
+    paddingVertical: 10,
+    backgroundColor: GRAY_100,
+    borderTop: `0.5px solid ${GRAY_200}`,
+    borderBottom: `0.5px solid ${GRAY_200}`,
+    gap: 0,
+    justifyContent: 'space-between',
   },
-  ribbonItem: { flexDirection: 'row', gap: 4 },
-  ribbonLabel: { fontSize: 8, color: 'rgba(255,255,255,0.55)' },
-  ribbonValue: { fontSize: 8, fontWeight: 'bold', color: WHITE },
+  metaItem: { flex: 1, alignItems: 'center' },
+  metaLabel: { fontSize: 7, color: GRAY_400, textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 2 },
+  metaValue: { fontSize: 8.5, fontWeight: 700, color: GRAY_900 },
+  metaDivider: { width: 0.5, backgroundColor: GRAY_200 },
 
-  // ── Body wrapper ──
-  body: { paddingHorizontal: 40, paddingTop: 18 },
+  // ── Body ──
+  body: { paddingHorizontal: 40, paddingTop: 20 },
 
-  // ── Bill-To / Ship-To / From section ──
+  // ── Parties ──
   parties: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 18,
-    gap: 20,
+    marginBottom: 22,
+    gap: 16,
   },
   partyBox: {
     flex: 1,
-    padding: 12,
-    backgroundColor: TEAL_LIGHTER,
+    padding: 14,
+    backgroundColor: WHITE,
     borderRadius: 6,
-    border: `0.5px solid ${BORDER}`,
+    border: `1px solid ${GRAY_200}`,
+  },
+  partyBoxAccent: {
+    borderLeft: `3px solid ${TEAL}`,
   },
   partyTitle: {
-    fontSize: 7.5,
-    fontWeight: 'bold',
+    fontSize: 7,
+    fontWeight: 700,
     color: TEAL,
     textTransform: 'uppercase',
-    letterSpacing: 1.2,
-    marginBottom: 6,
+    letterSpacing: 1.5,
+    marginBottom: 8,
   },
-  partyName: { fontSize: 10.5, fontWeight: 'bold', marginBottom: 2 },
-  partyDetail: { fontSize: 8.5, color: GRAY, marginBottom: 1.5, lineHeight: 1.4 },
+  partyName: { fontSize: 11, fontWeight: 700, color: GRAY_900, marginBottom: 3 },
+  partyDetail: { fontSize: 8, color: GRAY_500, marginBottom: 1.5, lineHeight: 1.5 },
 
   // ── Table ──
-  table: { marginBottom: 14 },
+  table: { marginBottom: 16 },
   tableHeaderRow: {
     flexDirection: 'row',
+    paddingVertical: 8,
+    paddingHorizontal: 8,
     backgroundColor: TEAL,
-    paddingVertical: 7,
-    paddingHorizontal: 6,
     borderRadius: 4,
   },
-  tableHeaderCell: { fontSize: 8, fontWeight: 'bold', color: WHITE, textTransform: 'uppercase', letterSpacing: 0.6 },
+  tableHeaderCell: { fontSize: 7.5, fontWeight: 700, color: WHITE, textTransform: 'uppercase', letterSpacing: 0.5 },
   tableRow: {
     flexDirection: 'row',
-    paddingVertical: 7,
-    paddingHorizontal: 6,
-    borderBottom: `0.5px solid ${BORDER}`,
+    paddingVertical: 8,
+    paddingHorizontal: 8,
+    borderBottom: `0.5px solid ${GRAY_200}`,
   },
   tableRowAlt: { backgroundColor: TEAL_LIGHTER },
-  tableCell: { fontSize: 9 },
-  tableCellBold: { fontSize: 9, fontWeight: 'bold' },
+  tableCell: { fontSize: 8.5 },
+  tableCellBold: { fontSize: 8.5, fontWeight: 600 },
+  tableCellSub: { fontSize: 6.5, color: GRAY_400, marginTop: 1 },
 
   // Column widths
   colNum: { width: 22 },
   colDesc: { flex: 2.5 },
-  colHsn: { width: 52, textAlign: 'center' },
-  colQty: { width: 32, textAlign: 'right' },
-  colRate: { width: 60, textAlign: 'right' },
-  colDisc: { width: 50, textAlign: 'right' },
-  colTax: { width: 58, textAlign: 'right' },
-  colAmount: { width: 68, textAlign: 'right' },
+  colHsn: { width: 48, textAlign: 'center' },
+  colQty: { width: 30, textAlign: 'right' },
+  colRate: { width: 58, textAlign: 'right' },
+  colDisc: { width: 48, textAlign: 'right' },
+  colTax: { width: 55, textAlign: 'right' },
+  colAmount: { width: 65, textAlign: 'right' },
 
-  // ── Summary panel ──
+  // ── Items summary ──
+  itemsSummary: {
+    flexDirection: 'row',
+    paddingVertical: 6,
+    paddingHorizontal: 8,
+    backgroundColor: TEAL_LIGHT,
+    borderRadius: 3,
+    marginTop: 3,
+    justifyContent: 'space-between',
+  },
+
+  // ── Summary area ──
   summaryWrapper: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 14,
+    marginBottom: 18,
+    gap: 16,
   },
-  amountWordsBox: {
-    flex: 1,
-    paddingRight: 20,
-  },
-  amountWordsLabel: { fontSize: 7.5, fontWeight: 'bold', color: TEAL, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 4 },
-  amountWordsText: { fontSize: 9.5, fontStyle: 'italic', color: GRAY_DARK, lineHeight: 1.5 },
+  amountWordsBox: { flex: 1, paddingRight: 12 },
+  amountWordsLabel: { fontSize: 7, fontWeight: 700, color: TEAL, textTransform: 'uppercase', letterSpacing: 1.2, marginBottom: 5 },
+  amountWordsText: { fontSize: 9.5, fontStyle: 'italic', color: GRAY_700, lineHeight: 1.6 },
 
   totalsBox: {
-    width: 220,
-    backgroundColor: TEAL_LIGHT,
+    width: 210,
+    padding: 14,
+    backgroundColor: WHITE,
     borderRadius: 6,
-    padding: 12,
-    border: `0.5px solid ${BORDER}`,
+    border: `1px solid ${GRAY_200}`,
   },
-  totalRow: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 3 },
-  totalLabel: { fontSize: 9, color: GRAY },
-  totalValue: { fontSize: 9, fontWeight: 'bold' },
+  totalRow: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 3.5 },
+  totalLabel: { fontSize: 8.5, color: GRAY_500 },
+  totalValue: { fontSize: 8.5, fontWeight: 600, color: GRAY_700 },
   grandTotalRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    paddingTop: 8,
-    marginTop: 6,
+    paddingTop: 10,
+    marginTop: 8,
     borderTop: `2px solid ${TEAL}`,
   },
-  grandTotalLabel: { fontSize: 12, fontWeight: 'bold', color: TEAL_DARK },
-  grandTotalValue: { fontSize: 14, fontWeight: 'bold', color: TEAL },
-
-  // ── Divider ──
-  divider: { borderBottom: `0.5px solid ${BORDER}`, marginVertical: 10 },
+  grandTotalLabel: { fontSize: 11, fontWeight: 700, color: GRAY_900 },
+  grandTotalValue: { fontSize: 14, fontWeight: 700, color: TEAL },
 
   // ── Notes ──
-  notesSection: { marginBottom: 12 },
-  sectionLabel: { fontSize: 7.5, fontWeight: 'bold', color: TEAL, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 4 },
-  notesText: { fontSize: 9, color: GRAY, lineHeight: 1.5 },
+  notesSection: { marginBottom: 16 },
+  sectionLabel: { fontSize: 7, fontWeight: 700, color: TEAL, textTransform: 'uppercase', letterSpacing: 1.2, marginBottom: 5 },
+  notesText: { fontSize: 8.5, color: GRAY_500, lineHeight: 1.6 },
 
-  // ── Payment / Bank / QR footer ──
+  // ── Signature ──
+  signatureSection: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    marginBottom: 16,
+    marginTop: 4,
+  },
+  signatureBox: {
+    width: 180,
+    alignItems: 'center',
+  },
+  signatureLine: {
+    width: '100%',
+    borderBottom: `1px solid ${GRAY_700}`,
+    marginBottom: 6,
+    marginTop: 40,
+  },
+  signatureText: { fontSize: 7.5, color: GRAY_500 },
+  signatureName: { fontSize: 8, fontWeight: 600, color: GRAY_700, marginTop: 2 },
+
+  // ── Payment footer ──
   paymentFooter: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'flex-end',
+    alignItems: 'flex-start',
     paddingHorizontal: 40,
-    paddingVertical: 14,
-    borderTop: `1px solid ${BORDER}`,
+    paddingVertical: 16,
+    backgroundColor: GRAY_100,
+    borderTop: `1px solid ${GRAY_200}`,
   },
   bankBox: { flex: 1 },
-  bankLabel: { fontSize: 8, color: GRAY_LIGHT, marginBottom: 1 },
-  bankValue: { fontSize: 9, color: GRAY_DARK, marginBottom: 2 },
+  bankLabel: { fontSize: 7.5, color: GRAY_400, marginBottom: 1 },
+  bankValue: { fontSize: 8.5, color: GRAY_700, fontWeight: 600, marginBottom: 3 },
   qrBox: { alignItems: 'center', gap: 3 },
-  qrLabel: { fontSize: 7, fontWeight: 'bold', color: TEAL, textTransform: 'uppercase', letterSpacing: 0.8 },
-  qrCaption: { fontSize: 7.5, color: GRAY },
+  qrLabel: { fontSize: 7, fontWeight: 700, color: TEAL, textTransform: 'uppercase', letterSpacing: 0.8 },
+  qrCaption: { fontSize: 7, color: GRAY_400 },
 
-  // ── Thank you banner ──
+  // ── Footer ──
   thankYou: {
-    backgroundColor: TEAL_LIGHT,
-    paddingVertical: 10,
+    backgroundColor: TEAL,
+    paddingVertical: 12,
     textAlign: 'center',
   },
-  thankYouText: { fontSize: 10, fontWeight: 'bold', color: TEAL },
-  thankYouSub: { fontSize: 7.5, color: GRAY, marginTop: 2 },
+  thankYouText: { fontSize: 10, fontWeight: 600, color: WHITE, letterSpacing: 0.3 },
+  thankYouSub: { fontSize: 7.5, color: 'rgba(255,255,255,0.7)', marginTop: 2 },
 
-  // ── Legal / page footer ──
   legalFooter: {
     position: 'absolute',
-    bottom: 20,
+    bottom: 14,
     left: 0,
     right: 0,
     textAlign: 'center',
-    paddingVertical: 6,
   },
-  legalText: { fontSize: 7, color: GRAY_LIGHT },
-  pageNumber: { fontSize: 7, color: GRAY_LIGHT, marginTop: 2 },
+  legalText: { fontSize: 6.5, color: GRAY_400 },
+  pageNumber: { fontSize: 6.5, color: GRAY_400, marginTop: 2 },
 });
 
 // ── Props ──
@@ -283,7 +326,7 @@ function getStatusStyle(status: string) {
     case 'paid': return { backgroundColor: '#dcfce7', color: GREEN };
     case 'finalized': return { backgroundColor: '#dbeafe', color: '#2563eb' };
     case 'cancelled': return { backgroundColor: '#fee2e2', color: RED };
-    default: return { backgroundColor: '#f3f4f6', color: GRAY };
+    default: return { backgroundColor: GRAY_100, color: GRAY_500 };
   }
 }
 
@@ -321,19 +364,24 @@ export function InvoicePdfDocument({
       creator="InvoiceWise"
     >
       <Page size="A4" style={s.page}>
+        {/* ═══ ACCENT BAR ═══ */}
+        <View style={s.accentBar} />
+
         {/* ═══ HEADER ═══ */}
         <View style={s.header}>
           <View style={s.headerLeft}>
             {profile.logo_url && (
-              <Image src={profile.logo_url} style={{ width: 46, height: 46, marginBottom: 5, objectFit: 'contain' }} />
+              <Image src={profile.logo_url} style={{ width: 48, height: 48, marginBottom: 6, objectFit: 'contain' }} />
             )}
             <Text style={s.companyName}>{profile.org_name}</Text>
             {profile.address && <Text style={s.headerDetail}>{profile.address}</Text>}
             {profile.gstin && <Text style={s.headerDetail}>GSTIN: {profile.gstin}</Text>}
+            {profile.pan_number && <Text style={s.headerDetail}>PAN: {profile.pan_number}</Text>}
             {profile.phone && <Text style={s.headerDetail}>Phone: {profile.phone}</Text>}
             {profile.email && <Text style={s.headerDetail}>Email: {profile.email}</Text>}
           </View>
           <View style={s.headerRight}>
+            <Text style={s.invoiceLabel}>Invoice</Text>
             <Text style={s.invoiceTitle}>TAX INVOICE</Text>
             <Text style={s.invoiceNumber}>{invoice.invoice_number}</Text>
             <View style={[s.statusBadge, statusStyle]}>
@@ -342,34 +390,35 @@ export function InvoicePdfDocument({
           </View>
         </View>
 
-        {/* ═══ DATE RIBBON ═══ */}
-        <View style={s.ribbon}>
-          <View style={s.ribbonItem}>
-            <Text style={s.ribbonLabel}>Issued:</Text>
-            <Text style={s.ribbonValue}>{formatDate(invoice.date_issued)}</Text>
+        {/* ═══ META STRIP ═══ */}
+        <View style={s.metaStrip}>
+          <View style={s.metaItem}>
+            <Text style={s.metaLabel}>Date Issued</Text>
+            <Text style={s.metaValue}>{formatDate(invoice.date_issued)}</Text>
           </View>
-          {invoice.date_due && (
-            <View style={s.ribbonItem}>
-              <Text style={s.ribbonLabel}>Due:</Text>
-              <Text style={s.ribbonValue}>{formatDate(invoice.date_due)}</Text>
-            </View>
-          )}
-          <View style={s.ribbonItem}>
-            <Text style={s.ribbonLabel}>Supply:</Text>
-            <Text style={s.ribbonValue}>
+          <View style={s.metaDivider} />
+          <View style={s.metaItem}>
+            <Text style={s.metaLabel}>Due Date</Text>
+            <Text style={s.metaValue}>{invoice.date_due ? formatDate(invoice.date_due) : '—'}</Text>
+          </View>
+          <View style={s.metaDivider} />
+          <View style={s.metaItem}>
+            <Text style={s.metaLabel}>Place of Supply</Text>
+            <Text style={s.metaValue}>
               {client ? INDIAN_STATES[client.state_code] : INDIAN_STATES[profile.state_code]}
             </Text>
           </View>
-          <View style={s.ribbonItem}>
-            <Text style={s.ribbonLabel}>Type:</Text>
-            <Text style={s.ribbonValue}>{isIntraState ? 'Intra-State' : 'Inter-State'}</Text>
+          <View style={s.metaDivider} />
+          <View style={s.metaItem}>
+            <Text style={s.metaLabel}>Supply Type</Text>
+            <Text style={s.metaValue}>{isIntraState ? 'Intra-State' : 'Inter-State'}</Text>
           </View>
         </View>
 
-        {/* ═══ BILL-TO & FROM ═══ */}
+        {/* ═══ BILL TO & FROM ═══ */}
         <View style={s.body}>
           <View style={s.parties}>
-            <View style={s.partyBox}>
+            <View style={[s.partyBox, s.partyBoxAccent]}>
               <Text style={s.partyTitle}>Bill To</Text>
               {client ? (
                 <>
@@ -399,7 +448,6 @@ export function InvoicePdfDocument({
 
           {/* ═══ ITEMS TABLE ═══ */}
           <View style={s.table}>
-            {/* Table header */}
             <View style={s.tableHeaderRow}>
               <Text style={[s.tableHeaderCell, s.colNum]}>#</Text>
               <Text style={[s.tableHeaderCell, s.colDesc]}>Description</Text>
@@ -418,7 +466,6 @@ export function InvoicePdfDocument({
               <Text style={[s.tableHeaderCell, s.colAmount]}>Amount</Text>
             </View>
 
-            {/* Table rows */}
             {items.map((item, index) => {
               const baseAmount = Number(item.qty) * Number(item.rate);
               const discount = Number(item.discount);
@@ -428,38 +475,36 @@ export function InvoicePdfDocument({
 
               return (
                 <View key={index} style={[s.tableRow, isAlt && s.tableRowAlt]}>
-                  <Text style={[s.tableCell, s.colNum]}>{index + 1}</Text>
+                  <Text style={[s.tableCell, s.colNum, { color: GRAY_400 }]}>{index + 1}</Text>
                   <View style={s.colDesc}>
                     <Text style={s.tableCellBold}>{item.description}</Text>
                     {item.product_id && item.product && (
-                      <Text style={{ fontSize: 7, color: GRAY_LIGHT, marginTop: 1 }}>
-                        SKU: {item.product.sku}
-                      </Text>
+                      <Text style={s.tableCellSub}>SKU: {item.product.sku}</Text>
                     )}
                   </View>
-                  <Text style={[s.tableCell, s.colHsn, { color: GRAY }]}>
+                  <Text style={[s.tableCell, s.colHsn, { color: GRAY_500, fontSize: 8 }]}>
                     {item.product?.hsn_code || '—'}
                   </Text>
-                  <Text style={[s.tableCell, s.colQty]}>{item.qty}</Text>
+                  <Text style={[s.tableCellBold, s.colQty]}>{item.qty}</Text>
                   <Text style={[s.tableCell, s.colRate]}>{formatINR(Number(item.rate))}</Text>
-                  <Text style={[s.tableCell, s.colDisc, { color: discount > 0 ? GREEN : GRAY_LIGHT }]}>
+                  <Text style={[s.tableCell, s.colDisc, { color: discount > 0 ? GREEN : GRAY_400 }]}>
                     {discount > 0 ? `-${formatINR(discount)}` : '—'}
                   </Text>
                   {isIntraState ? (
                     <>
                       <Text style={[s.tableCell, s.colTax]}>
                         {formatINR(taxAmount / 2)}{'\n'}
-                        <Text style={{ fontSize: 7, color: GRAY_LIGHT }}>@{Number(item.tax_rate) / 2}%</Text>
+                        <Text style={s.tableCellSub}>@{Number(item.tax_rate) / 2}%</Text>
                       </Text>
                       <Text style={[s.tableCell, s.colTax]}>
                         {formatINR(taxAmount / 2)}{'\n'}
-                        <Text style={{ fontSize: 7, color: GRAY_LIGHT }}>@{Number(item.tax_rate) / 2}%</Text>
+                        <Text style={s.tableCellSub}>@{Number(item.tax_rate) / 2}%</Text>
                       </Text>
                     </>
                   ) : (
                     <Text style={[s.tableCell, s.colTax]}>
                       {formatINR(taxAmount)}{'\n'}
-                      <Text style={{ fontSize: 7, color: GRAY_LIGHT }}>@{item.tax_rate}%</Text>
+                      <Text style={s.tableCellSub}>@{item.tax_rate}%</Text>
                     </Text>
                   )}
                   <Text style={[s.tableCellBold, s.colAmount]}>{formatINR(totalAmount)}</Text>
@@ -467,23 +512,26 @@ export function InvoicePdfDocument({
               );
             })}
 
-            {/* Items summary row */}
-            <View style={{ flexDirection: 'row', paddingVertical: 5, paddingHorizontal: 6, backgroundColor: TEAL_LIGHT, borderRadius: 3, marginTop: 2 }}>
-              <Text style={{ fontSize: 8, color: TEAL, fontWeight: 'bold' }}>
-                {items.length} item{items.length !== 1 ? 's' : ''} | {totalItems} unit{totalItems !== 1 ? 's' : ''}
+            {/* Items summary */}
+            <View style={s.itemsSummary}>
+              <Text style={{ fontSize: 7.5, color: TEAL, fontWeight: 600 }}>
+                {items.length} item{items.length !== 1 ? 's' : ''} · {totalItems} unit{totalItems !== 1 ? 's' : ''}
+              </Text>
+              <Text style={{ fontSize: 7.5, color: GRAY_500 }}>
+                Taxable: {formatINR(Number(invoice.subtotal) - Number(invoice.total_discount))}
               </Text>
             </View>
           </View>
 
-          {/* ═══ SUMMARY (Amount in Words + Totals) ═══ */}
+          {/* ═══ SUMMARY ═══ */}
           <View style={s.summaryWrapper}>
             <View style={s.amountWordsBox}>
               <Text style={s.amountWordsLabel}>Amount in Words</Text>
               <Text style={s.amountWordsText}>{numberToWords(Number(invoice.grand_total))}</Text>
               {invoice.payment_mode && (
-                <View style={{ marginTop: 8 }}>
+                <View style={{ marginTop: 10 }}>
                   <Text style={s.amountWordsLabel}>Payment Mode</Text>
-                  <Text style={[s.amountWordsText, { fontStyle: 'normal', fontWeight: 'bold' }]}>
+                  <Text style={[s.amountWordsText, { fontStyle: 'normal', fontWeight: 600 }]}>
                     {invoice.payment_mode.toUpperCase()}
                   </Text>
                 </View>
@@ -531,9 +579,18 @@ export function InvoicePdfDocument({
               <Text style={s.notesText}>{invoice.notes}</Text>
             </View>
           )}
+
+          {/* ═══ AUTHORIZED SIGNATORY ═══ */}
+          <View style={s.signatureSection}>
+            <View style={s.signatureBox}>
+              <View style={s.signatureLine} />
+              <Text style={s.signatureText}>Authorized Signatory</Text>
+              <Text style={s.signatureName}>{profile.org_name}</Text>
+            </View>
+          </View>
         </View>
 
-        {/* ═══ PAYMENT FOOTER (Bank + QR) ═══ */}
+        {/* ═══ PAYMENT FOOTER ═══ */}
         {showPaymentInfo && (
           <View style={s.paymentFooter}>
             <View style={s.bankBox}>
@@ -563,12 +620,6 @@ export function InvoicePdfDocument({
                     <Text style={s.bankValue}>{profile.upi_vpa}</Text>
                   </View>
                 )}
-                {profile.email && !profile.bank_account_name && (
-                  <View>
-                    <Text style={s.bankLabel}>Email</Text>
-                    <Text style={s.bankValue}>{profile.email}</Text>
-                  </View>
-                )}
               </View>
             </View>
             {qrCodeDataUrl && (
@@ -585,7 +636,7 @@ export function InvoicePdfDocument({
         <View style={s.thankYou}>
           <Text style={s.thankYouText}>Thank you for your business!</Text>
           <Text style={s.thankYouSub}>
-            If you have any questions about this invoice, please contact {profile.email || profile.phone || profile.org_name}
+            Questions? Contact {profile.email || profile.phone || profile.org_name}
           </Text>
         </View>
 
