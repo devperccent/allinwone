@@ -202,8 +202,8 @@ export default function PurchaseBillEditor() {
           </div>
 
           {/* Bill Details */}
-          <div className="rounded-xl border border-border bg-card p-5">
-            <h3 className="text-lg font-semibold mb-4">Bill Details</h3>
+          <div className="rounded-lg border border-border bg-card p-4">
+            <h3 className="text-sm font-semibold mb-3">Bill Details</h3>
             <div className="grid gap-4 sm:grid-cols-3">
               <div>
                 <Label>Bill Number *</Label>
