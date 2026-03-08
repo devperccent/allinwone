@@ -69,7 +69,7 @@ export default function PublicInvoicePage() {
     );
   }
 
-  const isIntraState = !client || (client.state_code === '27'); // fallback
+  const isIntraState = !client || (client.state_code === (invoice.client?.state_code || '27')); // Compare against invoice profile's state
 
   let cgst = 0, sgst = 0, igst = 0;
   items.forEach(item => {

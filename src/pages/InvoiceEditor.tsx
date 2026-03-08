@@ -582,7 +582,7 @@ export default function InvoiceEditor() {
           rate: item.rate,
           tax_rate: item.tax_rate,
           discount: item.discount,
-          amount: item.qty * item.rate * (1 + item.tax_rate / 100) - item.discount,
+          amount: (item.qty * item.rate - item.discount) * (1 + item.tax_rate / 100),
           sort_order: index,
         }));
 
@@ -692,7 +692,7 @@ export default function InvoiceEditor() {
         rate: item.rate,
         tax_rate: item.tax_rate,
         discount: item.discount,
-        amount: item.qty * item.rate * (1 + item.tax_rate / 100) - item.discount,
+        amount: (item.qty * item.rate - item.discount) * (1 + item.tax_rate / 100),
         sort_order: index,
         created_at: new Date().toISOString(),
       }));
