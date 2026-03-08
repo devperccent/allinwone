@@ -242,7 +242,7 @@ export function AIChatbot() {
           </div>
 
           {/* Input */}
-          <div className="px-3 py-3 border-t border-border">
+          <div className="px-3 py-3 border-t border-border pb-[max(0.75rem,env(safe-area-inset-bottom))]">
             <form
               onSubmit={(e) => {
                 e.preventDefault();
