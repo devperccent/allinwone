@@ -114,29 +114,21 @@ export default function ClientsPage() {
   }
 
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="space-y-4 animate-fade-in">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl md:text-3xl font-bold">Clients</h1>
-          <p className="text-muted-foreground mt-1 text-sm md:text-base">
-            Manage your clients and track credit
-          </p>
-        </div>
+      <div className="flex items-center justify-between gap-3">
+        <h1 className="text-xl font-bold">Clients</h1>
         <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
           <DialogTrigger asChild>
-            <Button className="gap-2">
-              <Plus className="w-4 h-4" />
+            <Button size="sm" className="gap-1.5 h-8 text-xs">
+              <Plus className="w-3.5 h-3.5" />
               Add Client
-              <kbd className="ml-1 hidden sm:inline-flex h-5 min-w-[20px] items-center justify-center rounded border bg-primary-foreground/20 px-1.5 font-mono text-[10px] font-medium text-primary-foreground/70">A</kbd>
             </Button>
           </DialogTrigger>
           <DialogContent className="sm:max-w-lg">
             <DialogHeader>
               <DialogTitle>Add New Client</DialogTitle>
-              <DialogDescription>
-                Add a new client to your CRM.
-              </DialogDescription>
+              <DialogDescription>Add a new client to your CRM.</DialogDescription>
             </DialogHeader>
             <div className="grid gap-4 py-4">
               <div className="grid gap-2">
@@ -190,9 +182,7 @@ export default function ClientsPage() {
                     </SelectTrigger>
                     <SelectContent>
                       {Object.entries(INDIAN_STATES).map(([code, name]) => (
-                        <SelectItem key={code} value={code}>
-                          {name}
-                        </SelectItem>
+                        <SelectItem key={code} value={code}>{name}</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
@@ -203,68 +193,52 @@ export default function ClientsPage() {
                 <Textarea 
                   id="address" 
                   placeholder="Full billing address" 
-                  rows={3}
+                  rows={2}
                   value={formData.billing_address}
                   onChange={(e) => setFormData(prev => ({ ...prev, billing_address: e.target.value }))}
                 />
               </div>
             </div>
             <DialogFooter>
-              <Button variant="outline" onClick={() => setIsAddDialogOpen(false)}>
-                Cancel
-              </Button>
+              <Button variant="outline" onClick={() => setIsAddDialogOpen(false)}>Cancel</Button>
               <Button 
                 onClick={handleSubmit} 
                 disabled={createClient.isPending || !formData.name}
               >
                 {createClient.isPending ? (
-                  <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Adding...
-                  </>
-                ) : (
-                  'Add Client'
-                )}
+                  <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Adding...</>
+                ) : 'Add Client'}
               </Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
       </div>
 
-      {/* Summary Card */}
+      {/* Outstanding credit - compact inline */}
       {totalCreditBalance > 0 && (
-      <div className="rounded-xl border border-warning/30 bg-warning/5 p-4">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-warning/10 shrink-0">
-                <IndianRupee className="w-5 h-5 text-warning" />
-              </div>
-              <div>
-                <p className="text-xs sm:text-sm text-muted-foreground">Total Outstanding Credit (Udhaar)</p>
-                <p className="text-xl sm:text-2xl font-bold text-warning">{formatINR(totalCreditBalance)}</p>
-              </div>
-            </div>
-            <Badge variant="outline" className="border-warning text-warning self-start sm:self-center whitespace-nowrap">
-              {clients.filter(c => Number(c.credit_balance) > 0).length} clients with pending
-            </Badge>
+        <div className="flex items-center justify-between rounded-lg border border-warning/30 bg-warning/5 px-4 py-2.5">
+          <div className="flex items-center gap-2">
+            <IndianRupee className="w-4 h-4 text-warning" />
+            <span className="text-sm text-muted-foreground">Outstanding credit</span>
+            <span className="text-sm font-bold text-warning">{formatINR(totalCreditBalance)}</span>
           </div>
+          <span className="text-xs text-muted-foreground">
+            {clients.filter(c => Number(c.credit_balance) > 0).length} clients
+          </span>
         </div>
       )}
 
-      {/* Filters */}
-      <div className="flex items-center gap-4">
-        <div className="relative flex-1 max-w-sm">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-          <Input
-            ref={searchRef}
-            type="search"
-            placeholder="Search clients..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10 pr-10"
-          />
-          <kbd className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none hidden sm:inline-flex h-5 min-w-[20px] items-center justify-center rounded border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground">/</kbd>
-        </div>
+      {/* Search */}
+      <div className="relative max-w-sm">
+        <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
+        <Input
+          ref={searchRef}
+          type="search"
+          placeholder="Search clients..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="pl-8 h-8 text-sm"
+        />
       </div>
 
       {/* Clients List */}
