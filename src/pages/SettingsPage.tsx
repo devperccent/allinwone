@@ -22,6 +22,7 @@ import { useProfile } from '@/hooks/useProfile';
 import { usePageShortcuts } from '@/hooks/usePageShortcuts';
 import { LogoUpload } from '@/components/LogoUpload';
 import { resetWalkthrough } from '@/components/onboarding/WalkthroughTutorial';
+import { ALL_MODULES, type ModuleKey } from '@/hooks/useEnabledModules';
 import {
   getNotificationPreferences,
   saveNotificationPreferences,
