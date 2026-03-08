@@ -1,4 +1,4 @@
-import { Search, Plus, Moon, Sun, Menu, Settings, LogOut, BookOpen, ShieldCheck } from 'lucide-react';
+import { Search, Plus, Moon, Sun, Menu, Settings, LogOut, BookOpen, ShieldCheck, Keyboard } from 'lucide-react';
 import { modKey } from '@/lib/platform';
 import { Button } from '@/components/ui/button';
 import { NotificationBell } from './NotificationBell';
