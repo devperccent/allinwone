@@ -12,7 +12,7 @@ interface InvoiceTotalsProps {
 
 export function InvoiceTotals({ calculations }: InvoiceTotalsProps) {
   return (
-    <div className="rounded-xl border border-border bg-card p-5">
+    <div className="rounded-lg border border-border bg-card p-4">
       <div className="space-y-3">
         <div className="flex justify-between text-sm">
           <span className="text-muted-foreground">Subtotal</span>
