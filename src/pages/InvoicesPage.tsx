@@ -293,14 +293,9 @@ export default function InvoicesPage() {
   const handleMarkPaid = () => {
     if (!paidInvoice) return;
     markAsPaid.mutate(
-      { invoiceId: paidInvoice.id, paymentMode },
+      { invoiceId: paidInvoice.id, paymentMode, paymentDate },
       {
-        onSuccess: async () => {
-          // Also update payment_date
-          await supabase
-            .from('invoices')
-            .update({ payment_date: paymentDate })
-            .eq('id', paidInvoice.id);
+        onSuccess: () => {
           setPaidDialogOpen(false);
         },
       }
