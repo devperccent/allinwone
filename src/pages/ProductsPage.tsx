@@ -222,6 +222,15 @@ export default function ProductsPage() {
                   />
                 </div>
               </div>
+              <div className="grid gap-2">
+                <Label htmlFor="barcode">Barcode / EAN</Label>
+                <Input 
+                  id="barcode" 
+                  placeholder="Scan or type barcode"
+                  value={formData.barcode}
+                  onChange={(e) => setFormData(prev => ({ ...prev, barcode: e.target.value }))}
+                />
+              </div>
               <div className="flex items-center justify-between p-3 rounded-lg border border-border bg-muted/30">
                 <div>
                   <Label htmlFor="customGst" className="text-sm font-medium cursor-pointer">Custom GST Rate</Label>
