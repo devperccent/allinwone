@@ -489,12 +489,14 @@ export default function HelpPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [expandedSection, setExpandedSection] = useState<string | null>('getting-started');
   const [expandedArticle, setExpandedArticle] = useState<string | null>('gs-signup');
+  const { isModuleEnabled } = useEnabledModules();
 
-  // Filter articles by search
+  // Filter sections by enabled modules, then by search
   const filteredSections = useMemo(() => {
-    if (!searchQuery.trim()) return SECTIONS;
+    const moduleSections = SECTIONS.filter(s => !s.module || isModuleEnabled(s.module));
+    if (!searchQuery.trim()) return moduleSections;
     const q = searchQuery.toLowerCase();
-    return SECTIONS.map((section) => ({
+    return moduleSections.map((section) => ({
       ...section,
       articles: section.articles.filter(
         (a) =>
@@ -503,7 +505,7 @@ export default function HelpPage() {
           a.tags?.some((t) => t.toLowerCase().includes(q))
       ),
     })).filter((s) => s.articles.length > 0);
-  }, [searchQuery]);
+  }, [searchQuery, isModuleEnabled]);
 
   const totalArticles = SECTIONS.reduce((sum, s) => sum + s.articles.length, 0);
 
