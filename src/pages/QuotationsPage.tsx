@@ -10,7 +10,7 @@ import {
   Trash2,
   ArrowRightCircle,
   Loader2,
-  Copy,
+  Send,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -47,7 +47,7 @@ const statusConfig: Record<string, { label: string; className: string }> = {
 export default function QuotationsPage() {
   const navigate = useNavigate();
   const searchRef = useRef<HTMLInputElement>(null);
-  const { quotations, isLoading, convertToInvoice, deleteQuotation, isConverting } = useQuotations();
+  const { quotations, isLoading, convertToInvoice, deleteQuotation, updateQuotation, isConverting } = useQuotations();
 
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
@@ -184,6 +184,17 @@ export default function QuotationsPage() {
                             Edit
                           </Link>
                         </DropdownMenuItem>
+                      )}
+                      {quotation.status === 'draft' && (
+                        <>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem
+                            onClick={() => updateQuotation.mutate({ id: quotation.id, status: 'sent' })}
+                          >
+                            <Send className="w-4 h-4 mr-2" />
+                            Mark as Sent
+                          </DropdownMenuItem>
+                        </>
                       )}
                       {(quotation.status === 'sent' || quotation.status === 'accepted') && (
                         <>

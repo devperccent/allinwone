@@ -12,16 +12,25 @@ import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { StatCard } from '@/components/dashboard/StatCard';
 import { RecentInvoices } from '@/components/dashboard/RecentInvoices';
+import { RecentQuotations } from '@/components/dashboard/RecentQuotations';
+import { RecentChallans } from '@/components/dashboard/RecentChallans';
+import { RecentPurchaseOrders } from '@/components/dashboard/RecentPurchaseOrders';
 import { LowStockAlert } from '@/components/dashboard/LowStockAlert';
 import { ActivityFeed } from '@/components/dashboard/ActivityFeed';
 import { formatINR } from '@/hooks/useInvoiceCalculations';
 import { useInvoices } from '@/hooks/useInvoices';
 import { useProducts } from '@/hooks/useProducts';
+import { useQuotations } from '@/hooks/useQuotations';
+import { useDeliveryChallans } from '@/hooks/useDeliveryChallans';
+import { usePurchaseOrders } from '@/hooks/usePurchaseOrders';
 import { Skeleton } from '@/components/ui/skeleton';
 
 export default function Dashboard() {
   const { invoices, totalRevenue, pendingAmount, isLoading: invoicesLoading } = useInvoices();
   const { products, lowStockProducts, isLoading: productsLoading } = useProducts();
+  const { quotations, isLoading: quotationsLoading } = useQuotations();
+  const { challans, isLoading: challansLoading } = useDeliveryChallans();
+  const { purchaseOrders, isLoading: posLoading } = usePurchaseOrders();
 
   const isLoading = invoicesLoading || productsLoading;
 
@@ -153,9 +162,14 @@ export default function Dashboard() {
       <div className="grid gap-6 lg:grid-cols-3">
         <div className="lg:col-span-2 space-y-6">
           <RecentInvoices invoices={invoices.slice(0, 5)} />
+          <div className="grid gap-6 sm:grid-cols-2">
+            <RecentQuotations quotations={quotations.slice(0, 4)} />
+            <RecentPurchaseOrders purchaseOrders={purchaseOrders.slice(0, 4)} />
+          </div>
+          <RecentChallans challans={challans.slice(0, 4)} />
           <ActivityFeed />
         </div>
-        <div>
+        <div className="space-y-6">
           <LowStockAlert products={lowStockProducts} />
         </div>
       </div>
