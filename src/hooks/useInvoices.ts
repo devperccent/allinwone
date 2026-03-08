@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useCallback } from 'react';
+import { computeItemAmount } from '@/utils/invoiceUtils';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import type { Invoice, InvoiceItem, InvoiceItemFormData, PaymentMode } from '@/types';
@@ -86,7 +87,7 @@ export function useInvoices() {
           rate: item.rate,
           tax_rate: item.tax_rate,
           discount: item.discount,
-          amount: item.qty * item.rate,
+          amount: computeItemAmount(item),
           sort_order: index,
         }));
       
@@ -138,7 +139,7 @@ export function useInvoices() {
             rate: item.rate,
             tax_rate: item.tax_rate,
             discount: item.discount,
-            amount: item.qty * item.rate,
+            amount: computeItemAmount(item),
             sort_order: index,
           }));
         
