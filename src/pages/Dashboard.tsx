@@ -23,6 +23,7 @@ import { useProducts } from '@/hooks/useProducts';
 import { useQuotations } from '@/hooks/useQuotations';
 import { useDeliveryChallans } from '@/hooks/useDeliveryChallans';
 import { usePurchaseOrders } from '@/hooks/usePurchaseOrders';
+import { useEnabledModules } from '@/hooks/useEnabledModules';
 import { Skeleton } from '@/components/ui/skeleton';
 
 export default function Dashboard() {
