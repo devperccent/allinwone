@@ -57,6 +57,7 @@ interface DocSection {
   title: string;
   description: string;
   articles: DocArticle[];
+  module?: ModuleKey;
 }
 
 interface DocArticle {
