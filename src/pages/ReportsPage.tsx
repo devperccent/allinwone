@@ -130,6 +130,9 @@ export default function ReportsPage() {
           <TabsTrigger value="outstanding" className="gap-1.5 text-xs sm:text-sm">
             <Calendar className="w-3.5 h-3.5" /><span className="hidden sm:inline">Outstanding</span>
           </TabsTrigger>
+          <TabsTrigger value="reconciliation" className="gap-1.5 text-xs sm:text-sm">
+            <Link2 className="w-3.5 h-3.5" /><span className="hidden sm:inline">Bank Recon</span>
+          </TabsTrigger>
         </TabsList>
 
         {/* ═══ SALES TAB ═══ */}
