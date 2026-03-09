@@ -134,6 +134,9 @@ export default function ReportsPage() {
           <TabsTrigger value="reconciliation" className="gap-1.5 text-xs sm:text-sm">
             <Link2 className="w-3.5 h-3.5" /><span className="hidden sm:inline">Bank Recon</span>
           </TabsTrigger>
+          <TabsTrigger value="payments" className="gap-1.5 text-xs sm:text-sm">
+            <CreditCard className="w-3.5 h-3.5" /><span className="hidden sm:inline">Payments</span>
+          </TabsTrigger>
         </TabsList>
 
         {/* ═══ SALES TAB ═══ */}
