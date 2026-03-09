@@ -11,6 +11,7 @@ import {
   Trash2,
   CheckCircle,
   Package,
+  MessageCircle,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -208,6 +209,16 @@ export default function DeliveryChallansPage() {
                             </DropdownMenuItem>
                           </>
                         )}
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem
+                          onClick={() => {
+                            const text = `Hi! Delivery Challan ${challan.challan_number} has been created${challan.vehicle_number ? ` (Vehicle: ${challan.vehicle_number})` : ''}. ${challan.dispatch_to ? `Delivering to: ${challan.dispatch_to}` : ''}`;
+                            window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+                          }}
+                        >
+                          <MessageCircle className="w-4 h-4 mr-2" />
+                          Share via WhatsApp
+                        </DropdownMenuItem>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem
                           onClick={() => deleteChallan.mutate(challan.id)}

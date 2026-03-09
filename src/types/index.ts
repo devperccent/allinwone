@@ -2,7 +2,7 @@
 
 export type ProductType = 'goods' | 'service';
 export type InvoiceStatus = 'draft' | 'finalized' | 'paid' | 'cancelled';
-export type PaymentMode = 'cash' | 'upi' | 'credit' | 'split';
+export type PaymentMode = 'cash' | 'upi' | 'credit' | 'split' | 'cheque' | 'neft' | 'rtgs';
 export type GSTType = 'intra-state' | 'inter-state';
 
 export interface Profile {

@@ -409,6 +409,7 @@ export type Database = {
           notes: string | null
           payment_date: string | null
           payment_mode: string | null
+          payment_reference: string | null
           profile_id: string
           share_token: string | null
           status: string
@@ -431,6 +432,7 @@ export type Database = {
           notes?: string | null
           payment_date?: string | null
           payment_mode?: string | null
+          payment_reference?: string | null
           profile_id: string
           share_token?: string | null
           status?: string
@@ -453,6 +455,7 @@ export type Database = {
           notes?: string | null
           payment_date?: string | null
           payment_mode?: string | null
+          payment_reference?: string | null
           profile_id?: string
           share_token?: string | null
           status?: string

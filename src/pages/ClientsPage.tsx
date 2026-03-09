@@ -11,6 +11,8 @@ import {
   MapPin,
   IndianRupee,
   Loader2,
+  MessageCircle,
+  Filter,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -51,6 +53,7 @@ export default function ClientsPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const searchRef = useRef<HTMLInputElement>(null);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [showCreditOnly, setShowCreditOnly] = useState(false);
   
   // Form state
   const [formData, setFormData] = useState({
@@ -62,11 +65,17 @@ export default function ClientsPage() {
     billing_address: '',
   });
 
-  const filteredClients = clients.filter((client) =>
-    client.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    client.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    client.phone?.includes(searchQuery)
-  );
+  const filteredClients = useMemo(() => {
+    let result = clients.filter((client) =>
+      client.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      client.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      client.phone?.includes(searchQuery)
+    );
+    if (showCreditOnly) {
+      result = result.filter(c => Number(c.credit_balance) > 0);
+    }
+    return result;
+  }, [clients, searchQuery, showCreditOnly]);
 
   // Page shortcuts: / → focus search, A → add client
   usePageShortcuts(useMemo(() => [
@@ -228,17 +237,28 @@ export default function ClientsPage() {
         </div>
       )}
 
-      {/* Search */}
-      <div className="relative max-w-sm">
-        <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
-        <Input
-          ref={searchRef}
-          type="search"
-          placeholder="Search clients..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className="pl-8 h-8 text-sm"
-        />
+      {/* Search & Filters */}
+      <div className="flex items-center gap-2">
+        <div className="relative flex-1 max-w-sm">
+          <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
+          <Input
+            ref={searchRef}
+            type="search"
+            placeholder="Search clients..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-8 h-8 text-sm"
+          />
+        </div>
+        <Button
+          variant={showCreditOnly ? 'default' : 'outline'}
+          size="sm"
+          className="gap-1.5 h-8 text-xs"
+          onClick={() => setShowCreditOnly(!showCreditOnly)}
+        >
+          <IndianRupee className="w-3 h-3" />
+          Udhaar Only
+        </Button>
       </div>
 
       {/* Clients List */}
@@ -292,6 +312,22 @@ export default function ClientsPage() {
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
                       <DropdownMenuItem><Pencil className="w-4 h-4 mr-2" />Edit</DropdownMenuItem>
+                      {Number(client.credit_balance) > 0 && client.phone && (
+                        <>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem
+                            onClick={() => {
+                              const text = `Hi ${client.name}, this is a friendly reminder that you have an outstanding balance of ${formatINR(Number(client.credit_balance))}. Please settle at your earliest convenience. Thank you! 🙏`;
+                              const phone = client.phone!.replace(/[^0-9]/g, '');
+                              const fullPhone = phone.startsWith('91') ? phone : `91${phone}`;
+                              window.open(`https://wa.me/${fullPhone}?text=${encodeURIComponent(text)}`, '_blank');
+                            }}
+                          >
+                            <MessageCircle className="w-4 h-4 mr-2" />
+                            WhatsApp Reminder
+                          </DropdownMenuItem>
+                        </>
+                      )}
                       <DropdownMenuSeparator />
                       <DropdownMenuItem 
                         onClick={() => deleteClient.mutate(client.id)}
