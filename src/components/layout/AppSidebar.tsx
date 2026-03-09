@@ -27,6 +27,7 @@ import { ThemeLogo } from '@/components/ThemeLogo';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { useState, useMemo, useCallback } from 'react';
+import { prefetchRoute } from '@/lib/routePrefetch';
 import { useAuth } from '@/contexts/AuthContext';
 import { useIsMobile } from '@/hooks/use-mobile';
 import {
@@ -110,6 +111,7 @@ export function AppSidebar({ onNavigate, onOpenShortcuts }: AppSidebarProps) {
         key={item.name}
         to={item.href}
         onClick={onNavigate}
+        onMouseEnter={() => prefetchRoute(item.href)}
         className={cn(
           'flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors',
           isActive

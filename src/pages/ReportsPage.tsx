@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, lazy, Suspense } from 'react';
 import { BarChart3, FileText, TrendingUp, Calendar, Download, Receipt, Wallet, LineChart, Users, FileJson } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -7,21 +7,30 @@ import { formatINR } from '@/hooks/useInvoiceCalculations';
 import { useInvoices } from '@/hooks/useInvoices';
 import { Skeleton } from '@/components/ui/skeleton';
 import { exportInvoicesToCSV } from '@/utils/csvExport';
-import { GSTReport } from '@/components/reports/GSTReport';
-import { ProfitLossReport } from '@/components/reports/ProfitLossReport';
-import { GSTR3BExport } from '@/components/reports/GSTR3BExport';
-import { TDSManagement } from '@/components/reports/TDSManagement';
-import { CashFlowForecast } from '@/components/reports/CashFlowForecast';
-import { PartyLedger } from '@/components/reports/PartyLedger';
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-} from 'recharts';
+
+// Lazy-load heavy report sub-components
+const GSTReport = lazy(() => import('@/components/reports/GSTReport').then(m => ({ default: m.GSTReport })));
+const ProfitLossReport = lazy(() => import('@/components/reports/ProfitLossReport').then(m => ({ default: m.ProfitLossReport })));
+const GSTR3BExport = lazy(() => import('@/components/reports/GSTR3BExport').then(m => ({ default: m.GSTR3BExport })));
+const TDSManagement = lazy(() => import('@/components/reports/TDSManagement').then(m => ({ default: m.TDSManagement })));
+const CashFlowForecast = lazy(() => import('@/components/reports/CashFlowForecast').then(m => ({ default: m.CashFlowForecast })));
+const PartyLedger = lazy(() => import('@/components/reports/PartyLedger').then(m => ({ default: m.PartyLedger })));
+
+// Lazy-load recharts (heavy library)
+const RechartsChart = lazy(() => import('recharts').then(m => ({
+  default: ({ data }: { data: { month: string; revenue: number; tax: number }[] }) => (
+    <m.ResponsiveContainer width="100%" height={280}>
+      <m.BarChart data={data}>
+        <m.CartesianGrid strokeDasharray="3 3" className="stroke-border" />
+        <m.XAxis dataKey="month" tick={{ fontSize: 12 }} />
+        <m.YAxis tickFormatter={(v: number) => `₹${(v / 1000).toFixed(0)}k`} tick={{ fontSize: 12 }} />
+        <m.Tooltip formatter={(value: number, name: string) => [formatINR(value), name === 'revenue' ? 'Revenue' : 'Tax']} contentStyle={{ borderRadius: '8px', border: '1px solid hsl(var(--border))', backgroundColor: 'hsl(var(--card))', color: 'hsl(var(--card-foreground))' }} />
+        <m.Bar dataKey="revenue" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} name="revenue" />
+        <m.Bar dataKey="tax" fill="hsl(var(--primary) / 0.4)" radius={[4, 4, 0, 0]} name="tax" />
+      </m.BarChart>
+    </m.ResponsiveContainer>
+  )
+})));
 
 export default function ReportsPage() {
   const { invoices, isLoading } = useInvoices();
@@ -175,38 +184,31 @@ export default function ReportsPage() {
                   <div className="text-center text-muted-foreground"><BarChart3 className="w-12 h-12 mx-auto mb-3 opacity-50" /><p>Charts will populate as you create and finalize invoices</p></div>
                 </div>
               ) : (
-                <ResponsiveContainer width="100%" height={280}>
-                  <BarChart data={stats.chartData}>
-                    <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
-                    <XAxis dataKey="month" tick={{ fontSize: 12 }} />
-                    <YAxis tickFormatter={(v) => `₹${(v / 1000).toFixed(0)}k`} tick={{ fontSize: 12 }} />
-                    <Tooltip formatter={(value: number, name: string) => [formatINR(value), name === 'revenue' ? 'Revenue' : 'Tax']} contentStyle={{ borderRadius: '8px', border: '1px solid hsl(var(--border))', backgroundColor: 'hsl(var(--card))', color: 'hsl(var(--card-foreground))' }} />
-                    <Bar dataKey="revenue" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} name="revenue" />
-                    <Bar dataKey="tax" fill="hsl(var(--primary) / 0.4)" radius={[4, 4, 0, 0]} name="tax" />
-                  </BarChart>
-                </ResponsiveContainer>
+                <Suspense fallback={<div className="h-[280px] flex items-center justify-center"><div className="h-5 w-5 animate-spin rounded-full border-2 border-primary border-t-transparent" /></div>}>
+                  <RechartsChart data={stats.chartData} />
+                </Suspense>
               )}
             </CardContent>
           </Card>
         </TabsContent>
 
         {/* ═══ P&L TAB ═══ */}
-        <TabsContent value="pnl"><ProfitLossReport /></TabsContent>
+        <TabsContent value="pnl"><Suspense fallback={<Skeleton className="h-64 w-full" />}><ProfitLossReport /></Suspense></TabsContent>
 
         {/* ═══ GST TAB ═══ */}
-        <TabsContent value="gst"><GSTReport invoices={invoices} /></TabsContent>
+        <TabsContent value="gst"><Suspense fallback={<Skeleton className="h-64 w-full" />}><GSTReport invoices={invoices} /></Suspense></TabsContent>
 
         {/* ═══ GSTR-3B TAB ═══ */}
-        <TabsContent value="gstr3b"><GSTR3BExport /></TabsContent>
+        <TabsContent value="gstr3b"><Suspense fallback={<Skeleton className="h-64 w-full" />}><GSTR3BExport /></Suspense></TabsContent>
 
         {/* ═══ TDS TAB ═══ */}
-        <TabsContent value="tds"><TDSManagement /></TabsContent>
+        <TabsContent value="tds"><Suspense fallback={<Skeleton className="h-64 w-full" />}><TDSManagement /></Suspense></TabsContent>
 
         {/* ═══ CASH FLOW TAB ═══ */}
-        <TabsContent value="cashflow"><CashFlowForecast /></TabsContent>
+        <TabsContent value="cashflow"><Suspense fallback={<Skeleton className="h-64 w-full" />}><CashFlowForecast /></Suspense></TabsContent>
 
         {/* ═══ LEDGER TAB ═══ */}
-        <TabsContent value="ledger"><PartyLedger /></TabsContent>
+        <TabsContent value="ledger"><Suspense fallback={<Skeleton className="h-64 w-full" />}><PartyLedger /></Suspense></TabsContent>
 
         {/* ═══ OUTSTANDING TAB ═══ */}
         <TabsContent value="outstanding" className="space-y-6">
