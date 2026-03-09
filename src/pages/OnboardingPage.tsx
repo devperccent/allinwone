@@ -18,6 +18,7 @@ import { useProfile } from '@/hooks/useProfile';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { LogoUpload } from '@/components/LogoUpload';
+import { getBusinessModeDefaults, type BusinessMode } from '@/components/settings/BusinessModeSelector';
 
 const steps = [
   { id: 'business', label: 'Business', icon: Building2, description: 'Tell us about your business' },
@@ -42,6 +43,12 @@ const BUSINESS_TYPES = [
   { value: 'other', label: 'Other', icon: MoreHorizontal },
 ];
 
+const BUSINESS_MODES: { value: BusinessMode; label: string; description: string; icon: React.ElementType }[] = [
+  { value: 'retail', label: 'Retail Mode', description: 'Quick bills, walk-in customers, cash/UPI', icon: Store },
+  { value: 'freelancer', label: 'Freelancer Mode', description: 'Projects, time tracking, milestones', icon: Briefcase },
+  { value: 'distributor', label: 'Distributor Mode', description: 'Credit focus, bulk orders, B2B', icon: Truck },
+];
+
 export default function OnboardingPage() {
   const navigate = useNavigate();
   const { profile, refreshProfile } = useAuth();
@@ -55,6 +62,7 @@ export default function OnboardingPage() {
   const [email, setEmail] = useState(profile?.email || '');
   const [phone, setPhone] = useState(profile?.phone || '');
   const [businessType, setBusinessType] = useState(profile?.business_type || '');
+  const [businessMode, setBusinessMode] = useState<BusinessMode>((profile?.business_mode as BusinessMode) || 'retail');
   const [address, setAddress] = useState(profile?.address || '');
   const [stateCode, setStateCode] = useState(profile?.state_code || '27');
   const [gstin, setGstin] = useState(profile?.gstin || '');
