@@ -32,10 +32,10 @@ interface GlobalSearchProps {
 export function GlobalSearch({ open, onOpenChange }: GlobalSearchProps) {
   const navigate = useNavigate();
   
-  // Only fetch data when search is open
-  const { invoices } = useInvoices({ enabled: open });
-  const { clients } = useClients({ enabled: open });
-  const { products } = useProducts({ enabled: open });
+  // Data comes from cached queries — no extra network requests
+  const { invoices } = useInvoices();
+  const { clients } = useClients();
+  const { products } = useProducts();
 
   const topInvoices = useMemo(() => invoices.slice(0, 8), [invoices]);
   const topClients = useMemo(() => clients.slice(0, 8), [clients]);
