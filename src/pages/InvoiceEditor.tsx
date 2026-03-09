@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, lazy, Suspense } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Loader2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
@@ -6,12 +6,8 @@ import { useToast } from '@/hooks/use-toast';
 import { useInvoiceCalculations, formatINR } from '@/hooks/useInvoiceCalculations';
 import type { Client, InvoiceItemFormData, Invoice, InvoiceItem } from '@/types';
 import type { InvoiceTemplate } from '@/components/invoice/invoiceTemplates';
-import { InvoicePdfPreview } from '@/components/invoice/InvoicePdfPreview';
 import { InvoiceEditorHeader } from '@/components/invoice/InvoiceEditorHeader';
 import { InvoiceForm } from '@/components/invoice/InvoiceForm';
-import { EmailDialog } from '@/components/invoice/EmailDialog';
-import { FinalizeDialog } from '@/components/invoice/FinalizeDialog';
-import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/components/ui/resizable';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useAuth } from '@/contexts/AuthContext';
 import { useClients } from '@/hooks/useClients';
@@ -23,6 +19,14 @@ import { arrayMove } from '@dnd-kit/sortable';
 import { DragEndEvent } from '@dnd-kit/core';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { createEmptyItem, computeItemAmount } from '@/utils/invoiceUtils';
+
+// Lazy-load heavy components not needed for initial form render
+const InvoicePdfPreview = lazy(() => import('@/components/invoice/InvoicePdfPreview').then(m => ({ default: m.InvoicePdfPreview })));
+const ResizablePanelGroup = lazy(() => import('@/components/ui/resizable').then(m => ({ default: m.ResizablePanelGroup })));
+const ResizablePanel = lazy(() => import('@/components/ui/resizable').then(m => ({ default: m.ResizablePanel })));
+const ResizableHandle = lazy(() => import('@/components/ui/resizable').then(m => ({ default: m.ResizableHandle })));
+const EmailDialog = lazy(() => import('@/components/invoice/EmailDialog').then(m => ({ default: m.EmailDialog })));
+const FinalizeDialog = lazy(() => import('@/components/invoice/FinalizeDialog').then(m => ({ default: m.FinalizeDialog })));
 
 export default function InvoiceEditor() {
   const navigate = useNavigate();
