@@ -166,67 +166,221 @@ export default function AdminDashboard() {
       {/* Announcements */}
       <AnnouncementManager />
 
-      {/* Users Table */}
-      <Card>
-        <CardHeader className="pb-2">
-          <CardTitle className="text-sm font-medium">All Users ({users?.length ?? 0})</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Organization</TableHead>
-                <TableHead>Email</TableHead>
-                <TableHead className="text-center">Status</TableHead>
-                <TableHead className="text-center">AI Tier</TableHead>
-                <TableHead className="text-center">AI Today</TableHead>
-                <TableHead className="text-center">Invoices</TableHead>
-                <TableHead className="text-right">Revenue</TableHead>
-                <TableHead>Registered</TableHead>
-                <TableHead></TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {usersLoading ? (
-                <TableRow><TableCell colSpan={9} className="text-center py-8">Loading...</TableCell></TableRow>
-              ) : users?.length === 0 ? (
-                <TableRow><TableCell colSpan={9} className="text-center py-8">No users found</TableCell></TableRow>
-              ) : users?.map(user => (
-                <TableRow key={user.id} className={(user as any).is_suspended ? 'opacity-50' : ''}>
-                  <TableCell className="font-medium">
-                    <span className="flex items-center gap-2">
-                      {user.org_name}
-                      {(user as any).is_suspended && <Ban className="h-4 w-4 text-destructive" />}
-                    </span>
-                  </TableCell>
-                  <TableCell className="text-muted-foreground">{user.email || '—'}</TableCell>
-                  <TableCell className="text-center">
-                    <Badge variant={(user as any).is_suspended ? 'destructive' : user.onboarding_completed ? 'default' : 'secondary'}>
-                      {(user as any).is_suspended ? 'Suspended' : user.onboarding_completed ? 'Active' : 'Pending'}
-                    </Badge>
-                  </TableCell>
-                  <TableCell className="text-center">
-                    <Badge className={TIER_COLORS[user.ai_tier as keyof typeof TIER_COLORS] || TIER_COLORS.standard}>
-                      {user.ai_tier || 'standard'}
-                    </Badge>
-                  </TableCell>
-                  <TableCell className="text-center">{user.ai_queries_today || 0}</TableCell>
-                  <TableCell className="text-center">{user.invoice_count}</TableCell>
-                  <TableCell className="text-right">{formatINR(user.total_revenue)}</TableCell>
-                  <TableCell className="text-muted-foreground">
-                    {format(new Date(user.created_at), 'dd MMM yyyy')}
-                  </TableCell>
-                  <TableCell>
-                    <Button variant="ghost" size="icon" onClick={() => navigate(`/admin/users/${user.id}`)}>
-                      <Eye className="h-4 w-4" />
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
+      {/* Users Section */}
+      <UsersSection users={users} usersLoading={usersLoading} navigate={navigate} exportCSV={exportCSV} />
     </div>
+  );
+}
+
+type SortKey = 'org_name' | 'created_at' | 'invoice_count' | 'total_revenue';
+type StatusFilter = 'all' | 'active' | 'pending' | 'suspended';
+
+function UsersSection({ users, usersLoading, navigate, exportCSV }: { users: any[] | undefined; usersLoading: boolean; navigate: any; exportCSV: () => void }) {
+  const [search, setSearch] = useState('');
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
+  const [sortBy, setSortBy] = useState<SortKey>('created_at');
+  const [sortDesc, setSortDesc] = useState(true);
+
+  const filteredUsers = useMemo(() => {
+    if (!users) return [];
+    let result = users;
+
+    // Search
+    if (search.trim()) {
+      const q = search.toLowerCase();
+      result = result.filter(u =>
+        u.org_name?.toLowerCase().includes(q) ||
+        u.email?.toLowerCase().includes(q) ||
+        u.phone?.toLowerCase().includes(q)
+      );
+    }
+
+    // Status filter
+    if (statusFilter !== 'all') {
+      result = result.filter(u => {
+        if (statusFilter === 'suspended') return (u as any).is_suspended;
+        if (statusFilter === 'active') return !(u as any).is_suspended && u.onboarding_completed;
+        if (statusFilter === 'pending') return !(u as any).is_suspended && !u.onboarding_completed;
+        return true;
+      });
+    }
+
+    // Sort
+    result = [...result].sort((a, b) => {
+      let aVal = a[sortBy], bVal = b[sortBy];
+      if (sortBy === 'created_at') { aVal = new Date(aVal).getTime(); bVal = new Date(bVal).getTime(); }
+      if (typeof aVal === 'string') { aVal = aVal.toLowerCase(); bVal = (bVal || '').toLowerCase(); }
+      if (aVal < bVal) return sortDesc ? 1 : -1;
+      if (aVal > bVal) return sortDesc ? -1 : 1;
+      return 0;
+    });
+
+    return result;
+  }, [users, search, statusFilter, sortBy, sortDesc]);
+
+  const toggleSort = (key: SortKey) => {
+    if (sortBy === key) setSortDesc(!sortDesc);
+    else { setSortBy(key); setSortDesc(true); }
+  };
+
+  const getInitials = (name: string) =>
+    name?.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase() || '??';
+
+  const getStatus = (user: any): { label: string; variant: 'default' | 'secondary' | 'destructive' } => {
+    if (user.is_suspended) return { label: 'Suspended', variant: 'destructive' };
+    if (user.onboarding_completed) return { label: 'Active', variant: 'default' };
+    return { label: 'Pending', variant: 'secondary' };
+  };
+
+  const statusCounts = useMemo(() => {
+    if (!users) return { all: 0, active: 0, pending: 0, suspended: 0 };
+    return {
+      all: users.length,
+      active: users.filter(u => !(u as any).is_suspended && u.onboarding_completed).length,
+      pending: users.filter(u => !(u as any).is_suspended && !u.onboarding_completed).length,
+      suspended: users.filter(u => (u as any).is_suspended).length,
+    };
+  }, [users]);
+
+  return (
+    <Card>
+      <CardHeader className="pb-3">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <CardTitle className="text-sm font-medium">All Users ({filteredUsers.length})</CardTitle>
+          <div className="flex items-center gap-2">
+            <div className="relative flex-1 sm:flex-initial">
+              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
+              <Input
+                placeholder="Search users..."
+                value={search}
+                onChange={e => setSearch(e.target.value)}
+                className="pl-8 h-8 text-xs w-full sm:w-48"
+              />
+            </div>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="sm" className="h-8 gap-1.5 text-xs shrink-0">
+                  <Filter className="w-3 h-3" />
+                  <span className="hidden sm:inline">{statusFilter === 'all' ? 'All' : statusFilter}</span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                {(['all', 'active', 'pending', 'suspended'] as StatusFilter[]).map(s => (
+                  <DropdownMenuItem key={s} onClick={() => setStatusFilter(s)} className="text-xs capitalize justify-between">
+                    {s}
+                    <span className="text-muted-foreground ml-2">{statusCounts[s]}</span>
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="sm" className="h-8 gap-1.5 text-xs shrink-0">
+                  <ArrowUpDown className="w-3 h-3" />
+                  <span className="hidden sm:inline">Sort</span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                {[
+                  { key: 'created_at' as SortKey, label: 'Date Joined' },
+                  { key: 'org_name' as SortKey, label: 'Name' },
+                  { key: 'invoice_count' as SortKey, label: 'Invoices' },
+                  { key: 'total_revenue' as SortKey, label: 'Revenue' },
+                ].map(s => (
+                  <DropdownMenuItem key={s.key} onClick={() => toggleSort(s.key)} className="text-xs justify-between">
+                    {s.label}
+                    {sortBy === s.key && <span className="text-muted-foreground">{sortDesc ? '↓' : '↑'}</span>}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+            <Button variant="outline" size="sm" className="h-8 gap-1.5 text-xs shrink-0" onClick={exportCSV} disabled={!users?.length}>
+              <Download className="w-3 h-3" />
+              <span className="hidden sm:inline">Export</span>
+            </Button>
+          </div>
+        </div>
+      </CardHeader>
+      <CardContent className="pt-0">
+        {usersLoading ? (
+          <div className="flex items-center justify-center py-12">
+            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary" />
+          </div>
+        ) : filteredUsers.length === 0 ? (
+          <div className="text-center py-10">
+            <Users className="w-8 h-8 mx-auto text-muted-foreground/40 mb-2" />
+            <p className="text-xs text-muted-foreground">{search ? 'No users match your search' : 'No users found'}</p>
+          </div>
+        ) : (
+          <div className="space-y-1">
+            {filteredUsers.map(user => {
+              const status = getStatus(user);
+              return (
+                <button
+                  key={user.id}
+                  onClick={() => navigate(`/admin/users/${user.id}`)}
+                  className={`w-full flex items-center gap-3 p-2.5 rounded-lg text-left transition-colors hover:bg-muted/50 group ${
+                    (user as any).is_suspended ? 'opacity-60' : ''
+                  }`}
+                >
+                  {/* Avatar */}
+                  <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                    <span className="text-[10px] font-semibold text-primary">{getInitials(user.org_name)}</span>
+                  </div>
+
+                  {/* Info */}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-medium truncate">{user.org_name}</span>
+                      {(user as any).is_suspended && <Ban className="h-3 w-3 text-destructive shrink-0" />}
+                      <Badge variant={status.variant} className="text-[10px] px-1.5 py-0 h-4 shrink-0">
+                        {status.label}
+                      </Badge>
+                      <Badge className={`text-[10px] px-1.5 py-0 h-4 shrink-0 ${TIER_COLORS[user.ai_tier as keyof typeof TIER_COLORS] || TIER_COLORS.standard}`}>
+                        {user.ai_tier === 'premium' && <Crown className="h-2.5 w-2.5 mr-0.5" />}
+                        {user.ai_tier || 'standard'}
+                      </Badge>
+                    </div>
+                    <p className="text-xs text-muted-foreground truncate">{user.email || '—'}</p>
+                  </div>
+
+                  {/* Stats - hidden on mobile */}
+                  <div className="hidden md:flex items-center gap-4 shrink-0">
+                    <UITooltip>
+                      <TooltipTrigger asChild>
+                        <div className="text-center min-w-[3rem]">
+                          <p className="text-xs font-medium">{user.invoice_count}</p>
+                          <p className="text-[10px] text-muted-foreground">invoices</p>
+                        </div>
+                      </TooltipTrigger>
+                      <TooltipContent side="bottom" className="text-xs">Total invoices created</TooltipContent>
+                    </UITooltip>
+                    <UITooltip>
+                      <TooltipTrigger asChild>
+                        <div className="text-center min-w-[3rem]">
+                          <p className="text-xs font-medium">{user.client_count}</p>
+                          <p className="text-[10px] text-muted-foreground">clients</p>
+                        </div>
+                      </TooltipTrigger>
+                      <TooltipContent side="bottom" className="text-xs">Total clients</TooltipContent>
+                    </UITooltip>
+                    <div className="text-right min-w-[4.5rem]">
+                      <p className="text-xs font-medium">{formatINR(user.total_revenue)}</p>
+                      <p className="text-[10px] text-muted-foreground">revenue</p>
+                    </div>
+                    <div className="text-right min-w-[4.5rem]">
+                      <p className="text-xs text-muted-foreground">{format(new Date(user.created_at), 'dd MMM yy')}</p>
+                    </div>
+                  </div>
+
+                  {/* Arrow */}
+                  <ChevronRight className="w-3.5 h-3.5 text-muted-foreground/40 group-hover:text-foreground transition-colors shrink-0" />
+                </button>
+              );
+            })}
+          </div>
+        )}
+      </CardContent>
+    </Card>
   );
 }
