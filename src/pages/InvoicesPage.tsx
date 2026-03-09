@@ -289,6 +289,7 @@ export default function InvoicesPage() {
     setPaidInvoice(invoice);
     setPaymentMode('upi');
     setPaymentDate(new Date().toISOString().split('T')[0]);
+    setPaymentReference('');
     setPaidDialogOpen(true);
   };
 
