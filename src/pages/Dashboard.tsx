@@ -23,8 +23,8 @@ import { useDeliveryChallans } from '@/hooks/useDeliveryChallans';
 import { usePurchaseOrders } from '@/hooks/usePurchaseOrders';
 import { useEnabledModules } from '@/hooks/useEnabledModules';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useLanguage } from '@/i18n/LanguageContext';
 
-// Lazy-load tab content that isn't visible on initial render
 const RecentQuotations = lazy(() => import('@/components/dashboard/RecentQuotations').then(m => ({ default: m.RecentQuotations })));
 const RecentChallans = lazy(() => import('@/components/dashboard/RecentChallans').then(m => ({ default: m.RecentChallans })));
 const RecentPurchaseOrders = lazy(() => import('@/components/dashboard/RecentPurchaseOrders').then(m => ({ default: m.RecentPurchaseOrders })));
@@ -40,9 +40,9 @@ export default function Dashboard() {
   const { challans } = useDeliveryChallans();
   const { purchaseOrders } = usePurchaseOrders();
   const { isModuleEnabled } = useEnabledModules();
+  const { t } = useLanguage();
   const isLoading = invoicesLoading || productsLoading;
 
-  // Memoize status counts — avoids 3 separate filter passes per render
   const stats = useMemo(() => {
     let paid = 0, finalized = 0, drafts = 0;
     for (const inv of invoices) {
@@ -53,7 +53,6 @@ export default function Dashboard() {
     return { paid, finalized, drafts };
   }, [invoices]);
 
-  // Memoize sliced arrays to prevent re-creating on every render
   const recentInvoices = useMemo(() => invoices.slice(0, 5), [invoices]);
   const recentQuotations = useMemo(() => quotations.slice(0, 5), [quotations]);
   const recentChallans = useMemo(() => challans.slice(0, 5), [challans]);
@@ -79,43 +78,43 @@ export default function Dashboard() {
       <AnnouncementBanner />
 
       <div className="flex items-center justify-between">
-        <h1 className="text-xl font-bold">Dashboard</h1>
+        <h1 className="text-xl font-bold">{t('dash_title')}</h1>
         <Button asChild size="sm" className="gap-1.5 h-8 text-xs" onMouseEnter={() => prefetchRoute('/invoices/new')}>
           <Link to="/invoices/new">
             <Plus className="w-3.5 h-3.5" />
-            New Invoice
+            {t('dash_newInvoice')}
           </Link>
         </Button>
       </div>
 
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard
-          title="Revenue"
+          title={t('dash_revenue')}
           value={formatINR(totalRevenue)}
-          change={stats.paid + ' paid'}
+          change={stats.paid + ' ' + t('dash_paid')}
           changeType="positive"
           icon={IndianRupee}
           iconColor="text-success"
         />
         <StatCard
-          title="Pending"
+          title={t('dash_pending')}
           value={formatINR(pendingAmount)}
-          change={stats.finalized + ' unpaid'}
+          change={stats.finalized + ' ' + t('dash_unpaid')}
           changeType="neutral"
           icon={Clock}
           iconColor="text-warning"
         />
         <StatCard
-          title="Invoices"
+          title={t('dash_invoices')}
           value={String(invoices.length)}
-          change={stats.drafts + ' drafts'}
+          change={stats.drafts + ' ' + t('dash_drafts')}
           changeType="neutral"
           icon={FileText}
         />
         <StatCard
-          title="Low Stock"
+          title={t('dash_lowStock')}
           value={String(lowStockProducts.length)}
-          change={lowStockProducts.length > 0 ? 'Needs attention' : 'All good'}
+          change={lowStockProducts.length > 0 ? t('dash_needsAttention') : t('dash_allGood')}
           changeType={lowStockProducts.length > 0 ? 'negative' : 'positive'}
           icon={AlertTriangle}
           iconColor={lowStockProducts.length > 0 ? 'text-destructive' : 'text-success'}
@@ -126,22 +125,22 @@ export default function Dashboard() {
         <TabsList className="bg-muted/50 h-9">
           <TabsTrigger value="overview" className="text-xs gap-1.5">
             <TrendingUp className="w-3.5 h-3.5" />
-            Overview
+            {t('dash_overview')}
           </TabsTrigger>
           {hasDocModules && (
             <TabsTrigger value="documents" className="text-xs gap-1.5">
               <FileText className="w-3.5 h-3.5" />
-              Documents
+              {t('dash_documents')}
             </TabsTrigger>
           )}
           <TabsTrigger value="activity" className="text-xs gap-1.5">
             <Activity className="w-3.5 h-3.5" />
-            Activity
+            {t('dash_activity')}
           </TabsTrigger>
           {lowStockProducts.length > 0 && (
             <TabsTrigger value="alerts" className="text-xs gap-1.5">
               <AlertTriangle className="w-3.5 h-3.5" />
-              Alerts
+              {t('dash_alerts')}
               <span className="ml-0.5 text-[10px] bg-destructive text-destructive-foreground rounded-full px-1.5 leading-4">
                 {lowStockProducts.length}
               </span>
