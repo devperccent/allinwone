@@ -1,10 +1,28 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
+// API Version - increment for breaking changes
+const API_VERSION = "1.0.0";
+
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version, x-user-authorization",
+    "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version, x-user-authorization, x-api-version",
+  "X-API-Version": API_VERSION,
+};
+
+// Rate limiting configuration
+const RATE_LIMITS = {
+  standard: { daily_queries: 50, premium_model_queries: 10 },
+  premium: { daily_queries: 200, premium_model_queries: 100 },
+  admin: { daily_queries: 1000, premium_model_queries: 500 },
+};
+
+// Model tiers - fallback to cheaper model after quota
+const MODELS = {
+  premium: "google/gemini-2.5-pro",
+  standard: "google/gemini-2.5-flash",
+  budget: "google/gemini-2.5-flash-lite",
 };
 
 const SYSTEM_PROMPT = `You are an expert business assistant for "InWone", a comprehensive Indian invoicing, inventory, and accounting platform. You have FULL real-time access to the user's business data and can perform actions on their behalf.
@@ -261,6 +279,34 @@ const TOOLS = [
   {
     type: "function",
     function: {
+      name: "list_purchase_orders",
+      description: "List purchase orders with optional status filter.",
+      parameters: {
+        type: "object",
+        properties: {
+          status: { type: "string", enum: ["draft", "sent", "received", "cancelled"] },
+          limit: { type: "number" },
+        },
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "list_purchase_bills",
+      description: "List purchase bills with optional status filter.",
+      parameters: {
+        type: "object",
+        properties: {
+          status: { type: "string", enum: ["draft", "received"] },
+          limit: { type: "number" },
+        },
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
       name: "navigate_to",
       description: "Navigate the user to a specific page in the app. Use this when user wants to create invoices, quotations, challans, etc.",
       parameters: {
@@ -272,8 +318,8 @@ const TOOLS = [
             enum: [
               "/dashboard", "/invoices", "/invoices/new", "/clients", "/products",
               "/quotations", "/quotations/new", "/challans", "/challans/new",
-              "/purchase-orders", "/purchase-orders/new", "/recurring-invoices",
-              "/reports", "/settings", "/quick-bill",
+              "/purchase-orders", "/purchase-orders/new", "/purchase-bills", "/purchase-bills/new",
+              "/recurring", "/reports", "/settings", "/quick-bill",
             ],
           },
         },
@@ -282,6 +328,94 @@ const TOOLS = [
     },
   },
 ];
+
+// Rate limiting and model selection logic
+async function checkRateLimitAndSelectModel(
+  supabase: any,
+  profileId: string,
+  isAdmin: boolean
+): Promise<{ allowed: boolean; model: string; reason?: string; queriesRemaining?: number }> {
+  const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+  const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+  const adminClient = createClient(supabaseUrl, serviceRoleKey);
+
+  // Get user's tier and query count
+  const { data: profile, error: profileError } = await adminClient
+    .from("profiles")
+    .select("ai_queries_today, ai_last_query_date, ai_tier")
+    .eq("id", profileId)
+    .single();
+
+  if (profileError) {
+    console.error("Error fetching profile for rate limit:", profileError);
+    return { allowed: true, model: MODELS.standard }; // Fail open with standard model
+  }
+
+  const tier = isAdmin ? "admin" : (profile.ai_tier || "standard");
+  const limits = RATE_LIMITS[tier as keyof typeof RATE_LIMITS] || RATE_LIMITS.standard;
+  
+  const today = new Date().toISOString().split("T")[0];
+  const lastQueryDate = profile.ai_last_query_date;
+  let queriesUsedToday = profile.ai_queries_today || 0;
+
+  // Reset counter if it's a new day
+  if (lastQueryDate !== today) {
+    queriesUsedToday = 0;
+  }
+
+  // Check if user has exceeded daily limit
+  if (queriesUsedToday >= limits.daily_queries) {
+    return {
+      allowed: false,
+      model: MODELS.budget,
+      reason: `You've reached your daily AI query limit (${limits.daily_queries}). Please try again tomorrow or upgrade your plan.`,
+      queriesRemaining: 0,
+    };
+  }
+
+  // Select model based on usage
+  let model: string;
+  if (queriesUsedToday < limits.premium_model_queries) {
+    model = MODELS.premium;
+  } else if (queriesUsedToday < limits.daily_queries * 0.8) {
+    model = MODELS.standard;
+  } else {
+    model = MODELS.budget;
+  }
+
+  // Update query count
+  await adminClient
+    .from("profiles")
+    .update({
+      ai_queries_today: queriesUsedToday + 1,
+      ai_last_query_date: today,
+    })
+    .eq("id", profileId);
+
+  // Log usage
+  await adminClient.from("ai_usage_logs").insert({
+    profile_id: profileId,
+    model_used: model,
+    period_start: new Date(today).toISOString(),
+  });
+
+  return {
+    allowed: true,
+    model,
+    queriesRemaining: limits.daily_queries - queriesUsedToday - 1,
+  };
+}
+
+// Check if user is admin
+async function checkIsAdmin(supabase: any, userId: string): Promise<boolean> {
+  const { data } = await supabase
+    .from("user_roles")
+    .select("role")
+    .eq("user_id", userId)
+    .eq("role", "admin")
+    .maybeSingle();
+  return !!data;
+}
 
 // Tool execution
 async function executeTool(
@@ -527,6 +661,32 @@ async function executeTool(
         return JSON.stringify({ quotations: data, count: data.length });
       }
 
+      case "list_purchase_orders": {
+        let query = supabase
+          .from("purchase_orders")
+          .select("id, po_number, status, grand_total, date_issued, supplier_name")
+          .eq("profile_id", profileId)
+          .order("created_at", { ascending: false })
+          .limit(args.limit || 10);
+        if (args.status) query = query.eq("status", args.status);
+        const { data, error } = await query;
+        if (error) throw error;
+        return JSON.stringify({ purchase_orders: data, count: data.length });
+      }
+
+      case "list_purchase_bills": {
+        let query = supabase
+          .from("purchase_bills")
+          .select("id, bill_number, status, grand_total, bill_date, supplier_name")
+          .eq("profile_id", profileId)
+          .order("created_at", { ascending: false })
+          .limit(args.limit || 10);
+        if (args.status) query = query.eq("status", args.status);
+        const { data, error } = await query;
+        if (error) throw error;
+        return JSON.stringify({ purchase_bills: data, count: data.length });
+      }
+
       case "navigate_to": {
         return JSON.stringify({ action: "navigate", path: args.path });
       }
@@ -550,6 +710,12 @@ serve(async (req) => {
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
 
+    // Check API version header (for future compatibility)
+    const clientVersion = req.headers.get("x-api-version");
+    if (clientVersion && clientVersion !== API_VERSION) {
+      console.log(`Client using API version ${clientVersion}, server is ${API_VERSION}`);
+    }
+
     // Get user auth from the custom header (user's JWT)
     const userAuth = req.headers.get("x-user-authorization") || req.headers.get("authorization");
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
@@ -560,15 +726,44 @@ serve(async (req) => {
       global: { headers: { Authorization: userAuth || "" } },
     });
 
-    // Get user's profile ID
-    const { data: profileData, error: profileError } = await supabase.rpc("get_user_profile_id");
-    if (profileError || !profileData) {
+    // Get user info
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
       return new Response(
         JSON.stringify({ error: "Unable to identify user. Please log in." }),
         { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
+
+    // Get user's profile ID
+    const { data: profileData, error: profileError } = await supabase.rpc("get_user_profile_id");
+    if (profileError || !profileData) {
+      return new Response(
+        JSON.stringify({ error: "Unable to identify user profile. Please log in." }),
+        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
     const profileId = profileData as string;
+
+    // Check if user is admin
+    const isAdmin = await checkIsAdmin(supabase, user.id);
+
+    // Rate limiting and model selection
+    const rateCheck = await checkRateLimitAndSelectModel(supabase, profileId, isAdmin);
+    
+    if (!rateCheck.allowed) {
+      return new Response(
+        JSON.stringify({ 
+          error: rateCheck.reason,
+          rate_limited: true,
+          queries_remaining: 0,
+        }),
+        { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    const selectedModel = rateCheck.model;
+    console.log(`Using model: ${selectedModel} for user ${profileId}, queries remaining: ${rateCheck.queriesRemaining}`);
 
     // AI conversation loop with tool calling
     let aiMessages = [
@@ -589,7 +784,7 @@ serve(async (req) => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          model: "google/gemini-2.5-pro",
+          model: selectedModel,
           messages: aiMessages,
           tools: TOOLS,
           stream: round === MAX_TOOL_ROUNDS, // only stream the final round
@@ -598,12 +793,16 @@ serve(async (req) => {
 
       if (!aiResponse.ok) {
         if (aiResponse.status === 429) {
-          return new Response(JSON.stringify({ error: "Too many requests. Please try again in a moment." }),
-            { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+          return new Response(JSON.stringify({ 
+            error: "AI service is busy. Please try again in a moment.",
+            rate_limited: true,
+          }), { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } });
         }
         if (aiResponse.status === 402) {
-          return new Response(JSON.stringify({ error: "AI credits exhausted. Please add credits to continue." }),
-            { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+          return new Response(JSON.stringify({ 
+            error: "AI credits exhausted. Please contact support.",
+            credits_exhausted: true,
+          }), { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } });
         }
         const t = await aiResponse.text();
         console.error("AI gateway error:", aiResponse.status, t);
@@ -614,7 +813,12 @@ serve(async (req) => {
       // If this is the final round, stream it
       if (round === MAX_TOOL_ROUNDS) {
         return new Response(aiResponse.body, {
-          headers: { ...corsHeaders, "Content-Type": "text/event-stream" },
+          headers: { 
+            ...corsHeaders, 
+            "Content-Type": "text/event-stream",
+            "X-Model-Used": selectedModel,
+            "X-Queries-Remaining": String(rateCheck.queriesRemaining ?? 0),
+          },
         });
       }
 
@@ -636,7 +840,7 @@ serve(async (req) => {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            model: "google/gemini-2.5-pro",
+            model: selectedModel,
             messages: aiMessages,
             stream: true,
           }),
@@ -647,12 +851,22 @@ serve(async (req) => {
           const content = choice.message?.content || "I couldn't process that request.";
           const lines = `data: ${JSON.stringify({ choices: [{ delta: { content } }] })}\n\ndata: [DONE]\n\n`;
           return new Response(lines, {
-            headers: { ...corsHeaders, "Content-Type": "text/event-stream" },
+            headers: { 
+              ...corsHeaders, 
+              "Content-Type": "text/event-stream",
+              "X-Model-Used": selectedModel,
+              "X-Queries-Remaining": String(rateCheck.queriesRemaining ?? 0),
+            },
           });
         }
 
         return new Response(streamResponse.body, {
-          headers: { ...corsHeaders, "Content-Type": "text/event-stream" },
+          headers: { 
+            ...corsHeaders, 
+            "Content-Type": "text/event-stream",
+            "X-Model-Used": selectedModel,
+            "X-Queries-Remaining": String(rateCheck.queriesRemaining ?? 0),
+          },
         });
       }
 
