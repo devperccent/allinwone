@@ -55,6 +55,44 @@ export type Database = {
           },
         ]
       }
+      ai_usage_logs: {
+        Row: {
+          created_at: string
+          id: string
+          model_used: string
+          period_start: string
+          profile_id: string
+          query_count: number | null
+          tokens_used: number | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          model_used: string
+          period_start?: string
+          profile_id: string
+          query_count?: number | null
+          tokens_used?: number | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          model_used?: string
+          period_start?: string
+          profile_id?: string
+          query_count?: number | null
+          tokens_used?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_usage_logs_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       challan_items: {
         Row: {
           challan_id: string
@@ -623,6 +661,9 @@ export type Database = {
       profiles: {
         Row: {
           address: string | null
+          ai_last_query_date: string | null
+          ai_queries_today: number | null
+          ai_tier: string | null
           bank_account_name: string | null
           bank_account_number: string | null
           bank_ifsc: string | null
@@ -651,6 +692,9 @@ export type Database = {
         }
         Insert: {
           address?: string | null
+          ai_last_query_date?: string | null
+          ai_queries_today?: number | null
+          ai_tier?: string | null
           bank_account_name?: string | null
           bank_account_number?: string | null
           bank_ifsc?: string | null
@@ -679,6 +723,9 @@ export type Database = {
         }
         Update: {
           address?: string | null
+          ai_last_query_date?: string | null
+          ai_queries_today?: number | null
+          ai_tier?: string | null
           bank_account_name?: string | null
           bank_account_number?: string | null
           bank_ifsc?: string | null
