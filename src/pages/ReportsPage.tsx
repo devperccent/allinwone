@@ -15,6 +15,7 @@ const GSTR3BExport = lazy(() => import('@/components/reports/GSTR3BExport').then
 const TDSManagement = lazy(() => import('@/components/reports/TDSManagement').then(m => ({ default: m.TDSManagement })));
 const CashFlowForecast = lazy(() => import('@/components/reports/CashFlowForecast').then(m => ({ default: m.CashFlowForecast })));
 const PartyLedger = lazy(() => import('@/components/reports/PartyLedger').then(m => ({ default: m.PartyLedger })));
+const BankReconciliation = lazy(() => import('@/components/reconciliation/BankReconciliation').then(m => ({ default: m.BankReconciliation })));
 
 // Lazy-load recharts (heavy library)
 const RechartsChart = lazy(() => import('recharts').then(m => ({
