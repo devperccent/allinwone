@@ -78,6 +78,20 @@ export default function AdminUserDetail() {
     }
   };
 
+  const handleSuspend = async (suspend: boolean) => {
+    if (!profileId) return;
+    try {
+      await suspendUser.mutateAsync({ profileId, suspend, reason: suspendReason || undefined });
+      toast({ 
+        title: suspend ? 'User Suspended' : 'User Restored', 
+        description: suspend ? 'User account has been suspended.' : 'User account has been restored.' 
+      });
+      setSuspendReason('');
+    } catch (error: any) {
+      toast({ title: 'Error', description: error.message, variant: 'destructive' });
+    }
+  };
+
   if (isLoading) {
     return <div className="flex items-center justify-center h-64"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" /></div>;
   }
