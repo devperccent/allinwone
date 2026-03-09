@@ -81,9 +81,9 @@ const NotificationItem = memo(forwardRef<
           onDelete(notification.id);
         }}
         className="opacity-0 group-hover/item:opacity-100 transition-opacity shrink-0 mt-1 p-1 rounded-md hover:bg-muted text-muted-foreground hover:text-destructive"
-        title="Delete"
+        aria-label={`Delete notification: ${notification.title}`}
       >
-        <X className="w-3.5 h-3.5" />
+        <X className="w-3.5 h-3.5" aria-hidden="true" />
       </button>
     </div>
   );

@@ -14,8 +14,9 @@ const WalkthroughTutorial = lazy(() => import('@/components/onboarding/Walkthrou
 
 function RouteLoader() {
   return (
-    <div className="flex items-center justify-center pt-24">
+    <div className="flex items-center justify-center pt-24" role="status" aria-label="Loading page">
       <div className="h-5 w-5 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+      <span className="sr-only">Loading page content...</span>
     </div>
   );
 }
@@ -46,13 +47,25 @@ export function AppLayout() {
   return (
     <div className="flex h-screen overflow-hidden bg-background">
       {/* Skip to content link for keyboard users */}
-      <a href="#main-content" className="skip-to-content">
+      <a href="#main-content" className="skip-to-content" aria-label="Skip to main content">
         Skip to main content
       </a>
-      {!isMobile && <MemoizedSidebar onOpenShortcuts={() => setShortcutsOpen(true)} />}
+      {!isMobile && (
+        <aside aria-label="Main navigation">
+          <MemoizedSidebar onOpenShortcuts={() => setShortcutsOpen(true)} />
+        </aside>
+      )}
       <div className="flex flex-col flex-1 overflow-hidden">
         <AppHeader searchOpen={searchOpen} onSearchOpenChange={setSearchOpen} onOpenShortcuts={() => setShortcutsOpen(true)} />
-        <main id="main-content" className="flex-1 overflow-y-auto p-4 md:p-5" tabIndex={-1}>
+        <main
+          id="main-content"
+          className="flex-1 overflow-y-auto p-4 md:p-5"
+          tabIndex={-1}
+          role="main"
+          aria-label="Page content"
+        >
+          {/* Live region for page announcements */}
+          <div aria-live="polite" aria-atomic="true" className="sr-only" id="page-announcer" />
           <Suspense fallback={<RouteLoader />}>
             <Outlet context={{ setWalkthroughOpen }} />
           </Suspense>

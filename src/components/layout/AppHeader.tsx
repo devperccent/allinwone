@@ -122,8 +122,9 @@ export const AppHeader = memo(function AppHeader({ searchOpen, onSearchOpenChang
               size="icon"
               className="h-8 w-8"
               onClick={() => setTheme(isDark ? 'light' : 'dark')}
+              aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
             >
-              {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+              {isDark ? <Sun className="w-4 h-4" aria-hidden="true" /> : <Moon className="w-4 h-4" aria-hidden="true" />}
             </Button>
           </TooltipTrigger>
           <TooltipContent side="bottom">{isDark ? 'Light mode' : 'Dark mode'}</TooltipContent>
