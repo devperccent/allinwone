@@ -237,17 +237,28 @@ export default function ClientsPage() {
         </div>
       )}
 
-      {/* Search */}
-      <div className="relative max-w-sm">
-        <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
-        <Input
-          ref={searchRef}
-          type="search"
-          placeholder="Search clients..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className="pl-8 h-8 text-sm"
-        />
+      {/* Search & Filters */}
+      <div className="flex items-center gap-2">
+        <div className="relative flex-1 max-w-sm">
+          <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
+          <Input
+            ref={searchRef}
+            type="search"
+            placeholder="Search clients..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-8 h-8 text-sm"
+          />
+        </div>
+        <Button
+          variant={showCreditOnly ? 'default' : 'outline'}
+          size="sm"
+          className="gap-1.5 h-8 text-xs"
+          onClick={() => setShowCreditOnly(!showCreditOnly)}
+        >
+          <IndianRupee className="w-3 h-3" />
+          Udhaar Only
+        </Button>
       </div>
 
       {/* Clients List */}
