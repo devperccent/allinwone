@@ -275,13 +275,6 @@ export function InvoiceForm({
         />
       </div>
 
-      {/* Template Selector */}
-      {onTemplateChange && (
-        <div className="rounded-lg border border-border bg-card p-4">
-          <TemplateSelector value={template} onChange={onTemplateChange} />
-        </div>
-      )}
-
       {/* Payment Info Toggle */}
       <div className="rounded-lg border border-border bg-card p-4 flex items-center justify-between">
         <div>
@@ -294,6 +287,13 @@ export function InvoiceForm({
           onCheckedChange={onShowPaymentInfoChange}
         />
       </div>
+
+      {/* Template Selector */}
+      {onTemplateChange && (
+        <div className="rounded-lg border border-border bg-card p-4">
+          <TemplateSelector value={template} onChange={onTemplateChange} />
+        </div>
+      )}
     </div>
   );
 }
