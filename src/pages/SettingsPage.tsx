@@ -130,7 +130,12 @@ export default function SettingsPage() {
     }
   }, [authProfile]);
 
-  
+  // Sync local digest state when loaded
+  useEffect(() => {
+    setLocalDigest(digestPrefs);
+  }, [digestPrefs]);
+
+
 
   const handleSaveBusiness = async () => {
     if (!authProfile) return;
