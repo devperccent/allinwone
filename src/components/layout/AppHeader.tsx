@@ -103,6 +103,7 @@ export const AppHeader = memo(function AppHeader({ searchOpen, onSearchOpenChang
           <TooltipTrigger asChild>
             <Button
               onClick={() => navigate('/invoices/new')}
+              onMouseEnter={() => prefetchRoute('/invoices/new')}
               size="sm"
               className="gap-1.5 h-8 text-xs"
             >
