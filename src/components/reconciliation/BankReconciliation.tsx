@@ -52,8 +52,8 @@ export function BankReconciliation() {
       // Parse transactions (assuming common bank statement format)
       const parsed: BankTransaction[] = [];
       
-      for (let i = 1; i < rows.length; i++) {
-        const row = rows[i] as (string | number)[];
+      for (let i = 1; i < rawRows.length; i++) {
+        const row = rawRows[i] as (string | number | null | undefined)[];
         if (!row || row.length < 3) continue;
 
         // Try to find date, description, and amount columns
