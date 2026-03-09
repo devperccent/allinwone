@@ -167,18 +167,28 @@ function InvoiceActions({
         )}
         {invoice.status === 'finalized' && (
           <>
+            <DropdownMenuItem onClick={() => onRecordPayment(invoice)}>
+              <CreditCard className="w-4 h-4 mr-2" />
+              Record Payment
+            </DropdownMenuItem>
             <DropdownMenuItem
               onClick={() => onMarkPaid(invoice)}
               disabled={isMarkingPaid}
             >
               <CheckCircle className="w-4 h-4 mr-2" />
-              Mark as Paid
+              Mark as Fully Paid
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => onRemind(invoice)}>
               <Bell className="w-4 h-4 mr-2" />
               Send Reminder
             </DropdownMenuItem>
           </>
+        )}
+        {(invoice.status === 'finalized' || invoice.status === 'paid') && (
+          <DropdownMenuItem onClick={() => onCreditNote(invoice)}>
+            <FileX2 className="w-4 h-4 mr-2" />
+            Issue Credit Note
+          </DropdownMenuItem>
         )}
         {invoice.status === 'draft' && (
           <>
