@@ -21,14 +21,14 @@ export function useOfflineSync() {
     };
   }, []);
 
-  // Poll queue count
+  // Poll queue count — every 30s is sufficient
   useEffect(() => {
     const check = async () => {
       const count = await getQueueCount();
       setPendingCount(count);
     };
     check();
-    const interval = setInterval(check, 5000);
+    const interval = setInterval(check, 30000);
     return () => clearInterval(interval);
   }, []);
 

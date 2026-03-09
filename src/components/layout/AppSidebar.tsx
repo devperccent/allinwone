@@ -26,7 +26,7 @@ import inwLogo from '@/assets/inw-logomark.png';
 import { ThemeLogo } from '@/components/ThemeLogo';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
-import { useState } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useIsMobile } from '@/hooks/use-mobile';
 import {
@@ -82,15 +82,17 @@ export function AppSidebar({ onNavigate, onOpenShortcuts }: AppSidebarProps) {
   const { data: isAdmin } = useIsAdmin();
   const { isModuleEnabled } = useEnabledModules();
 
-  const filterNav = (items: NavItem[]) =>
-    items.filter(i => !i.module || isModuleEnabled(i.module));
+  // Memoize filtered nav arrays
+  const filteredMain = useMemo(() => mainNavigation.filter(i => !i.module || isModuleEnabled(i.module)), [isModuleEnabled]);
+  const filteredDocs = useMemo(() => documentNavigation.filter(i => !i.module || isModuleEnabled(i.module)), [isModuleEnabled]);
+  const filteredMgmt = useMemo(() => managementNavigation.filter(i => !i.module || isModuleEnabled(i.module)), [isModuleEnabled]);
 
   const isCollapsed = isMobile ? false : collapsed;
 
-  const handleSignOut = async () => {
+  const handleSignOut = useCallback(async () => {
     await signOut();
     navigate('/login');
-  };
+  }, [signOut, navigate]);
 
   const initials = profile?.org_name
     ?.split(' ')
@@ -162,13 +164,13 @@ export function AppSidebar({ onNavigate, onOpenShortcuts }: AppSidebarProps) {
       {/* Navigation */}
       <nav className="flex-1 px-2 py-2 space-y-0.5 overflow-y-auto">
         {renderSectionLabel('Billing')}
-        {filterNav(mainNavigation).map(renderNavItem)}
+        {filteredMain.map(renderNavItem)}
 
-        {filterNav(documentNavigation).length > 0 && renderSectionLabel('Documents')}
-        {filterNav(documentNavigation).map(renderNavItem)}
+        {filteredDocs.length > 0 && renderSectionLabel('Documents')}
+        {filteredDocs.map(renderNavItem)}
 
         {renderSectionLabel('Manage')}
-        {filterNav(managementNavigation).map(renderNavItem)}
+        {filteredMgmt.map(renderNavItem)}
       </nav>
 
       {/* Keyboard hints */}
