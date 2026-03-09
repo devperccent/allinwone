@@ -57,6 +57,9 @@ export default function Dashboard() {
 
   return (
     <div className="space-y-5 animate-fade-in">
+      {/* Announcements */}
+      <AnnouncementBanner />
+
       {/* Header */}
       <div className="flex items-center justify-between">
         <h1 className="text-xl font-bold">Dashboard</h1>
