@@ -54,7 +54,7 @@ export const AppHeader = memo(function AppHeader({ searchOpen, onSearchOpenChang
   const isDark = theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
 
   return (
-    <header className="flex items-center justify-between h-12 px-3 md:px-5 border-b border-border bg-card gap-2">
+    <header className="flex items-center justify-between h-12 px-3 md:px-5 border-b border-border bg-card gap-2" role="banner" aria-label="Application header">
       {/* Left: Mobile menu + Search */}
       <div className="flex items-center gap-2 flex-1 min-w-0">
         {isMobile && (
