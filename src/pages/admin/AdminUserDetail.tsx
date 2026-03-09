@@ -279,8 +279,8 @@ export default function AdminUserDetail() {
               {ALL_MODULES.map((mod) => (
                 <div key={mod.key} className="flex items-center justify-between">
                   <div>
-                    <p className="font-medium">{mod.label}</p>
-                    <p className="text-sm text-muted-foreground">{mod.description}</p>
+                    <p className="text-sm font-medium">{mod.label}</p>
+                    <p className="text-xs text-muted-foreground">{mod.description}</p>
                   </div>
                   <Switch
                     checked={modulesState.includes(mod.key)}
