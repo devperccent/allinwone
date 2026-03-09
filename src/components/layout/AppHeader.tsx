@@ -95,8 +95,8 @@ export const AppHeader = memo(function AppHeader({ searchOpen, onSearchOpenChang
       {/* Right: Actions */}
       <div className="flex items-center gap-0.5 shrink-0" role="toolbar" aria-label="Quick actions">
         {isMobile && (
-          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => onSearchOpenChange(true)}>
-            <Search className="w-4 h-4" />
+          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => onSearchOpenChange(true)} aria-label="Open search">
+            <Search className="w-4 h-4" aria-hidden="true" />
           </Button>
         )}
 
