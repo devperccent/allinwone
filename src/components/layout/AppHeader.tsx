@@ -72,10 +72,11 @@ export const AppHeader = memo(function AppHeader({ searchOpen, onSearchOpenChang
         <button
           onClick={() => onSearchOpenChange(true)}
           className="relative flex-1 max-w-xs hidden sm:flex items-center gap-2 h-8 rounded-md bg-muted/40 px-3 text-sm text-muted-foreground hover:bg-muted/60 transition-colors cursor-pointer"
+          aria-label="Open search. Press Control+K"
         >
-          <Search className="w-3.5 h-3.5 shrink-0" />
+          <Search className="w-3.5 h-3.5 shrink-0" aria-hidden="true" />
           <span className="text-xs">Search...</span>
-          <kbd className="ml-auto pointer-events-none hidden md:inline-flex h-4 select-none items-center gap-0.5 rounded border bg-muted px-1 font-mono text-[9px] font-medium text-muted-foreground">
+          <kbd className="ml-auto pointer-events-none hidden md:inline-flex h-4 select-none items-center gap-0.5 rounded border bg-muted px-1 font-mono text-[9px] font-medium text-muted-foreground" aria-hidden="true">
             <span>{modKey}</span>K
           </kbd>
         </button>
