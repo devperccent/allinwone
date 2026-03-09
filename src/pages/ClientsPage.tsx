@@ -65,11 +65,17 @@ export default function ClientsPage() {
     billing_address: '',
   });
 
-  const filteredClients = clients.filter((client) =>
-    client.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    client.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    client.phone?.includes(searchQuery)
-  );
+  const filteredClients = useMemo(() => {
+    let result = clients.filter((client) =>
+      client.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      client.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      client.phone?.includes(searchQuery)
+    );
+    if (showCreditOnly) {
+      result = result.filter(c => Number(c.credit_balance) > 0);
+    }
+    return result;
+  }, [clients, searchQuery, showCreditOnly]);
 
   // Page shortcuts: / → focus search, A → add client
   usePageShortcuts(useMemo(() => [
