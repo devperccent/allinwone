@@ -3,14 +3,22 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Users, FileText, IndianRupee, UserCheck, Eye, Download } from 'lucide-react';
+import { Users, FileText, IndianRupee, UserCheck, Eye, Download, Bot, Zap, Crown } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { format } from 'date-fns';
 
 function formatINR(amount: number) {
   return new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(amount);
 }
+
+const TIER_COLORS = {
+  standard: 'bg-muted text-muted-foreground',
+  premium: 'bg-amber-500/20 text-amber-600',
+  admin: 'bg-primary/20 text-primary',
+};
+
+const AI_MODEL_COLORS = ['hsl(var(--primary))', 'hsl(var(--chart-2))', 'hsl(var(--chart-3))'];
 
 export default function AdminDashboard() {
   const { data: stats, isLoading: statsLoading } = useAdminStats();
@@ -19,10 +27,10 @@ export default function AdminDashboard() {
 
   const exportCSV = () => {
     if (!users) return;
-    const headers = ['Org Name', 'Email', 'Phone', 'Business Type', 'GSTIN', 'State', 'Onboarded', 'Invoices', 'Clients', 'Products', 'Revenue', 'Registered'];
+    const headers = ['Org Name', 'Email', 'Phone', 'Business Type', 'GSTIN', 'State', 'Onboarded', 'AI Tier', 'Invoices', 'Clients', 'Products', 'Revenue', 'Registered'];
     const rows = users.map(u => [
       u.org_name, u.email || '', u.phone || '', u.business_type || '', u.gstin || '',
-      u.state_code, u.onboarding_completed ? 'Yes' : 'No',
+      u.state_code, u.onboarding_completed ? 'Yes' : 'No', u.ai_tier,
       u.invoice_count, u.client_count, u.product_count, u.total_revenue,
       format(new Date(u.created_at), 'yyyy-MM-dd'),
     ]);
@@ -36,11 +44,18 @@ export default function AdminDashboard() {
     URL.revokeObjectURL(url);
   };
 
+  const aiModelData = stats?.aiByModel ? [
+    { name: 'Premium (Pro)', value: stats.aiByModel.premium },
+    { name: 'Standard (Flash)', value: stats.aiByModel.standard },
+    { name: 'Budget (Lite)', value: stats.aiByModel.budget },
+  ] : [];
+
   return (
     <div className="space-y-5 animate-fade-in">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-bold">Admin Console</h1>
+          <h1 className="text-xl font-bold">INW Admin Console</h1>
+          <p className="text-sm text-muted-foreground">Super Admin Dashboard • API v1.0.0</p>
         </div>
         <Button variant="outline" onClick={exportCSV} disabled={!users?.length}>
           <Download className="w-4 h-4 mr-2" />
@@ -62,26 +77,22 @@ export default function AdminDashboard() {
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Onboarding Rate</CardTitle>
-            <UserCheck className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium">Premium Users</CardTitle>
+            <Crown className="h-4 w-4 text-amber-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">
-              {stats && stats.totalUsers > 0
-                ? `${Math.round((stats.onboardedUsers / stats.totalUsers) * 100)}%`
-                : '—'}
-            </div>
-            <p className="text-xs text-muted-foreground">completed setup</p>
+            <div className="text-2xl font-bold">{stats?.premiumUsers ?? 0}</div>
+            <p className="text-xs text-muted-foreground">upgraded tier</p>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Total Invoices</CardTitle>
-            <FileText className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium">AI Queries Today</CardTitle>
+            <Bot className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats?.totalInvoices ?? '—'}</div>
-            <p className="text-xs text-muted-foreground">across all users</p>
+            <div className="text-2xl font-bold">{stats?.aiQueriesToday ?? 0}</div>
+            <p className="text-xs text-muted-foreground">{stats?.totalAiQueries ?? 0} total</p>
           </CardContent>
         </Card>
         <Card>
@@ -96,25 +107,57 @@ export default function AdminDashboard() {
         </Card>
       </div>
 
-      {/* Signups Chart */}
-      <Card>
-        <CardHeader>
-          <CardTitle>User Signups (Last 6 Months)</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="h-64">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={stats?.signupsByMonth || []}>
-                <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
-                <XAxis dataKey="month" className="text-xs" />
-                <YAxis allowDecimals={false} className="text-xs" />
-                <Tooltip />
-                <Bar dataKey="count" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </CardContent>
-      </Card>
+      {/* Charts */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <Card className="lg:col-span-2">
+          <CardHeader>
+            <CardTitle>User Signups (Last 6 Months)</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="h-64">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={stats?.signupsByMonth || []}>
+                  <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
+                  <XAxis dataKey="month" className="text-xs" />
+                  <YAxis allowDecimals={false} className="text-xs" />
+                  <Tooltip />
+                  <Bar dataKey="count" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>AI Model Usage</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="h-64">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={aiModelData}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={50}
+                    outerRadius={80}
+                    paddingAngle={2}
+                    dataKey="value"
+                    label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                    labelLine={false}
+                  >
+                    {aiModelData.map((_, index) => (
+                      <Cell key={`cell-${index}`} fill={AI_MODEL_COLORS[index % AI_MODEL_COLORS.length]} />
+                    ))}
+                  </Pie>
+                  <Tooltip />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
 
       {/* Users Table */}
       <Card>
@@ -127,10 +170,10 @@ export default function AdminDashboard() {
               <TableRow>
                 <TableHead>Organization</TableHead>
                 <TableHead>Email</TableHead>
-                <TableHead>Business Type</TableHead>
                 <TableHead className="text-center">Status</TableHead>
+                <TableHead className="text-center">AI Tier</TableHead>
+                <TableHead className="text-center">AI Today</TableHead>
                 <TableHead className="text-center">Invoices</TableHead>
-                <TableHead className="text-center">Clients</TableHead>
                 <TableHead className="text-right">Revenue</TableHead>
                 <TableHead>Registered</TableHead>
                 <TableHead></TableHead>
@@ -145,14 +188,18 @@ export default function AdminDashboard() {
                 <TableRow key={user.id}>
                   <TableCell className="font-medium">{user.org_name}</TableCell>
                   <TableCell className="text-muted-foreground">{user.email || '—'}</TableCell>
-                  <TableCell className="text-muted-foreground capitalize">{user.business_type || '—'}</TableCell>
                   <TableCell className="text-center">
                     <Badge variant={user.onboarding_completed ? 'default' : 'secondary'}>
                       {user.onboarding_completed ? 'Active' : 'Pending'}
                     </Badge>
                   </TableCell>
+                  <TableCell className="text-center">
+                    <Badge className={TIER_COLORS[user.ai_tier as keyof typeof TIER_COLORS] || TIER_COLORS.standard}>
+                      {user.ai_tier || 'standard'}
+                    </Badge>
+                  </TableCell>
+                  <TableCell className="text-center">{user.ai_queries_today || 0}</TableCell>
                   <TableCell className="text-center">{user.invoice_count}</TableCell>
-                  <TableCell className="text-center">{user.client_count}</TableCell>
                   <TableCell className="text-right">{formatINR(user.total_revenue)}</TableCell>
                   <TableCell className="text-muted-foreground">
                     {format(new Date(user.created_at), 'dd MMM yyyy')}

@@ -1,52 +1,76 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useAdminUserDetail } from '@/hooks/useAdmin';
+import { useAdminUserDetail, useUpdateUserTier, useUpdateUserModules, useResetUserAiQuota } from '@/hooks/useAdmin';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
-import { ArrowLeft, FileText, Users, Package, Loader2, LayoutGrid } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { ArrowLeft, FileText, Users, Package, Loader2, LayoutGrid, Bot, RefreshCw, Crown, Zap } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { format } from 'date-fns';
 import { INDIAN_STATES } from '@/types';
 import { ALL_MODULES } from '@/hooks/useEnabledModules';
-import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { useQueryClient } from '@tanstack/react-query';
 
 function formatINR(amount: number) {
   return new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(amount);
 }
+
+const AI_TIERS = [
+  { value: 'standard', label: 'Standard', description: '50 queries/day, 10 premium model' },
+  { value: 'premium', label: 'Premium', description: '200 queries/day, 100 premium model' },
+  { value: 'admin', label: 'Admin', description: '1000 queries/day, 500 premium model' },
+];
 
 export default function AdminUserDetail() {
   const { profileId } = useParams<{ profileId: string }>();
   const navigate = useNavigate();
   const { data, isLoading } = useAdminUserDetail(profileId);
   const { toast } = useToast();
-  const queryClient = useQueryClient();
+  const updateTier = useUpdateUserTier();
+  const updateModules = useUpdateUserModules();
+  const resetQuota = useResetUserAiQuota();
+  
   const [modulesState, setModulesState] = useState<string[]>([]);
-  const [savingModules, setSavingModules] = useState(false);
+  const [selectedTier, setSelectedTier] = useState<string>('standard');
 
   useEffect(() => {
     if (data?.profile) {
       setModulesState((data.profile as any).enabled_modules ?? ALL_MODULES.map(m => m.key));
+      setSelectedTier((data.profile as any).ai_tier || 'standard');
     }
   }, [data?.profile]);
 
   const handleSaveModules = async () => {
     if (!profileId) return;
-    setSavingModules(true);
-    const { error } = await supabase
-      .from('profiles')
-      .update({ enabled_modules: modulesState } as any)
-      .eq('id', profileId);
-    setSavingModules(false);
-    if (error) {
-      toast({ title: 'Error', description: error.message, variant: 'destructive' });
-    } else {
+    try {
+      await updateModules.mutateAsync({ profileId, modules: modulesState });
       toast({ title: 'Modules updated', description: 'User modules have been saved.' });
-      queryClient.invalidateQueries({ queryKey: ['admin_user_detail', profileId] });
+    } catch (error: any) {
+      toast({ title: 'Error', description: error.message, variant: 'destructive' });
+    }
+  };
+
+  const handleTierChange = async (tier: string) => {
+    if (!profileId) return;
+    setSelectedTier(tier);
+    try {
+      await updateTier.mutateAsync({ profileId, tier });
+      toast({ title: 'Tier updated', description: `User tier changed to ${tier}.` });
+    } catch (error: any) {
+      toast({ title: 'Error', description: error.message, variant: 'destructive' });
+    }
+  };
+
+  const handleResetQuota = async () => {
+    if (!profileId) return;
+    try {
+      await resetQuota.mutateAsync(profileId);
+      toast({ title: 'Quota reset', description: 'User AI quota has been reset for today.' });
+    } catch (error: any) {
+      toast({ title: 'Error', description: error.message, variant: 'destructive' });
     }
   };
 
@@ -58,7 +82,7 @@ export default function AdminUserDetail() {
     return <div className="p-6 text-center text-muted-foreground">User not found</div>;
   }
 
-  const { profile, invoices, clients, products } = data;
+  const { profile, invoices, clients, products, aiUsage } = data;
   const totalRevenue = invoices.filter((i: any) => i.status === 'paid').reduce((s: number, i: any) => s + Number(i.grand_total), 0);
 
   return (
@@ -71,13 +95,15 @@ export default function AdminUserDetail() {
           <h1 className="text-xl sm:text-2xl font-bold truncate">{profile.org_name}</h1>
           <p className="text-muted-foreground text-sm truncate">{profile.email}</p>
         </div>
-        <Badge variant={profile.onboarding_completed ? 'default' : 'secondary'} className="self-start sm:self-auto">
-          {profile.onboarding_completed ? 'Active' : 'Pending Setup'}
-        </Badge>
+        <div className="flex items-center gap-2 self-start sm:self-auto">
+          <Badge variant={profile.onboarding_completed ? 'default' : 'secondary'}>
+            {profile.onboarding_completed ? 'Active' : 'Pending Setup'}
+          </Badge>
+        </div>
       </div>
 
       {/* Profile Details */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <Card>
           <CardHeader className="pb-2"><CardTitle className="text-sm">Business Info</CardTitle></CardHeader>
           <CardContent className="space-y-1 text-sm">
@@ -106,12 +132,63 @@ export default function AdminUserDetail() {
             <p><span className="text-muted-foreground">Registered:</span> {format(new Date(profile.created_at), 'dd MMM yyyy')}</p>
           </CardContent>
         </Card>
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm flex items-center gap-2">
+              <Bot className="h-4 w-4" /> AI Usage
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-muted-foreground">Tier</span>
+              <Select value={selectedTier} onValueChange={handleTierChange}>
+                <SelectTrigger className="w-28 h-8">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {AI_TIERS.map(tier => (
+                    <SelectItem key={tier.value} value={tier.value}>
+                      <div className="flex items-center gap-1">
+                        {tier.value === 'premium' && <Crown className="h-3 w-3 text-amber-500" />}
+                        {tier.value === 'admin' && <Zap className="h-3 w-3 text-primary" />}
+                        {tier.label}
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-muted-foreground">Today's Queries</span>
+              <span className="font-medium">{(profile as any).ai_queries_today || 0}</span>
+            </div>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="w-full mt-2" 
+              onClick={handleResetQuota}
+              disabled={resetQuota.isPending}
+            >
+              {resetQuota.isPending ? <Loader2 className="w-3 h-3 animate-spin mr-2" /> : <RefreshCw className="w-3 h-3 mr-2" />}
+              Reset Quota
+            </Button>
+          </CardContent>
+        </Card>
       </div>
 
       {/* Tabs for data */}
-      <Tabs defaultValue="invoices">
+      <Tabs defaultValue="modules">
         <div className="overflow-x-auto -mx-6 px-6">
           <TabsList className="w-max">
+            <TabsTrigger value="modules" className="gap-1">
+              <LayoutGrid className="h-4 w-4" />
+              <span className="hidden sm:inline">Modules</span>
+            </TabsTrigger>
+            <TabsTrigger value="ai" className="gap-1">
+              <Bot className="h-4 w-4" />
+              <span className="hidden sm:inline">AI History</span>
+              <span className="text-xs">({aiUsage.length})</span>
+            </TabsTrigger>
             <TabsTrigger value="invoices" className="gap-1">
               <FileText className="h-4 w-4" />
               <span className="hidden sm:inline">Invoices</span>
@@ -127,12 +204,80 @@ export default function AdminUserDetail() {
               <span className="hidden sm:inline">Products</span>
               <span className="text-xs">({products.length})</span>
             </TabsTrigger>
-            <TabsTrigger value="modules" className="gap-1">
-              <LayoutGrid className="h-4 w-4" />
-              <span className="hidden sm:inline">Modules</span>
-            </TabsTrigger>
           </TabsList>
         </div>
+
+        <TabsContent value="modules">
+          <Card>
+            <CardHeader>
+              <CardTitle>Active Modules</CardTitle>
+              <CardDescription>
+                Control which features this user sees. Disabled modules hide the related sidebar links, dashboard widgets, and routes.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {ALL_MODULES.map((mod) => (
+                <div key={mod.key} className="flex items-center justify-between">
+                  <div>
+                    <p className="font-medium">{mod.label}</p>
+                    <p className="text-sm text-muted-foreground">{mod.description}</p>
+                  </div>
+                  <Switch
+                    checked={modulesState.includes(mod.key)}
+                    onCheckedChange={() =>
+                      setModulesState(prev =>
+                        prev.includes(mod.key) ? prev.filter(k => k !== mod.key) : [...prev, mod.key]
+                      )
+                    }
+                  />
+                </div>
+              ))}
+              <div className="flex justify-end pt-4 border-t">
+                <Button onClick={handleSaveModules} disabled={updateModules.isPending}>
+                  {updateModules.isPending && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
+                  Save Modules for User
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="ai">
+          <Card>
+            <CardHeader>
+              <CardTitle>AI Query History</CardTitle>
+              <CardDescription>Recent AI assistant usage for this user</CardDescription>
+            </CardHeader>
+            <CardContent className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Timestamp</TableHead>
+                    <TableHead>Model</TableHead>
+                    <TableHead className="text-right">Tokens</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {aiUsage.length === 0 ? (
+                    <TableRow><TableCell colSpan={3} className="text-center py-4 text-muted-foreground">No AI usage recorded</TableCell></TableRow>
+                  ) : aiUsage.map((usage: any) => (
+                    <TableRow key={usage.id}>
+                      <TableCell className="text-muted-foreground">
+                        {format(new Date(usage.created_at), 'dd MMM yyyy HH:mm')}
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant="outline" className="font-mono text-xs">
+                          {usage.model_used?.split('/')[1] || usage.model_used}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-right">{usage.tokens_used || '—'}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
+        </TabsContent>
 
         <TabsContent value="invoices">
           <Card>
@@ -223,40 +368,6 @@ export default function AdminUserDetail() {
                   ))}
                 </TableBody>
               </Table>
-            </CardContent>
-          </Card>
-        </TabsContent>
-        <TabsContent value="modules">
-          <Card>
-            <CardHeader>
-              <CardTitle>Active Modules</CardTitle>
-              <CardDescription>
-                Control which features this user sees. Disabled modules hide the related sidebar links, dashboard widgets, and routes.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {ALL_MODULES.map((mod) => (
-                <div key={mod.key} className="flex items-center justify-between">
-                  <div>
-                    <p className="font-medium">{mod.label}</p>
-                    <p className="text-sm text-muted-foreground">{mod.description}</p>
-                  </div>
-                  <Switch
-                    checked={modulesState.includes(mod.key)}
-                    onCheckedChange={() =>
-                      setModulesState(prev =>
-                        prev.includes(mod.key) ? prev.filter(k => k !== mod.key) : [...prev, mod.key]
-                      )
-                    }
-                  />
-                </div>
-              ))}
-              <div className="flex justify-end pt-4 border-t">
-                <Button onClick={handleSaveModules} disabled={savingModules}>
-                  {savingModules && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
-                  Save Modules for User
-                </Button>
-              </div>
             </CardContent>
           </Card>
         </TabsContent>
