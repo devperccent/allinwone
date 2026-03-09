@@ -165,8 +165,8 @@ export default function AdminDashboard() {
 
       {/* Users Table */}
       <Card>
-        <CardHeader>
-          <CardTitle>All Users ({users?.length ?? 0})</CardTitle>
+        <CardHeader className="pb-2">
+          <CardTitle className="text-sm font-medium">All Users ({users?.length ?? 0})</CardTitle>
         </CardHeader>
         <CardContent>
           <Table>

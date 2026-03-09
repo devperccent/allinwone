@@ -304,9 +304,9 @@ export default function AdminUserDetail() {
 
         <TabsContent value="ai">
           <Card>
-            <CardHeader>
-              <CardTitle>AI Query History</CardTitle>
-              <CardDescription>Recent AI assistant usage for this user</CardDescription>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium">AI Query History</CardTitle>
+              <CardDescription className="text-xs">Recent AI assistant usage for this user</CardDescription>
             </CardHeader>
             <CardContent className="overflow-x-auto">
               <Table>
