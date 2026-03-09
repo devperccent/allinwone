@@ -70,6 +70,7 @@ const managementNavigation: NavItem[] = [
 
 interface AppSidebarProps {
   onNavigate?: () => void;
+  onOpenShortcuts?: () => void;
 }
 
 export function AppSidebar({ onNavigate }: AppSidebarProps) {
