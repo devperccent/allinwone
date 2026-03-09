@@ -371,6 +371,10 @@ export default function SettingsPage() {
                 </div>
               </div>
 
+              <div className="pt-4 border-t">
+                <SignatureUpload currentSignatureUrl={authProfile.signature_url ?? null} />
+              </div>
+
               <div className="flex justify-end">
                 <Button onClick={handleSaveBusiness} disabled={isUpdating}>
                   {isUpdating && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
