@@ -27,6 +27,7 @@ import { ThemeLogo } from '@/components/ThemeLogo';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { useState, useMemo, useCallback } from 'react';
+import { prefetchRoute } from '@/lib/routePrefetch';
 import { useAuth } from '@/contexts/AuthContext';
 import { useIsMobile } from '@/hooks/use-mobile';
 import {
