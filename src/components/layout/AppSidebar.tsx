@@ -154,6 +154,8 @@ export function AppSidebar({ onNavigate, onOpenShortcuts }: AppSidebarProps) {
         'flex flex-col h-full bg-sidebar border-r border-sidebar-border transition-all duration-300',
         isCollapsed ? 'w-[60px]' : 'w-56'
       )}
+      role="navigation"
+      aria-label="Main navigation"
     >
       {/* Logo */}
       <div className="flex items-center h-12 px-5 border-b border-sidebar-border">
