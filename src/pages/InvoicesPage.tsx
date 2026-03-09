@@ -478,20 +478,38 @@ export default function InvoicesPage() {
                     </Badge>
                   </td>
                   <td>
-                    <InvoiceActions
-                      invoice={invoice}
-                      onDownload={handleDownload}
-                      onEmail={openEmailDialog}
-                      onFinalize={(id) => finalizeInvoiceMutation.mutate(id)}
-                      onMarkPaid={openPaidDialog}
-                      onDelete={(id) => deleteInvoice.mutate(id)}
-                      onShare={handleShare}
-                      onRemind={handleRemind}
-                      isGenerating={isGenerating}
-                      isFinalizing={finalizeInvoiceMutation.isPending}
-                      isMarkingPaid={markAsPaid.isPending}
-                      isDeleting={deleteInvoice.isPending}
-                    />
+                    <div className="flex items-center gap-1">
+                      {invoice.status === 'finalized' && invoice.client?.phone && (
+                        <PaymentReminderButton
+                          invoice={invoice}
+                          client={invoice.client}
+                          profileOrgName={profile?.org_name || ''}
+                          profileUpiVpa={profile?.upi_vpa}
+                        />
+                      )}
+                      {invoice.status === 'paid' && invoice.client?.phone && (
+                        <PaymentReminderButton
+                          invoice={invoice}
+                          client={invoice.client}
+                          profileOrgName={profile?.org_name || ''}
+                          profileUpiVpa={profile?.upi_vpa}
+                        />
+                      )}
+                      <InvoiceActions
+                        invoice={invoice}
+                        onDownload={handleDownload}
+                        onEmail={openEmailDialog}
+                        onFinalize={(id) => finalizeInvoiceMutation.mutate(id)}
+                        onMarkPaid={openPaidDialog}
+                        onDelete={(id) => deleteInvoice.mutate(id)}
+                        onShare={handleShare}
+                        onRemind={handleRemind}
+                        isGenerating={isGenerating}
+                        isFinalizing={finalizeInvoiceMutation.isPending}
+                        isMarkingPaid={markAsPaid.isPending}
+                        isDeleting={deleteInvoice.isPending}
+                      />
+                    </div>
                   </td>
                 </tr>
               ))
