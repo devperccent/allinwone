@@ -93,6 +93,47 @@ export type Database = {
           },
         ]
       }
+      announcements: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          expires_at: string | null
+          id: string
+          is_active: boolean
+          message: string
+          title: string
+          type: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean
+          message: string
+          title: string
+          type?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean
+          message?: string
+          title?: string
+          type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "announcements_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       challan_items: {
         Row: {
           challan_id: string
@@ -675,6 +716,7 @@ export type Database = {
           gstin: string | null
           id: string
           invoice_prefix: string
+          is_suspended: boolean | null
           logo_url: string | null
           next_challan_number: number
           next_invoice_number: number
@@ -686,6 +728,7 @@ export type Database = {
           phone: string | null
           quotation_prefix: string
           state_code: string
+          suspended_reason: string | null
           updated_at: string
           upi_vpa: string | null
           user_id: string
@@ -706,6 +749,7 @@ export type Database = {
           gstin?: string | null
           id?: string
           invoice_prefix?: string
+          is_suspended?: boolean | null
           logo_url?: string | null
           next_challan_number?: number
           next_invoice_number?: number
@@ -717,6 +761,7 @@ export type Database = {
           phone?: string | null
           quotation_prefix?: string
           state_code?: string
+          suspended_reason?: string | null
           updated_at?: string
           upi_vpa?: string | null
           user_id: string
@@ -737,6 +782,7 @@ export type Database = {
           gstin?: string | null
           id?: string
           invoice_prefix?: string
+          is_suspended?: boolean | null
           logo_url?: string | null
           next_challan_number?: number
           next_invoice_number?: number
@@ -748,6 +794,7 @@ export type Database = {
           phone?: string | null
           quotation_prefix?: string
           state_code?: string
+          suspended_reason?: string | null
           updated_at?: string
           upi_vpa?: string | null
           user_id?: string

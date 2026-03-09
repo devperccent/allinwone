@@ -3,10 +3,11 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Users, FileText, IndianRupee, UserCheck, Eye, Download, Bot, Zap, Crown } from 'lucide-react';
+import { Users, FileText, IndianRupee, UserCheck, Eye, Download, Bot, Zap, Crown, Ban } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { format } from 'date-fns';
+import { AnnouncementManager } from '@/components/admin/AnnouncementManager';
 
 function formatINR(amount: number) {
   return new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(amount);
@@ -159,6 +160,9 @@ export default function AdminDashboard() {
         </Card>
       </div>
 
+      {/* Announcements */}
+      <AnnouncementManager />
+
       {/* Users Table */}
       <Card>
         <CardHeader>
@@ -185,12 +189,17 @@ export default function AdminDashboard() {
               ) : users?.length === 0 ? (
                 <TableRow><TableCell colSpan={9} className="text-center py-8">No users found</TableCell></TableRow>
               ) : users?.map(user => (
-                <TableRow key={user.id}>
-                  <TableCell className="font-medium">{user.org_name}</TableCell>
+                <TableRow key={user.id} className={(user as any).is_suspended ? 'opacity-50' : ''}>
+                  <TableCell className="font-medium">
+                    <span className="flex items-center gap-2">
+                      {user.org_name}
+                      {(user as any).is_suspended && <Ban className="h-4 w-4 text-destructive" />}
+                    </span>
+                  </TableCell>
                   <TableCell className="text-muted-foreground">{user.email || '—'}</TableCell>
                   <TableCell className="text-center">
-                    <Badge variant={user.onboarding_completed ? 'default' : 'secondary'}>
-                      {user.onboarding_completed ? 'Active' : 'Pending'}
+                    <Badge variant={(user as any).is_suspended ? 'destructive' : user.onboarding_completed ? 'default' : 'secondary'}>
+                      {(user as any).is_suspended ? 'Suspended' : user.onboarding_completed ? 'Active' : 'Pending'}
                     </Badge>
                   </TableCell>
                   <TableCell className="text-center">

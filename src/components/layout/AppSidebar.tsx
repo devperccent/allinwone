@@ -17,6 +17,7 @@ import {
   RefreshCw,
   Receipt,
   Upload,
+  CreditCard,
 } from 'lucide-react';
 import { useIsAdmin } from '@/hooks/useAdmin';
 import { useEnabledModules, type ModuleKey } from '@/hooks/useEnabledModules';
@@ -63,6 +64,7 @@ const managementNavigation: NavItem[] = [
   { name: 'Clients', href: '/clients', icon: Users },
   { name: 'Reports', href: '/reports', icon: TrendingUp, module: 'reports' },
   { name: 'Data Manager', href: '/bulk', icon: Upload },
+  { name: 'Billing', href: '/billing', icon: CreditCard },
 ];
 
 interface AppSidebarProps {

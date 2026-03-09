@@ -41,6 +41,7 @@ const PurchaseBillEditor = lazy(() => import("./pages/PurchaseBillEditor"));
 const BulkImportExportPage = lazy(() => import("./pages/BulkImportExportPage"));
 const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard"));
 const AdminUserDetail = lazy(() => import("./pages/admin/AdminUserDetail"));
+const BillingPage = lazy(() => import("./pages/BillingPage"));
 const AIChatbot = lazy(() => import("./components/chat/AIChatbot").then(m => ({ default: m.AIChatbot })));
 
 const queryClient = new QueryClient({
@@ -120,6 +121,7 @@ const App = () => (
                 <Route path="/settings" element={<SettingsPage />} />
                 <Route path="/help" element={<HelpPage />} />
                 <Route path="/bulk" element={<BulkImportExportPage />} />
+                <Route path="/billing" element={<BillingPage />} />
                 <Route path="/admin" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
                 <Route path="/admin/users/:profileId" element={<AdminRoute><AdminUserDetail /></AdminRoute>} />
               </Route>

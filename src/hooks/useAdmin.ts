@@ -39,6 +39,8 @@ export interface AdminUser {
   ai_tier: string;
   ai_queries_today: number;
   enabled_modules: string[];
+  is_suspended: boolean;
+  suspended_reason: string | null;
 }
 
 export function useAdminUsers() {
@@ -93,6 +95,8 @@ export function useAdminUsers() {
           ai_tier: p.ai_tier || 'standard',
           ai_queries_today: p.ai_queries_today || 0,
           enabled_modules: p.enabled_modules || [],
+          is_suspended: p.is_suspended || false,
+          suspended_reason: p.suspended_reason || null,
         } as AdminUser;
       });
     },

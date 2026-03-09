@@ -319,11 +319,42 @@ const TOOLS = [
               "/dashboard", "/invoices", "/invoices/new", "/clients", "/products",
               "/quotations", "/quotations/new", "/challans", "/challans/new",
               "/purchase-orders", "/purchase-orders/new", "/purchase-bills", "/purchase-bills/new",
-              "/recurring", "/reports", "/settings", "/quick-bill",
+              "/recurring", "/reports", "/settings", "/quick-bill", "/billing",
             ],
           },
         },
         required: ["path"],
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "create_quick_invoice",
+      description: "Create a draft invoice with client and items. Use this when user provides client name and item details directly. Returns the created invoice ID for navigation.",
+      parameters: {
+        type: "object",
+        properties: {
+          client_name: { type: "string", description: "Client name - will create new if doesn't exist" },
+          client_phone: { type: "string", description: "Client phone (optional)" },
+          client_email: { type: "string", description: "Client email (optional)" },
+          items: {
+            type: "array",
+            description: "Invoice line items",
+            items: {
+              type: "object",
+              properties: {
+                description: { type: "string", description: "Item description" },
+                qty: { type: "number", description: "Quantity" },
+                rate: { type: "number", description: "Rate per unit" },
+                tax_rate: { type: "number", description: "GST rate %, default 18" },
+              },
+              required: ["description", "qty", "rate"],
+            },
+          },
+          notes: { type: "string", description: "Invoice notes (optional)" },
+        },
+        required: ["client_name", "items"],
       },
     },
   },
@@ -689,6 +720,107 @@ async function executeTool(
 
       case "navigate_to": {
         return JSON.stringify({ action: "navigate", path: args.path });
+      }
+
+      case "create_quick_invoice": {
+        // First, find or create client
+        let clientId: string | null = null;
+        
+        // Try to find existing client by name
+        const { data: existingClient } = await supabase
+          .from("clients")
+          .select("id")
+          .eq("profile_id", profileId)
+          .ilike("name", args.client_name)
+          .limit(1)
+          .single();
+        
+        if (existingClient) {
+          clientId = existingClient.id;
+        } else {
+          // Create new client
+          const { data: newClient, error: clientErr } = await supabase
+            .from("clients")
+            .insert({
+              profile_id: profileId,
+              name: args.client_name,
+              phone: args.client_phone || null,
+              email: args.client_email || null,
+              state_code: "27",
+            })
+            .select("id")
+            .single();
+          
+          if (clientErr) throw new Error(`Failed to create client: ${clientErr.message}`);
+          clientId = newClient.id;
+        }
+
+        // Generate invoice number
+        const { data: invNumber, error: numErr } = await supabase.rpc("generate_invoice_number", { p_profile_id: profileId });
+        if (numErr) throw new Error(`Failed to generate invoice number: ${numErr.message}`);
+
+        // Calculate totals
+        const items = args.items || [];
+        let subtotal = 0;
+        let totalTax = 0;
+
+        for (const item of items) {
+          const taxRate = item.tax_rate ?? 18;
+          const lineAmount = item.qty * item.rate;
+          const lineTax = lineAmount * (taxRate / 100);
+          subtotal += lineAmount;
+          totalTax += lineTax;
+        }
+
+        const grandTotal = subtotal + totalTax;
+
+        // Create invoice
+        const { data: invoice, error: invErr } = await supabase
+          .from("invoices")
+          .insert({
+            profile_id: profileId,
+            client_id: clientId,
+            invoice_number: invNumber,
+            status: "draft",
+            subtotal,
+            total_tax: totalTax,
+            grand_total: grandTotal,
+            notes: args.notes || null,
+          })
+          .select("id, invoice_number")
+          .single();
+
+        if (invErr) throw new Error(`Failed to create invoice: ${invErr.message}`);
+
+        // Insert line items
+        const lineItems = items.map((item: any, idx: number) => {
+          const taxRate = item.tax_rate ?? 18;
+          const lineAmount = item.qty * item.rate;
+          const lineTax = lineAmount * (taxRate / 100);
+          return {
+            invoice_id: invoice.id,
+            description: item.description,
+            qty: item.qty,
+            rate: item.rate,
+            tax_rate: taxRate,
+            amount: lineAmount + lineTax,
+            sort_order: idx,
+          };
+        });
+
+        if (lineItems.length > 0) {
+          const { error: itemsErr } = await supabase.from("invoice_items").insert(lineItems);
+          if (itemsErr) console.error("Failed to insert invoice items:", itemsErr);
+        }
+
+        return JSON.stringify({
+          success: true,
+          invoice: invoice,
+          client_created: !existingClient,
+          action: "navigate",
+          path: `/invoices/${invoice.id}`,
+          message: `Created draft invoice ${invoice.invoice_number} with ${items.length} item(s). Total: ₹${grandTotal.toLocaleString("en-IN")}`,
+        });
       }
 
       default:
