@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, FolderKanban, Clock, Target, Trash2, ChevronRight, Timer, IndianRupee, CheckCircle2, Play, Square, FileText, Pause } from 'lucide-react';
+import { Plus, FolderKanban, Clock, Target, Trash2, ChevronRight, Timer, IndianRupee, CheckCircle2, Play, Square, FileText, Pause, CalendarDays, MoreHorizontal, PauseCircle, XCircle, BarChart3 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -12,12 +12,14 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Progress } from '@/components/ui/progress';
 import { Checkbox } from '@/components/ui/checkbox';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { formatINR } from '@/hooks/useInvoiceCalculations';
 import { useProjects, useMilestones, useTimeEntries } from '@/hooks/useProjects';
 import { useInvoices } from '@/hooks/useInvoices';
 import { useClients } from '@/hooks/useClients';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
+import { WeeklyTimesheet } from '@/components/projects/WeeklyTimesheet';
 import type { Project, Milestone, TimeEntry } from '@/hooks/useProjects';
 
 // ─── Timer Hook ───
