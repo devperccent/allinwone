@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, lazy, Suspense } from 'react';
 import { BarChart3, FileText, TrendingUp, Calendar, Download, Receipt, Wallet, LineChart, Users, FileJson } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -7,21 +7,29 @@ import { formatINR } from '@/hooks/useInvoiceCalculations';
 import { useInvoices } from '@/hooks/useInvoices';
 import { Skeleton } from '@/components/ui/skeleton';
 import { exportInvoicesToCSV } from '@/utils/csvExport';
-import { GSTReport } from '@/components/reports/GSTReport';
-import { ProfitLossReport } from '@/components/reports/ProfitLossReport';
-import { GSTR3BExport } from '@/components/reports/GSTR3BExport';
-import { TDSManagement } from '@/components/reports/TDSManagement';
-import { CashFlowForecast } from '@/components/reports/CashFlowForecast';
-import { PartyLedger } from '@/components/reports/PartyLedger';
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-} from 'recharts';
+
+// Lazy-load heavy report sub-components
+const GSTReport = lazy(() => import('@/components/reports/GSTReport').then(m => ({ default: m.GSTReport })));
+const ProfitLossReport = lazy(() => import('@/components/reports/ProfitLossReport').then(m => ({ default: m.ProfitLossReport })));
+const GSTR3BExport = lazy(() => import('@/components/reports/GSTR3BExport').then(m => ({ default: m.GSTR3BExport })));
+const TDSManagement = lazy(() => import('@/components/reports/TDSManagement').then(m => ({ default: m.TDSManagement })));
+const CashFlowForecast = lazy(() => import('@/components/reports/CashFlowForecast').then(m => ({ default: m.CashFlowForecast })));
+const PartyLedger = lazy(() => import('@/components/reports/PartyLedger').then(m => ({ default: m.PartyLedger })));
+
+// Lazy-load recharts (heavy library)
+const RechartsChart = lazy(() => import('recharts').then(m => ({
+  default: ({ data }: { data: any[] }) => (
+    <m.ResponsiveContainer width="100%" height={300}>
+      <m.BarChart data={data}>
+        <m.CartesianGrid strokeDasharray="3 3" />
+        <m.XAxis dataKey="month" />
+        <m.YAxis />
+        <m.Tooltip formatter={(value: number) => formatINR(value)} />
+        <m.Bar dataKey="revenue" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
+      </m.BarChart>
+    </m.ResponsiveContainer>
+  )
+})));
 
 export default function ReportsPage() {
   const { invoices, isLoading } = useInvoices();
