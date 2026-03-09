@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, forwardRef, memo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Bell, CheckCheck, Trash2, X, Info, AlertTriangle, CheckCircle, XCircle, Inbox } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -30,22 +30,21 @@ const filters: { value: NotificationFilter; label: string }[] = [
   { value: 'success', label: 'Success' },
 ];
 
-function NotificationItem({
-  notification,
-  onRead,
-  onDelete,
-  onNavigate,
-}: {
-  notification: Notification;
-  onRead: (id: string) => void;
-  onDelete: (id: string) => void;
-  onNavigate: (n: Notification) => void;
-}) {
+const NotificationItem = memo(forwardRef<
+  HTMLDivElement,
+  {
+    notification: Notification;
+    onRead: (id: string) => void;
+    onDelete: (id: string) => void;
+    onNavigate: (n: Notification) => void;
+  }
+>(({ notification, onRead, onDelete, onNavigate }, ref) => {
   const TypeIcon = typeIcons[notification.type] || Info;
   const colorClasses = typeColors[notification.type] || 'text-muted-foreground bg-muted';
 
   return (
     <div
+      ref={ref}
       className={cn(
         'group/item relative flex items-start gap-3 px-4 py-3 text-left transition-colors hover:bg-muted/40',
         !notification.is_read && 'bg-primary/[0.03]'
@@ -88,7 +87,9 @@ function NotificationItem({
       </button>
     </div>
   );
-}
+}));
+
+NotificationItem.displayName = 'NotificationItem';
 
 export function NotificationBell() {
   const navigate = useNavigate();

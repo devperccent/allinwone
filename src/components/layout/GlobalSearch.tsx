@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from 'react';
+import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FileText, Package, Users, BarChart3 } from 'lucide-react';
 import {
@@ -13,11 +13,6 @@ import {
 import { useInvoices } from '@/hooks/useInvoices';
 import { useClients } from '@/hooks/useClients';
 import { useProducts } from '@/hooks/useProducts';
-
-const REPORT_PAGES = [
-  { label: 'Revenue Report', path: '/reports', description: 'View revenue analytics' },
-  { label: 'GST Summary', path: '/reports', description: 'Tax breakdown & filing data' },
-];
 
 const NAV_PAGES = [
   { label: 'Dashboard', path: '/', description: 'Overview & stats' },
@@ -36,9 +31,15 @@ interface GlobalSearchProps {
 
 export function GlobalSearch({ open, onOpenChange }: GlobalSearchProps) {
   const navigate = useNavigate();
-  const { invoices } = useInvoices();
-  const { clients } = useClients();
-  const { products } = useProducts();
+  
+  // Only fetch data when search is open
+  const { invoices } = useInvoices({ enabled: open });
+  const { clients } = useClients({ enabled: open });
+  const { products } = useProducts({ enabled: open });
+
+  const topInvoices = useMemo(() => invoices.slice(0, 8), [invoices]);
+  const topClients = useMemo(() => clients.slice(0, 8), [clients]);
+  const topProducts = useMemo(() => products.slice(0, 8), [products]);
 
   const handleSelect = (path: string) => {
     onOpenChange(false);
@@ -69,9 +70,9 @@ export function GlobalSearch({ open, onOpenChange }: GlobalSearchProps) {
 
         <CommandSeparator />
 
-        {invoices.length > 0 && (
+        {topInvoices.length > 0 && (
           <CommandGroup heading="Invoices">
-            {invoices.slice(0, 10).map((inv) => (
+            {topInvoices.map((inv) => (
               <CommandItem
                 key={inv.id}
                 onSelect={() => handleSelect(`/invoices/${inv.id}`)}
@@ -94,9 +95,9 @@ export function GlobalSearch({ open, onOpenChange }: GlobalSearchProps) {
 
         <CommandSeparator />
 
-        {clients.length > 0 && (
+        {topClients.length > 0 && (
           <CommandGroup heading="Clients">
-            {clients.slice(0, 10).map((client) => (
+            {topClients.map((client) => (
               <CommandItem
                 key={client.id}
                 onSelect={() => handleSelect('/clients')}
@@ -116,9 +117,9 @@ export function GlobalSearch({ open, onOpenChange }: GlobalSearchProps) {
 
         <CommandSeparator />
 
-        {products.length > 0 && (
+        {topProducts.length > 0 && (
           <CommandGroup heading="Products">
-            {products.slice(0, 10).map((product) => (
+            {topProducts.map((product) => (
               <CommandItem
                 key={product.id}
                 onSelect={() => handleSelect('/products')}
