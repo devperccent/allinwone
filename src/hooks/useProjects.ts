@@ -199,3 +199,25 @@ export function useTimeEntries(projectId?: string) {
 
   return { entries: query.data || EMPTY_T, isLoading: query.isLoading, logTime, deleteEntry };
 }
+
+// All time entries across all projects (for timesheet view)
+export function useAllTimeEntries() {
+  const { profile } = useAuth();
+
+  const query = useQuery({
+    queryKey: ['all_time_entries', profile?.id],
+    queryFn: async () => {
+      if (!profile?.id) return EMPTY_T;
+      const { data, error } = await supabase
+        .from('time_entries' as any)
+        .select('*')
+        .eq('profile_id', profile.id)
+        .order('date', { ascending: false });
+      if (error) throw error;
+      return data as unknown as TimeEntry[];
+    },
+    enabled: !!profile?.id,
+  });
+
+  return { entries: query.data || EMPTY_T, isLoading: query.isLoading };
+}

@@ -29,7 +29,7 @@ import { LanguageSelector } from '@/components/LanguageSelector';
 import { useLanguage } from '@/i18n/LanguageContext';
 import { useAccessibility } from '@/hooks/useAccessibility';
 import { Slider } from '@/components/ui/slider';
-import { BusinessModeSelector, getBusinessModeDefaults, type BusinessMode } from '@/components/settings/BusinessModeSelector';
+import type { BusinessMode } from '@/components/settings/BusinessModeSelector';
 import {
   getNotificationPreferences,
   saveNotificationPreferences,
@@ -75,25 +75,8 @@ export default function SettingsPage() {
   // Keyboard hints toggle
   const [keyboardHints, setKeyboardHints] = useState(isKeyboardHintsEnabled);
 
-  // Business mode
-  const [businessMode, setBusinessMode] = useState<BusinessMode>(
-    (authProfile?.business_mode as BusinessMode) || 'retail'
-  );
-
-  const handleSaveBusinessMode = async () => {
-    if (!authProfile) return;
-    const defaults = getBusinessModeDefaults(businessMode);
-    try {
-      await updateProfile({
-        id: authProfile.id,
-        business_mode: businessMode,
-      });
-      await refreshProfile();
-      toast({ title: 'Business mode updated', description: `Switched to ${businessMode} mode.` });
-    } catch (error: any) {
-      toast({ title: 'Error', description: error.message, variant: 'destructive' });
-    }
-  };
+  // Business mode (read-only, set during onboarding)
+  const businessMode = (authProfile?.business_mode as BusinessMode) || 'retail';
 
   const updateNotifPref = (key: keyof NotificationPreferences, value: boolean) => {
     const updated = { ...notifPrefs, [key]: value };
@@ -590,23 +573,29 @@ export default function SettingsPage() {
           </Card>
         </TabsContent>
 
-        {/* Business Mode Tab */}
+        {/* Business Mode Tab (Read-only) */}
         <TabsContent value="mode">
           <Card>
             <CardHeader>
               <CardTitle>Business Mode</CardTitle>
               <CardDescription>
-                Optimize the interface for your type of business
+                Your business mode was set during onboarding and cannot be changed.
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-6">
-              <BusinessModeSelector value={businessMode} onChange={setBusinessMode} />
-              <div className="flex justify-end">
-                <Button onClick={handleSaveBusinessMode} disabled={isUpdating}>
-                  {isUpdating && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
-                  Save Mode
-                </Button>
+            <CardContent className="space-y-4">
+              <div className="p-4 rounded-xl border bg-muted/30">
+                <p className="font-semibold text-lg capitalize">{authProfile.business_mode || 'retail'} Mode</p>
+                <p className="text-sm text-muted-foreground mt-1">
+                  {authProfile.business_mode === 'freelancer' 
+                    ? 'Optimized for consultants, professionals & service providers with project tracking and time-based invoicing.'
+                    : authProfile.business_mode === 'distributor'
+                    ? 'Optimized for distributors selling to other businesses with credit focus and bulk orders.'
+                    : 'Optimized for shops selling to walk-in customers with Quick Bill and basic inventory.'}
+                </p>
               </div>
+              <p className="text-xs text-muted-foreground">
+                To change your business mode, please create a new account with the desired mode during onboarding.
+              </p>
             </CardContent>
           </Card>
         </TabsContent>

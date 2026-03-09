@@ -18,6 +18,7 @@ import { useProfile } from '@/hooks/useProfile';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { LogoUpload } from '@/components/LogoUpload';
+import { getBusinessModeDefaults, type BusinessMode } from '@/components/settings/BusinessModeSelector';
 
 const steps = [
   { id: 'business', label: 'Business', icon: Building2, description: 'Tell us about your business' },
@@ -42,6 +43,12 @@ const BUSINESS_TYPES = [
   { value: 'other', label: 'Other', icon: MoreHorizontal },
 ];
 
+const BUSINESS_MODES: { value: BusinessMode; label: string; description: string; icon: React.ElementType }[] = [
+  { value: 'retail', label: 'Retail Mode', description: 'Quick bills, walk-in customers, cash/UPI', icon: Store },
+  { value: 'freelancer', label: 'Freelancer Mode', description: 'Projects, time tracking, milestones', icon: Briefcase },
+  { value: 'distributor', label: 'Distributor Mode', description: 'Credit focus, bulk orders, B2B', icon: Truck },
+];
+
 export default function OnboardingPage() {
   const navigate = useNavigate();
   const { profile, refreshProfile } = useAuth();
@@ -55,6 +62,7 @@ export default function OnboardingPage() {
   const [email, setEmail] = useState(profile?.email || '');
   const [phone, setPhone] = useState(profile?.phone || '');
   const [businessType, setBusinessType] = useState(profile?.business_type || '');
+  const [businessMode, setBusinessMode] = useState<BusinessMode>((profile?.business_mode as BusinessMode) || 'retail');
   const [address, setAddress] = useState(profile?.address || '');
   const [stateCode, setStateCode] = useState(profile?.state_code || '27');
   const [gstin, setGstin] = useState(profile?.gstin || '');
@@ -96,6 +104,8 @@ export default function OnboardingPage() {
   const handleFinish = async () => {
     if (!profile) return;
 
+    const modeDefaults = getBusinessModeDefaults(businessMode);
+
     try {
       await updateProfile({
         id: profile.id,
@@ -111,6 +121,8 @@ export default function OnboardingPage() {
         bank_account_number: bankAccountNumber || null,
         bank_ifsc: bankIfsc || null,
         business_type: businessType || null,
+        business_mode: businessMode,
+        enabled_modules: modeDefaults.enabled_modules,
         invoice_prefix: invoicePrefix,
         next_invoice_number: nextNumber,
         onboarding_completed: true,
@@ -123,7 +135,7 @@ export default function OnboardingPage() {
         description: 'Your business profile is all set up.',
       });
 
-      navigate('/');
+      navigate(modeDefaults.focus_page);
     } catch (error: any) {
       toast({
         title: 'Error',
@@ -132,6 +144,7 @@ export default function OnboardingPage() {
       });
     }
   };
+
 
   const StepIcon = steps[currentStep].icon;
 
@@ -213,6 +226,45 @@ export default function OnboardingPage() {
                         >
                           <BtIcon className="w-4 h-4" />
                           <span className="text-center leading-tight">{bt.label}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+                {/* Business Mode Selection */}
+                <div>
+                  <Label>How do you operate? <span className="text-destructive">*</span></Label>
+                  <p className="text-xs text-muted-foreground mb-2">This cannot be changed later — it optimizes your entire workflow</p>
+                  <div className="grid gap-2">
+                    {BUSINESS_MODES.map((mode) => {
+                      const ModeIcon = mode.icon;
+                      return (
+                        <button
+                          key={mode.value}
+                          type="button"
+                          onClick={() => {
+                            setBusinessMode(mode.value);
+                            // Auto-set prefix based on mode
+                            if (mode.value === 'retail') setInvoicePrefix('BILL-');
+                            else setInvoicePrefix('INV-');
+                          }}
+                          className={cn(
+                            'flex items-center gap-3 p-3 rounded-lg border text-left transition-all',
+                            businessMode === mode.value
+                              ? 'border-primary bg-primary/5 ring-2 ring-primary/20'
+                              : 'border-border bg-card hover:border-primary/40'
+                          )}
+                        >
+                          <div className={cn(
+                            'w-8 h-8 rounded-lg flex items-center justify-center shrink-0',
+                            businessMode === mode.value ? 'bg-primary text-primary-foreground' : 'bg-muted'
+                          )}>
+                            <ModeIcon className="w-4 h-4" />
+                          </div>
+                          <div>
+                            <p className="text-sm font-semibold">{mode.label}</p>
+                            <p className="text-xs text-muted-foreground">{mode.description}</p>
+                          </div>
                         </button>
                       );
                     })}
