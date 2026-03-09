@@ -63,21 +63,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setLoading(false);
     }, 5000);
 
-    // Set up auth state listener — handles INITIAL_SESSION + subsequent changes
+    // Set up auth state listener — keep callback synchronous to avoid deadlocks
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
+      (event, session) => {
         clearTimeout(timeout);
         setSession(session);
         setUser(session?.user ?? null);
         
-        if (session?.user) {
+        if (!session?.user) {
+          setProfile(null);
+          setLoading(false);
+          return;
+        }
+
+        // Defer profile fetch to avoid Supabase client deadlock
+        setTimeout(async () => {
           const profileData = await fetchProfileOnce(session.user.id);
           setProfile(profileData);
-        } else {
-          setProfile(null);
-        }
-        
-        setLoading(false);
+          setLoading(false);
+        }, 0);
       }
     );
 
