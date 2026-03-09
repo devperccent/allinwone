@@ -606,10 +606,13 @@ export default function InvoicesPage() {
                 className="mt-2 grid grid-cols-2 gap-2"
               >
                 {[
-                  { value: 'upi', label: 'UPI' },
-                  { value: 'cash', label: 'Cash' },
-                  { value: 'credit', label: 'Bank Transfer' },
-                  { value: 'split', label: 'Card' },
+                  { value: 'upi', label: '💳 UPI' },
+                  { value: 'cash', label: '💵 Cash' },
+                  { value: 'neft', label: '🏦 NEFT' },
+                  { value: 'rtgs', label: '🏦 RTGS' },
+                  { value: 'cheque', label: '📝 Cheque' },
+                  { value: 'credit', label: '🔄 Bank Transfer' },
+                  { value: 'split', label: '💳 Card' },
                 ].map((mode) => (
                   <Label
                     key={mode.value}
@@ -622,11 +625,26 @@ export default function InvoicesPage() {
                     )}
                   >
                     <RadioGroupItem value={mode.value} id={mode.value} />
-                    <span className="font-medium">{mode.label}</span>
+                    <span className="font-medium text-sm">{mode.label}</span>
                   </Label>
                 ))}
               </RadioGroup>
             </div>
+            {/* Reference field for cheque/NEFT/RTGS */}
+            {(paymentMode === 'cheque' || paymentMode === 'neft' || paymentMode === 'rtgs') && (
+              <div>
+                <Label htmlFor="payment_ref">
+                  {paymentMode === 'cheque' ? 'Cheque Number' : 'Transaction Reference'}
+                </Label>
+                <Input
+                  id="payment_ref"
+                  value={paymentReference}
+                  onChange={(e) => setPaymentReference(e.target.value)}
+                  placeholder={paymentMode === 'cheque' ? 'e.g. 123456' : 'e.g. UTR/Ref number'}
+                  className="mt-1.5"
+                />
+              </div>
+            )}
             <div>
               <Label htmlFor="payment_date">Payment Date</Label>
               <Input
