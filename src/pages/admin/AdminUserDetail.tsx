@@ -1,13 +1,15 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAdminUserDetail, useUpdateUserTier, useUpdateUserModules, useResetUserAiQuota } from '@/hooks/useAdmin';
+import { useSuspendUser } from '@/hooks/useAdminActions';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, FileText, Users, Package, Loader2, LayoutGrid, Bot, RefreshCw, Crown, Zap } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { ArrowLeft, FileText, Users, Package, Loader2, LayoutGrid, Bot, RefreshCw, Crown, Zap, Ban, UserCheck } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { format } from 'date-fns';
 import { INDIAN_STATES } from '@/types';
