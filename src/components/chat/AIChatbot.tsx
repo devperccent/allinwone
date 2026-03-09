@@ -200,6 +200,7 @@ export const AIChatbot = forwardRef<HTMLDivElement>((_, ref) => {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
           'x-user-authorization': `Bearer ${session?.access_token || ''}`,
+          'x-api-version': '1.0.0',
         },
         body: JSON.stringify({ messages: allMessages }),
       });
