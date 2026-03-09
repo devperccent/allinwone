@@ -115,6 +115,8 @@ export function AppSidebar({ onNavigate, onOpenShortcuts }: AppSidebarProps) {
         to={item.href}
         onClick={onNavigate}
         onMouseEnter={() => prefetchRoute(item.href)}
+        aria-current={isActive ? 'page' : undefined}
+        aria-label={name}
         className={cn(
           'flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors',
           isActive
@@ -122,7 +124,7 @@ export function AppSidebar({ onNavigate, onOpenShortcuts }: AppSidebarProps) {
             : 'text-sidebar-foreground hover:bg-sidebar-accent/50'
         )}
       >
-        <item.icon className={cn('w-[18px] h-[18px] flex-shrink-0', isActive && 'text-primary')} />
+        <item.icon className={cn('w-[18px] h-[18px] flex-shrink-0', isActive && 'text-primary')} aria-hidden="true" />
         {!isCollapsed && <span className="flex-1">{name}</span>}
       </Link>
     );
