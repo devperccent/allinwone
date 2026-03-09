@@ -730,6 +730,7 @@ export type Database = {
           pan_number: string | null
           phone: string | null
           quotation_prefix: string
+          signature_url: string | null
           state_code: string
           suspended_reason: string | null
           updated_at: string
@@ -763,6 +764,7 @@ export type Database = {
           pan_number?: string | null
           phone?: string | null
           quotation_prefix?: string
+          signature_url?: string | null
           state_code?: string
           suspended_reason?: string | null
           updated_at?: string
@@ -796,6 +798,7 @@ export type Database = {
           pan_number?: string | null
           phone?: string | null
           quotation_prefix?: string
+          signature_url?: string | null
           state_code?: string
           suspended_reason?: string | null
           updated_at?: string
