@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
+import { InvoiceWalkthrough } from '@/components/help/InvoiceWalkthrough';
 import { useEnabledModules, type ModuleKey } from '@/hooks/useEnabledModules';
 import {
   Search,
@@ -81,7 +82,13 @@ const SECTIONS: DocSection[] = [
         id: 'gs-tour',
         title: 'Interactive Walkthrough',
         tags: ['tour', 'tutorial', 'walkthrough', 'guide'],
-        content: `A 6-step guided tour introduces you to every section of the app. You can **restart the tour** anytime from **Settings → Platform Walkthrough → Restart Tour**.`,
+        content: `A 6-step guided tour introduces you to every section of the app. You can **restart the tour** anytime from **Settings → Platform Walkthrough → Restart Tour**.\n\nFor a detailed **invoice creation tutorial**, scroll down to the interactive walkthrough below or look for it under the **Getting Started** section.`,
+      },
+      {
+        id: 'gs-invoice-tutorial',
+        title: 'Invoice Creation Tutorial',
+        tags: ['invoice', 'tutorial', 'step by step', 'walkthrough', 'how to'],
+        content: `A 7-step interactive tutorial that walks you through the complete invoice creation process:\n\n1. Starting a new invoice\n2. Selecting or creating a client\n3. Setting dates\n4. Adding line items\n5. Saving as draft\n6. Finalizing the invoice\n7. Sharing and collecting payment\n\nScroll down to find the **interactive walkthrough** below, or click the button below.\n\n> This tutorial includes visual previews, keyboard shortcuts, and direct links to try each step yourself.`,
       },
       {
         id: 'gs-navigation',
@@ -833,6 +840,13 @@ export default function HelpPage() {
           </Badge>
         )}
       </div>
+
+      {/* Interactive Invoice Walkthrough */}
+      {!searchQuery && (
+        <div id="invoice-walkthrough">
+          <InvoiceWalkthrough />
+        </div>
+      )}
 
       {/* Quick Links Grid */}
       {!searchQuery && (
