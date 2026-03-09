@@ -23,8 +23,9 @@ export function useProductBatches(productId?: string) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
+  // Single query — fetch all batches for the profile, optionally filtered by productId
   const batchesQuery = useQuery({
-    queryKey: ['product_batches', profile?.id, productId],
+    queryKey: ['product_batches', profile?.id, productId || 'all'],
     queryFn: async () => {
       if (!profile?.id) return EMPTY_ARRAY;
       let query = supabase
@@ -42,25 +43,10 @@ export function useProductBatches(productId?: string) {
       return data as unknown as ProductBatch[];
     },
     enabled: !!profile?.id,
-  });
-
-  const allBatchesQuery = useQuery({
-    queryKey: ['product_batches_all', profile?.id],
-    queryFn: async () => {
-      if (!profile?.id) return EMPTY_ARRAY;
-      const { data, error } = await supabase
-        .from('product_batches' as any)
-        .select('*')
-        .eq('profile_id', profile.id)
-        .order('expiry_date', { ascending: true, nullsFirst: false });
-      if (error) throw error;
-      return data as unknown as ProductBatch[];
-    },
-    enabled: !!profile?.id && !productId,
+    staleTime: 5 * 60 * 1000, // 5 min — batches rarely change
   });
 
   const batches = batchesQuery.data || EMPTY_ARRAY;
-  const allBatches = allBatchesQuery.data || batches;
   const alertDays = (profile as any)?.expiry_alert_days || 30;
 
   // Memoize expiring & expired computations — single pass
@@ -70,7 +56,7 @@ export function useProductBatches(productId?: string) {
     const expiring: ProductBatch[] = [];
     const expired: ProductBatch[] = [];
 
-    for (const b of allBatches) {
+    for (const b of batches) {
       if (!b.expiry_date) continue;
       const expiryTime = new Date(b.expiry_date).getTime();
       if (expiryTime <= now) {
@@ -80,7 +66,7 @@ export function useProductBatches(productId?: string) {
       }
     }
     return { expiringBatches: expiring, expiredBatches: expired };
-  }, [allBatches, alertDays]);
+  }, [batches, alertDays]);
 
   const createBatch = useMutation({
     mutationFn: async (batch: { product_id: string; batch_number: string; expiry_date?: string; quantity: number }) => {

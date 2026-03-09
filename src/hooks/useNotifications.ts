@@ -73,6 +73,7 @@ export function useNotifications() {
       return data as Notification[];
     },
     enabled: !!profile?.id,
+    staleTime: 2 * 60 * 1000, // 2 min — realtime handles new notifications
   });
 
   // Realtime subscription

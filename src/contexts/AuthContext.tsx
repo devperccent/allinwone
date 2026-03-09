@@ -16,67 +16,55 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+// Cache profile fetch to prevent duplicate concurrent requests
+let profileFetchPromise: Promise<Profile | null> | null = null;
+let profileFetchUserId: string | null = null;
+
+async function fetchProfileOnce(userId: string): Promise<Profile | null> {
+  // Deduplicate concurrent fetches for the same user
+  if (profileFetchUserId === userId && profileFetchPromise) {
+    return profileFetchPromise;
+  }
+  profileFetchUserId = userId;
+  profileFetchPromise = supabase
+    .from('profiles')
+    .select('*')
+    .eq('user_id', userId)
+    .single()
+    .then(({ data, error }) => {
+      profileFetchPromise = null;
+      if (error) {
+        console.error('Error fetching profile:', error);
+        return null;
+      }
+      return data as Profile;
+    });
+  return profileFetchPromise;
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const fetchProfile = async (userId: string) => {
-    const { data, error } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('user_id', userId)
-      .single();
-    
-    if (error) {
-      console.error('Error fetching profile:', error);
-      return null;
-    }
-    
-    return data as Profile;
-  };
-
   const refreshProfile = useCallback(async () => {
     if (user) {
-      const profileData = await fetchProfile(user.id);
+      const profileData = await fetchProfileOnce(user.id);
       setProfile(profileData);
     }
   }, [user]);
 
   useEffect(() => {
-    let initialSessionHandled = false;
-
-    // Set up auth state listener FIRST
+    // Set up auth state listener — handles INITIAL_SESSION + subsequent changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        // Skip if this is the INITIAL_SESSION event — we handle it below
-        if (event === 'INITIAL_SESSION') {
-          initialSessionHandled = true;
-          setSession(session);
-          setUser(session?.user ?? null);
-          
-          if (session?.user) {
-            // Fetch profile once during init
-            const profileData = await fetchProfile(session.user.id);
-            setProfile(profileData);
-          } else {
-            setProfile(null);
-          }
-          
-          setLoading(false);
-          return;
-        }
-
         setSession(session);
         setUser(session?.user ?? null);
         
         if (session?.user) {
-          // Defer profile fetch to avoid blocking
-          setTimeout(async () => {
-            const profileData = await fetchProfile(session.user.id);
-            setProfile(profileData);
-          }, 0);
+          const profileData = await fetchProfileOnce(session.user.id);
+          setProfile(profileData);
         } else {
           setProfile(null);
         }
@@ -84,20 +72,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setLoading(false);
       }
     );
-
-    // Fallback: if INITIAL_SESSION didn't fire within 100ms, fetch manually
-    setTimeout(() => {
-      if (!initialSessionHandled) {
-        supabase.auth.getSession().then(({ data: { session } }) => {
-          setSession(session);
-          setUser(session?.user ?? null);
-          if (session?.user) {
-            fetchProfile(session.user.id).then(setProfile);
-          }
-          setLoading(false);
-        });
-      }
-    }, 100);
 
     return () => subscription.unsubscribe();
   }, []);
@@ -131,6 +105,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(null);
     setSession(null);
     setProfile(null);
+    profileFetchUserId = null;
   }, []);
 
   const value = useMemo(() => ({
