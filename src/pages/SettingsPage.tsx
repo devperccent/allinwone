@@ -547,6 +547,84 @@ export default function SettingsPage() {
                 </div>
               </CardContent>
             </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Mail className="w-5 h-5" />
+                  Email Digests
+                </CardTitle>
+                <CardDescription>
+                  Receive summary emails of your business activity. Daily digests are sent at 6 PM on workdays, weekly on Friday evening, and monthly on the last workday.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="font-medium">Daily Summary</p>
+                    <p className="text-sm text-muted-foreground">
+                      End-of-day recap every workday at 6 PM
+                    </p>
+                  </div>
+                  <Switch
+                    checked={localDigest.daily_digest}
+                    onCheckedChange={(v) => setLocalDigest(prev => ({ ...prev, daily_digest: v }))}
+                    disabled={digestLoading}
+                  />
+                </div>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="font-medium">Weekly Summary</p>
+                    <p className="text-sm text-muted-foreground">
+                      Week-in-review sent every Friday evening
+                    </p>
+                  </div>
+                  <Switch
+                    checked={localDigest.weekly_digest}
+                    onCheckedChange={(v) => setLocalDigest(prev => ({ ...prev, weekly_digest: v }))}
+                    disabled={digestLoading}
+                  />
+                </div>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="font-medium">Monthly Summary</p>
+                    <p className="text-sm text-muted-foreground">
+                      Full month business report on the last workday
+                    </p>
+                  </div>
+                  <Switch
+                    checked={localDigest.monthly_digest}
+                    onCheckedChange={(v) => setLocalDigest(prev => ({ ...prev, monthly_digest: v }))}
+                    disabled={digestLoading}
+                  />
+                </div>
+                <div className="pt-2">
+                  <Label htmlFor="digest_email">Send digest to (optional)</Label>
+                  <Input
+                    id="digest_email"
+                    type="email"
+                    placeholder="Leave blank to use your profile email"
+                    value={localDigest.digest_email}
+                    onChange={(e) => setLocalDigest(prev => ({ ...prev, digest_email: e.target.value }))}
+                    className="mt-1.5"
+                    disabled={digestLoading}
+                  />
+                  <p className="text-xs text-muted-foreground mt-1">
+                    If empty, digests will be sent to your business profile email.
+                  </p>
+                </div>
+                <div className="flex justify-end pt-2 border-t">
+                  <Button
+                    onClick={() => saveDigestPrefs(localDigest)}
+                    disabled={digestSaving || digestLoading}
+                    size="sm"
+                  >
+                    {digestSaving && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
+                    Save Digest Preferences
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
           </div>
         </TabsContent>
 
