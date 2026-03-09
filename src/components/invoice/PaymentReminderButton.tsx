@@ -73,7 +73,7 @@ export function PaymentReminderButton({ invoice, client, profileOrgName, profile
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon" className="h-8 w-8 text-green-600 hover:text-green-700 hover:bg-green-50">
+        <Button variant="ghost" size="icon" className="h-8 w-8 text-primary hover:text-primary/80 hover:bg-primary/10">
           <MessageCircle className="w-4 h-4" />
         </Button>
       </DropdownMenuTrigger>
