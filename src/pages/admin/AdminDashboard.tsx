@@ -160,6 +160,9 @@ export default function AdminDashboard() {
         </Card>
       </div>
 
+      {/* Announcements */}
+      <AnnouncementManager />
+
       {/* Users Table */}
       <Card>
         <CardHeader>
