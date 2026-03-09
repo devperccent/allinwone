@@ -58,9 +58,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [user]);
 
   useEffect(() => {
+    // Safety timeout — if auth state never fires, stop loading after 5s
+    const timeout = setTimeout(() => {
+      setLoading(false);
+    }, 5000);
+
     // Set up auth state listener — handles INITIAL_SESSION + subsequent changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
+        clearTimeout(timeout);
         setSession(session);
         setUser(session?.user ?? null);
         
@@ -75,7 +81,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     );
 
-    return () => subscription.unsubscribe();
+    return () => {
+      clearTimeout(timeout);
+      subscription.unsubscribe();
+    };
   }, []);
 
   const signUp = useCallback(async (email: string, password: string, orgName: string) => {
