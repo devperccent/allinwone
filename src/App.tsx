@@ -49,9 +49,10 @@ const AIChatbot = lazy(() => import("./components/chat/AIChatbot").then(m => ({ 
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 5 * 60 * 1000,      // 5 min before refetch
+      staleTime: 10 * 60 * 1000,     // 10 min before considered stale
       gcTime: 30 * 60 * 1000,         // 30 min garbage collection
       refetchOnWindowFocus: false,
+      refetchOnMount: false,           // Don't refetch when component mounts if data exists
       retry: 1,
     },
   },

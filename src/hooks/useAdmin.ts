@@ -47,27 +47,19 @@ export function useAdminUsers() {
   return useQuery({
     queryKey: ['admin_users'],
     queryFn: async () => {
-      // Fetch all profiles
-      const { data: profiles, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .order('created_at', { ascending: false });
+      // Fetch all data in parallel
+      const [
+        { data: profiles, error },
+        { data: invoices },
+        { data: clients },
+        { data: products },
+      ] = await Promise.all([
+        supabase.from('profiles').select('*').order('created_at', { ascending: false }),
+        supabase.from('invoices').select('profile_id, grand_total, status'),
+        supabase.from('clients').select('profile_id'),
+        supabase.from('products').select('profile_id'),
+      ]);
       if (error) throw error;
-
-      // Fetch invoice stats per profile
-      const { data: invoices } = await supabase
-        .from('invoices')
-        .select('profile_id, grand_total, status');
-
-      // Fetch client counts
-      const { data: clients } = await supabase
-        .from('clients')
-        .select('profile_id');
-
-      // Fetch product counts
-      const { data: products } = await supabase
-        .from('products')
-        .select('profile_id');
 
       return profiles.map((p: any) => {
         const userInvoices = invoices?.filter((i: any) => i.profile_id === p.id) || [];
