@@ -111,8 +111,8 @@ export default function AdminDashboard() {
       {/* Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         <Card className="lg:col-span-2">
-          <CardHeader>
-            <CardTitle>User Signups (Last 6 Months)</CardTitle>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium">User Signups (Last 6 Months)</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="h-64">
