@@ -70,6 +70,8 @@ const documentNavigation: NavItem[] = [
 const managementNavigation: NavItem[] = [
   { nameKey: 'nav_products', href: '/products', icon: Package },
   { nameKey: 'nav_clients', href: '/clients', icon: Users },
+  { nameKey: 'nav_udhaar', href: '/udhaar', icon: BookUser },
+  { nameKey: 'nav_expenses', href: '/expenses', icon: Wallet },
   { nameKey: 'nav_reports', href: '/reports', icon: TrendingUp, module: 'reports' },
   { nameKey: 'nav_dataManager', href: '/bulk', icon: Upload },
   { nameKey: 'nav_billing', href: '/billing', icon: CreditCard },
