@@ -145,22 +145,6 @@ export default function OnboardingPage() {
     }
   };
 
-      await refreshProfile();
-
-      toast({
-        title: 'Welcome aboard! 🎉',
-        description: 'Your business profile is all set up.',
-      });
-
-      navigate('/');
-    } catch (error: any) {
-      toast({
-        title: 'Error',
-        description: error.message,
-        variant: 'destructive',
-      });
-    }
-  };
 
   const StepIcon = steps[currentStep].icon;
 
