@@ -73,7 +73,7 @@ interface AppSidebarProps {
   onOpenShortcuts?: () => void;
 }
 
-export function AppSidebar({ onNavigate }: AppSidebarProps) {
+export function AppSidebar({ onNavigate, onOpenShortcuts }: AppSidebarProps) {
   const location = useLocation();
   const navigate = useNavigate();
   const isMobile = useIsMobile();
