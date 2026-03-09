@@ -152,7 +152,7 @@ function GenerateInvoiceDialog({ project, milestones, entries, onGenerate }: {
   project: Project;
   milestones: Milestone[];
   entries: TimeEntry[];
-  onGenerate: (items: { description: string; qty: number; rate: number; tax_rate: number; discount: number }[]) => void;
+  onGenerate: (items: { description: string; qty: number; rate: number; tax_rate: number; discount: number; product_id: string | null }[]) => void;
 }) {
   const [open, setOpen] = useState(false);
   const completedMilestones = milestones.filter(m => m.status === 'completed' && !m.invoice_id && Number(m.amount) > 0);
