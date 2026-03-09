@@ -21,6 +21,8 @@ import {
   Calendar,
   Copy,
   Check,
+  CreditCard,
+  FileX2,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -62,6 +64,8 @@ import { exportInvoicesToCSV } from '@/utils/csvExport';
 import { usePageShortcuts } from '@/hooks/usePageShortcuts';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { PaymentReminderButton } from '@/components/invoice/PaymentReminderButton';
+import { RecordPaymentDialog } from '@/components/invoice/RecordPaymentDialog';
+import { CreateCreditNoteDialog } from '@/components/invoice/CreateCreditNoteDialog';
 import type { Invoice, InvoiceStatus, PaymentMode } from '@/types';
 
 const statusConfig: Record<InvoiceStatus, { label: string; className: string }> = {
@@ -80,6 +84,8 @@ function InvoiceActions({
   onDelete,
   onShare,
   onRemind,
+  onRecordPayment,
+  onCreditNote,
   isGenerating,
   isFinalizing,
   isMarkingPaid,
@@ -93,6 +99,8 @@ function InvoiceActions({
   onDelete: (id: string) => void;
   onShare: (invoice: Invoice) => void;
   onRemind: (invoice: Invoice) => void;
+  onRecordPayment: (invoice: Invoice) => void;
+  onCreditNote: (invoice: Invoice) => void;
   isGenerating: boolean;
   isFinalizing: boolean;
   isMarkingPaid: boolean;
@@ -163,18 +171,28 @@ function InvoiceActions({
         )}
         {invoice.status === 'finalized' && (
           <>
+            <DropdownMenuItem onClick={() => onRecordPayment(invoice)}>
+              <CreditCard className="w-4 h-4 mr-2" />
+              Record Payment
+            </DropdownMenuItem>
             <DropdownMenuItem
               onClick={() => onMarkPaid(invoice)}
               disabled={isMarkingPaid}
             >
               <CheckCircle className="w-4 h-4 mr-2" />
-              Mark as Paid
+              Mark as Fully Paid
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => onRemind(invoice)}>
               <Bell className="w-4 h-4 mr-2" />
               Send Reminder
             </DropdownMenuItem>
           </>
+        )}
+        {(invoice.status === 'finalized' || invoice.status === 'paid') && (
+          <DropdownMenuItem onClick={() => onCreditNote(invoice)}>
+            <FileX2 className="w-4 h-4 mr-2" />
+            Issue Credit Note
+          </DropdownMenuItem>
         )}
         {invoice.status === 'draft' && (
           <>
@@ -223,6 +241,14 @@ export default function InvoicesPage() {
   const [shareLink, setShareLink] = useState('');
   const [linkCopied, setLinkCopied] = useState(false);
   const [isGeneratingLink, setIsGeneratingLink] = useState(false);
+
+  // Record Payment dialog state
+  const [recordPaymentDialogOpen, setRecordPaymentDialogOpen] = useState(false);
+  const [recordPaymentInvoice, setRecordPaymentInvoice] = useState<Invoice | null>(null);
+
+  // Credit Note dialog state
+  const [creditNoteDialogOpen, setCreditNoteDialogOpen] = useState(false);
+  const [creditNoteInvoice, setCreditNoteInvoice] = useState<Invoice | null>(null);
 
   // Page shortcuts: / → focus search, N → new invoice
   usePageShortcuts(useMemo(() => [
@@ -505,6 +531,8 @@ export default function InvoicesPage() {
                         onDelete={(id) => deleteInvoice.mutate(id)}
                         onShare={handleShare}
                         onRemind={handleRemind}
+                        onRecordPayment={(inv) => { setRecordPaymentInvoice(inv); setRecordPaymentDialogOpen(true); }}
+                        onCreditNote={(inv) => { setCreditNoteInvoice(inv); setCreditNoteDialogOpen(true); }}
                         isGenerating={isGenerating}
                         isFinalizing={finalizeInvoiceMutation.isPending}
                         isMarkingPaid={markAsPaid.isPending}
@@ -546,6 +574,8 @@ export default function InvoicesPage() {
                   onDelete={(id) => deleteInvoice.mutate(id)}
                   onShare={handleShare}
                   onRemind={handleRemind}
+                  onRecordPayment={(inv) => { setRecordPaymentInvoice(inv); setRecordPaymentDialogOpen(true); }}
+                  onCreditNote={(inv) => { setCreditNoteInvoice(inv); setCreditNoteDialogOpen(true); }}
                   isGenerating={isGenerating}
                   isFinalizing={finalizeInvoiceMutation.isPending}
                   isMarkingPaid={markAsPaid.isPending}
@@ -730,6 +760,23 @@ export default function InvoicesPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      {/* Record Payment Dialog */}
+      {recordPaymentInvoice && (
+        <RecordPaymentDialog
+          open={recordPaymentDialogOpen}
+          onOpenChange={setRecordPaymentDialogOpen}
+          invoice={recordPaymentInvoice}
+        />
+      )}
+
+      {/* Credit Note Dialog */}
+      {creditNoteInvoice && (
+        <CreateCreditNoteDialog
+          open={creditNoteDialogOpen}
+          onOpenChange={setCreditNoteDialogOpen}
+          invoice={creditNoteInvoice}
+        />
+      )}
     </div>
   );
 }

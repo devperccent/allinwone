@@ -26,6 +26,7 @@ export interface Profile {
   bank_ifsc: string | null;
   signature_url: string | null;
   enabled_modules: string[];
+  business_mode: string | null;
   created_at: string;
   updated_at: string;
 }

@@ -1,5 +1,5 @@
 import { useMemo, lazy, Suspense } from 'react';
-import { BarChart3, FileText, TrendingUp, Calendar, Download, Receipt, Wallet, LineChart, Users, FileJson } from 'lucide-react';
+import { BarChart3, FileText, TrendingUp, Calendar, Download, Receipt, Wallet, LineChart, Users, FileJson, Link2 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -15,6 +15,7 @@ const GSTR3BExport = lazy(() => import('@/components/reports/GSTR3BExport').then
 const TDSManagement = lazy(() => import('@/components/reports/TDSManagement').then(m => ({ default: m.TDSManagement })));
 const CashFlowForecast = lazy(() => import('@/components/reports/CashFlowForecast').then(m => ({ default: m.CashFlowForecast })));
 const PartyLedger = lazy(() => import('@/components/reports/PartyLedger').then(m => ({ default: m.PartyLedger })));
+const BankReconciliation = lazy(() => import('@/components/reconciliation/BankReconciliation').then(m => ({ default: m.BankReconciliation })));
 
 // Lazy-load recharts (heavy library)
 const RechartsChart = lazy(() => import('recharts').then(m => ({
@@ -128,6 +129,9 @@ export default function ReportsPage() {
           </TabsTrigger>
           <TabsTrigger value="outstanding" className="gap-1.5 text-xs sm:text-sm">
             <Calendar className="w-3.5 h-3.5" /><span className="hidden sm:inline">Outstanding</span>
+          </TabsTrigger>
+          <TabsTrigger value="reconciliation" className="gap-1.5 text-xs sm:text-sm">
+            <Link2 className="w-3.5 h-3.5" /><span className="hidden sm:inline">Bank Recon</span>
           </TabsTrigger>
         </TabsList>
 
@@ -269,6 +273,13 @@ export default function ReportsPage() {
               </CardContent>
             </Card>
           )}
+        </TabsContent>
+
+        {/* ═══ BANK RECONCILIATION TAB ═══ */}
+        <TabsContent value="reconciliation">
+          <Suspense fallback={<Skeleton className="h-64" />}>
+            <BankReconciliation />
+          </Suspense>
         </TabsContent>
       </Tabs>
     </div>

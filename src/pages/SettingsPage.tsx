@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useOutletContext } from 'react-router-dom';
-import { Building2, CreditCard, Bell, Loader2, RotateCcw, BellRing, LayoutGrid, Globe, Accessibility } from 'lucide-react';
+import { Building2, CreditCard, Bell, Loader2, RotateCcw, BellRing, LayoutGrid, Globe, Accessibility, Store } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -29,6 +29,7 @@ import { LanguageSelector } from '@/components/LanguageSelector';
 import { useLanguage } from '@/i18n/LanguageContext';
 import { useAccessibility } from '@/hooks/useAccessibility';
 import { Slider } from '@/components/ui/slider';
+import { BusinessModeSelector, getBusinessModeDefaults, type BusinessMode } from '@/components/settings/BusinessModeSelector';
 import {
   getNotificationPreferences,
   saveNotificationPreferences,
@@ -73,6 +74,26 @@ export default function SettingsPage() {
 
   // Keyboard hints toggle
   const [keyboardHints, setKeyboardHints] = useState(isKeyboardHintsEnabled);
+
+  // Business mode
+  const [businessMode, setBusinessMode] = useState<BusinessMode>(
+    (authProfile?.business_mode as BusinessMode) || 'retail'
+  );
+
+  const handleSaveBusinessMode = async () => {
+    if (!authProfile) return;
+    const defaults = getBusinessModeDefaults(businessMode);
+    try {
+      await updateProfile({
+        id: authProfile.id,
+        business_mode: businessMode,
+      });
+      await refreshProfile();
+      toast({ title: 'Business mode updated', description: `Switched to ${businessMode} mode.` });
+    } catch (error: any) {
+      toast({ title: 'Error', description: error.message, variant: 'destructive' });
+    }
+  };
 
   const updateNotifPref = (key: keyof NotificationPreferences, value: boolean) => {
     const updated = { ...notifPrefs, [key]: value };
@@ -219,6 +240,10 @@ export default function SettingsPage() {
             <TabsTrigger value="modules" className="gap-2">
               <LayoutGrid className="w-4 h-4" />
               <span className="hidden sm:inline">Modules</span>
+            </TabsTrigger>
+            <TabsTrigger value="mode" className="gap-2">
+              <Store className="w-4 h-4" />
+              <span className="hidden sm:inline">Mode</span>
             </TabsTrigger>
             <TabsTrigger value="accessibility" className="gap-2">
               <Accessibility className="w-4 h-4" />
@@ -559,6 +584,27 @@ export default function SettingsPage() {
                 <Button onClick={handleSaveModules} disabled={isUpdating}>
                   {isUpdating && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
                   Save Module Preferences
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Business Mode Tab */}
+        <TabsContent value="mode">
+          <Card>
+            <CardHeader>
+              <CardTitle>Business Mode</CardTitle>
+              <CardDescription>
+                Optimize the interface for your type of business
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <BusinessModeSelector value={businessMode} onChange={setBusinessMode} />
+              <div className="flex justify-end">
+                <Button onClick={handleSaveBusinessMode} disabled={isUpdating}>
+                  {isUpdating && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
+                  Save Mode
                 </Button>
               </div>
             </CardContent>

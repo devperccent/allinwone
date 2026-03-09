@@ -16,6 +16,8 @@ import {
   X,
   Scan,
   ArrowLeft,
+  Clock,
+  Star,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -42,6 +44,18 @@ const paymentModes: { value: PaymentMode | 'card'; label: string; icon: React.El
   { value: 'credit', label: 'Udhar', icon: Wallet },
 ];
 
+// Recent items from localStorage
+function getRecentItems(): string[] {
+  try {
+    return JSON.parse(localStorage.getItem('quickbill_recent') || '[]');
+  } catch { return []; }
+}
+
+function saveRecentItems(productIds: string[]) {
+  const unique = [...new Set(productIds)].slice(0, 8);
+  localStorage.setItem('quickbill_recent', JSON.stringify(unique));
+}
+
 export default function QuickBillPage() {
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -54,6 +68,7 @@ export default function QuickBillPage() {
   const [selectedPayment, setSelectedPayment] = useState<PaymentMode | 'card'>('cash');
   const [showSuccess, setShowSuccess] = useState(false);
   const [lastInvoiceNumber, setLastInvoiceNumber] = useState<string | null>(null);
+  const [lastTotal, setLastTotal] = useState(0);
 
   const searchRef = useRef<HTMLInputElement>(null);
 
@@ -61,6 +76,14 @@ export default function QuickBillPage() {
   useEffect(() => {
     searchRef.current?.focus();
   }, []);
+
+  // Recent products
+  const recentProductIds = useMemo(() => getRecentItems(), []);
+  const recentProducts = useMemo(() => {
+    return recentProductIds
+      .map((id) => products.find((p) => p.id === id))
+      .filter(Boolean) as Product[];
+  }, [products, recentProductIds]);
 
   // Filter products by search
   const filteredProducts = useMemo(() => {
@@ -70,7 +93,8 @@ export default function QuickBillPage() {
       (p) =>
         p.name.toLowerCase().includes(q) ||
         p.sku.toLowerCase().includes(q) ||
-        p.hsn_code?.toLowerCase().includes(q)
+        p.hsn_code?.toLowerCase().includes(q) ||
+        p.barcode?.toLowerCase().includes(q)
     );
   }, [products, searchQuery]);
 
@@ -132,6 +156,10 @@ export default function QuickBillPage() {
     if (cart.length === 0 || !profile) return;
 
     try {
+      // Save recent items
+      const newRecent = [...cart.map((i) => i.product.id), ...getRecentItems()];
+      saveRecentItems(newRecent);
+
       // Create invoice items
       const items = cart.map((item) => ({
         product_id: item.product.id,
@@ -162,13 +190,14 @@ export default function QuickBillPage() {
       await finalizeInvoice(invoice.id);
 
       setLastInvoiceNumber(invoice.invoice_number);
+      setLastTotal(cartTotals.grandTotal);
       setShowSuccess(true);
 
       // Auto-close success and reset
       setTimeout(() => {
         setShowSuccess(false);
         clearCart();
-      }, 3000);
+      }, 4000);
     } catch (error) {
       console.error('Checkout error:', error);
     }
@@ -176,30 +205,30 @@ export default function QuickBillPage() {
 
   const handleWhatsAppShare = () => {
     if (!lastInvoiceNumber) return;
-    const text = `Thank you for your purchase!\nBill: ${lastInvoiceNumber}\nAmount: ${formatINR(cartTotals.grandTotal)}`;
+    const text = `Thank you for your purchase!\nBill: ${lastInvoiceNumber}\nAmount: ${formatINR(lastTotal)}\n\nPowered by Inw Invoices`;
     window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
   };
 
   if (showSuccess) {
     return (
       <div className="fixed inset-0 bg-background z-50 flex items-center justify-center animate-fade-in">
-        <div className="text-center space-y-6">
-          <div className="w-24 h-24 rounded-full bg-success/20 flex items-center justify-center mx-auto">
-            <Check className="w-12 h-12 text-success" />
+        <div className="text-center space-y-6 p-8">
+          <div className="w-28 h-28 rounded-full bg-success/20 flex items-center justify-center mx-auto animate-scale-in">
+            <Check className="w-14 h-14 text-success" />
           </div>
           <div>
-            <h2 className="text-2xl font-bold">Payment Received!</h2>
+            <h2 className="text-3xl font-bold">Payment Received!</h2>
             <p className="text-muted-foreground mt-1">Bill {lastInvoiceNumber}</p>
-            <p className="text-3xl font-bold mt-4">{formatINR(cartTotals.grandTotal)}</p>
+            <p className="text-4xl font-bold mt-4 text-primary">{formatINR(lastTotal)}</p>
           </div>
           <div className="flex items-center justify-center gap-3">
-            <Button variant="outline" size="lg" onClick={handleWhatsAppShare} className="gap-2">
-              <MessageCircle className="w-5 h-5" />
-              Share on WhatsApp
+            <Button variant="outline" size="lg" onClick={handleWhatsAppShare} className="gap-2 h-14 px-6">
+              <MessageCircle className="w-6 h-6" />
+              WhatsApp Receipt
             </Button>
-            <Button variant="outline" size="lg" className="gap-2">
-              <Printer className="w-5 h-5" />
-              Print Receipt
+            <Button variant="outline" size="lg" className="gap-2 h-14 px-6">
+              <Printer className="w-6 h-6" />
+              Print
             </Button>
           </div>
           <Button
@@ -208,9 +237,9 @@ export default function QuickBillPage() {
               setShowSuccess(false);
               clearCart();
             }}
-            className="gap-2"
+            className="gap-2 h-14 px-8 text-lg"
           >
-            <Plus className="w-5 h-5" />
+            <Plus className="w-6 h-6" />
             New Bill
           </Button>
         </div>
@@ -226,37 +255,70 @@ export default function QuickBillPage() {
         <div className="flex-1 flex flex-col min-h-0 min-w-0">
         {/* Header */}
         <div className="flex items-center gap-3 mb-4">
-          <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
-            <ArrowLeft className="w-5 h-5" />
+          <Button variant="ghost" size="icon" onClick={() => navigate(-1)} className="h-12 w-12">
+            <ArrowLeft className="w-6 h-6" />
           </Button>
           <div>
             <h1 className="text-xl font-bold">Quick Bill</h1>
-            <p className="text-sm text-muted-foreground">Tap products to add</p>
+            <p className="text-sm text-muted-foreground">Tap products to add • 10-second billing</p>
           </div>
         </div>
 
         {/* Search */}
         <div className="relative mb-4">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-6 h-6 text-muted-foreground" />
           <Input
             ref={searchRef}
             type="search"
             placeholder="Search products or scan barcode..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-12 pr-12 h-12 text-lg"
+            className="pl-14 pr-14 h-14 text-lg rounded-xl"
           />
           <Button
             variant="ghost"
             size="icon"
-            className="absolute right-2 top-1/2 -translate-y-1/2"
+            className="absolute right-2 top-1/2 -translate-y-1/2 h-10 w-10"
             onClick={() => toast({ title: 'Barcode Scanner', description: 'Coming soon!' })}
           >
-            <Scan className="w-5 h-5" />
+            <Scan className="w-6 h-6" />
           </Button>
         </div>
 
-        {/* Product Grid */}
+        {/* Recent Items (shown when no search) */}
+        {!searchQuery && recentProducts.length > 0 && (
+          <div className="mb-4">
+            <div className="flex items-center gap-2 mb-2">
+              <Clock className="w-4 h-4 text-muted-foreground" />
+              <span className="text-sm font-medium text-muted-foreground">Recent</span>
+            </div>
+            <div className="flex gap-2 overflow-x-auto pb-2">
+              {recentProducts.map((product) => {
+                const inCart = cart.find((item) => item.product.id === product.id);
+                return (
+                  <button
+                    key={product.id}
+                    onClick={() => addToCart(product)}
+                    className={cn(
+                      'relative flex-shrink-0 px-4 py-3 rounded-xl border bg-card text-left transition-all hover:border-primary active:scale-95 min-w-[140px]',
+                      inCart && 'border-primary bg-primary/5'
+                    )}
+                  >
+                    {inCart && (
+                      <Badge className="absolute -top-2 -right-2 h-6 w-6 p-0 flex items-center justify-center rounded-full text-xs">
+                        {inCart.qty}
+                      </Badge>
+                    )}
+                    <p className="font-medium text-sm truncate">{product.name}</p>
+                    <p className="text-base font-bold">{formatINR(product.selling_price)}</p>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* Product Grid - larger tap targets */}
         <ScrollArea className="flex-1">
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 pb-4">
             {filteredProducts.map((product) => {
@@ -268,17 +330,17 @@ export default function QuickBillPage() {
                   key={product.id}
                   onClick={() => addToCart(product)}
                   className={cn(
-                    'relative p-4 rounded-xl border bg-card text-left transition-all hover:border-primary hover:shadow-md active:scale-95',
+                    'relative p-5 rounded-xl border bg-card text-left transition-all hover:border-primary hover:shadow-md active:scale-95 min-h-[100px]',
                     inCart && 'border-primary bg-primary/5'
                   )}
                 >
                   {inCart && (
-                    <Badge className="absolute -top-2 -right-2 h-6 w-6 p-0 flex items-center justify-center rounded-full">
+                    <Badge className="absolute -top-2 -right-2 h-7 w-7 p-0 flex items-center justify-center rounded-full text-sm font-bold">
                       {inCart.qty}
                     </Badge>
                   )}
                   <p className="font-medium text-sm line-clamp-2 mb-2">{product.name}</p>
-                  <p className="text-lg font-bold">{formatINR(product.selling_price)}</p>
+                  <p className="text-xl font-bold">{formatINR(product.selling_price)}</p>
                   <div className="flex items-center justify-between mt-2">
                     <span className="text-xs text-muted-foreground">{product.sku}</span>
                     {isLowStock && (
@@ -339,28 +401,28 @@ export default function QuickBillPage() {
                       <Button
                         variant="outline"
                         size="icon"
-                        className="h-8 w-8"
+                        className="h-10 w-10"
                         onClick={() => updateQty(item.product.id, -1)}
                       >
-                        <Minus className="w-4 h-4" />
+                        <Minus className="w-5 h-5" />
                       </Button>
-                      <span className="w-8 text-center font-semibold">{item.qty}</span>
+                      <span className="w-10 text-center font-semibold text-lg">{item.qty}</span>
                       <Button
                         variant="outline"
                         size="icon"
-                        className="h-8 w-8"
+                        className="h-10 w-10"
                         onClick={() => updateQty(item.product.id, 1)}
                       >
-                        <Plus className="w-4 h-4" />
+                        <Plus className="w-5 h-5" />
                       </Button>
                     </div>
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="h-8 w-8 text-destructive"
+                      className="h-10 w-10 text-destructive"
                       onClick={() => removeFromCart(item.product.id)}
                     >
-                      <Trash2 className="w-4 h-4" />
+                      <Trash2 className="w-5 h-5" />
                     </Button>
                   </div>
                 ))}
@@ -386,7 +448,7 @@ export default function QuickBillPage() {
             </div>
           )}
 
-          {/* Payment Mode Selection */}
+          {/* Payment Mode Selection - larger touch targets */}
           {cart.length > 0 && (
             <div className="mt-4">
               <p className="text-sm font-medium mb-2">Payment Mode</p>
@@ -396,13 +458,13 @@ export default function QuickBillPage() {
                     key={mode.value}
                     onClick={() => setSelectedPayment(mode.value)}
                     className={cn(
-                      'flex flex-col items-center gap-1 p-3 rounded-lg border transition-all',
+                      'flex flex-col items-center gap-1.5 p-3.5 rounded-xl border transition-all',
                       selectedPayment === mode.value
                         ? 'border-primary bg-primary/10 text-primary'
                         : 'border-border hover:border-primary/50'
                     )}
                   >
-                    <mode.icon className="w-5 h-5" />
+                    <mode.icon className="w-6 h-6" />
                     <span className="text-xs font-medium">{mode.label}</span>
                   </button>
                 ))}
@@ -410,10 +472,10 @@ export default function QuickBillPage() {
             </div>
           )}
 
-          {/* Checkout Button */}
+          {/* Checkout Button - larger */}
           <Button
             size="lg"
-            className="w-full mt-4 h-14 text-lg gap-2"
+            className="w-full mt-4 h-16 text-xl gap-2 rounded-xl"
             disabled={cart.length === 0 || isCreating || isFinalizing}
             onClick={handleCheckout}
           >
@@ -421,7 +483,7 @@ export default function QuickBillPage() {
               <>Processing...</>
             ) : (
               <>
-                <Check className="w-5 h-5" />
+                <Check className="w-6 h-6" />
                 Charge {formatINR(cartTotals.grandTotal)}
               </>
             )}
