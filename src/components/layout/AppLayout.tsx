@@ -40,8 +40,15 @@ export function AppLayout() {
     onToggleTheme: toggleTheme,
   });
 
+  // Initialize accessibility settings on mount
+  useAccessibility();
+
   return (
     <div className="flex h-screen overflow-hidden bg-background">
+      {/* Skip to content link for keyboard users */}
+      <a href="#main-content" className="skip-to-content">
+        Skip to main content
+      </a>
       {!isMobile && <MemoizedSidebar onOpenShortcuts={() => setShortcutsOpen(true)} />}
       <div className="flex flex-col flex-1 overflow-hidden">
         <AppHeader searchOpen={searchOpen} onSearchOpenChange={setSearchOpen} onOpenShortcuts={() => setShortcutsOpen(true)} />
