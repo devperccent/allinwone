@@ -18,14 +18,15 @@ const PartyLedger = lazy(() => import('@/components/reports/PartyLedger').then(m
 
 // Lazy-load recharts (heavy library)
 const RechartsChart = lazy(() => import('recharts').then(m => ({
-  default: ({ data }: { data: any[] }) => (
-    <m.ResponsiveContainer width="100%" height={300}>
+  default: ({ data }: { data: { month: string; revenue: number; tax: number }[] }) => (
+    <m.ResponsiveContainer width="100%" height={280}>
       <m.BarChart data={data}>
-        <m.CartesianGrid strokeDasharray="3 3" />
-        <m.XAxis dataKey="month" />
-        <m.YAxis />
-        <m.Tooltip formatter={(value: number) => formatINR(value)} />
-        <m.Bar dataKey="revenue" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
+        <m.CartesianGrid strokeDasharray="3 3" className="stroke-border" />
+        <m.XAxis dataKey="month" tick={{ fontSize: 12 }} />
+        <m.YAxis tickFormatter={(v: number) => `₹${(v / 1000).toFixed(0)}k`} tick={{ fontSize: 12 }} />
+        <m.Tooltip formatter={(value: number, name: string) => [formatINR(value), name === 'revenue' ? 'Revenue' : 'Tax']} contentStyle={{ borderRadius: '8px', border: '1px solid hsl(var(--border))', backgroundColor: 'hsl(var(--card))', color: 'hsl(var(--card-foreground))' }} />
+        <m.Bar dataKey="revenue" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} name="revenue" />
+        <m.Bar dataKey="tax" fill="hsl(var(--primary) / 0.4)" radius={[4, 4, 0, 0]} name="tax" />
       </m.BarChart>
     </m.ResponsiveContainer>
   )
