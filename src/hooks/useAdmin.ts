@@ -95,6 +95,8 @@ export function useAdminUsers() {
           ai_tier: p.ai_tier || 'standard',
           ai_queries_today: p.ai_queries_today || 0,
           enabled_modules: p.enabled_modules || [],
+          is_suspended: p.is_suspended || false,
+          suspended_reason: p.suspended_reason || null,
         } as AdminUser;
       });
     },
