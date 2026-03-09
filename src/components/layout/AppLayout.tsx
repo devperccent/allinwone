@@ -1,10 +1,11 @@
-import { useState, Suspense, lazy, memo } from 'react';
+import { useState, useEffect, Suspense, lazy, memo } from 'react';
 import { Outlet } from 'react-router-dom';
 import { AppSidebar } from './AppSidebar';
 import { AppHeader } from './AppHeader';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 import { useTheme } from '@/hooks/useTheme';
+import { useAccessibility } from '@/hooks/useAccessibility';
 
 // Lazy-load dialogs that aren't needed on initial render
 const KeyboardShortcutsDialog = lazy(() => import('./KeyboardShortcutsDialog').then(m => ({ default: m.KeyboardShortcutsDialog })));
@@ -39,12 +40,19 @@ export function AppLayout() {
     onToggleTheme: toggleTheme,
   });
 
+  // Initialize accessibility settings on mount
+  useAccessibility();
+
   return (
     <div className="flex h-screen overflow-hidden bg-background">
+      {/* Skip to content link for keyboard users */}
+      <a href="#main-content" className="skip-to-content">
+        Skip to main content
+      </a>
       {!isMobile && <MemoizedSidebar onOpenShortcuts={() => setShortcutsOpen(true)} />}
       <div className="flex flex-col flex-1 overflow-hidden">
         <AppHeader searchOpen={searchOpen} onSearchOpenChange={setSearchOpen} onOpenShortcuts={() => setShortcutsOpen(true)} />
-        <main className="flex-1 overflow-y-auto p-4 md:p-5">
+        <main id="main-content" className="flex-1 overflow-y-auto p-4 md:p-5" tabIndex={-1}>
           <Suspense fallback={<RouteLoader />}>
             <Outlet context={{ setWalkthroughOpen }} />
           </Suspense>
