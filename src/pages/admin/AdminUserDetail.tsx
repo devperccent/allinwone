@@ -111,7 +111,7 @@ export default function AdminUserDetail() {
           <ArrowLeft className="h-4 w-4" />
         </Button>
         <div className="flex-1 min-w-0">
-          <h1 className="text-xl sm:text-2xl font-bold truncate flex items-center gap-2">
+          <h1 className="text-lg font-bold truncate flex items-center gap-2">
             {profile.org_name}
             {isSuspended && <Ban className="h-5 w-5 text-destructive" />}
           </h1>
