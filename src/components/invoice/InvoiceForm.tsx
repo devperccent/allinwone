@@ -227,7 +227,12 @@ export function InvoiceForm({
 
       {/* Line Items */}
       <div className="rounded-lg border border-border bg-card p-4">
-        <h3 className="text-sm font-semibold mb-3">Line Items</h3>
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="text-sm font-semibold">Line Items</h3>
+          <FestivalDiscounts onApplyDiscount={(discount) => {
+            items.forEach(item => onUpdateItem(item.id, { discount }));
+          }} />
+        </div>
 
         <div className="hidden sm:grid grid-cols-12 gap-3 px-3 py-2 text-sm font-medium text-muted-foreground mb-2">
           <div className="col-span-5 pl-6">Product / Description</div>
