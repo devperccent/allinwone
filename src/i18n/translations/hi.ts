@@ -36,6 +36,9 @@ export const hi: Record<TranslationKey, string> = {
   nav_adminPanel: 'एडमिन पैनल',
   nav_signOut: 'साइन आउट',
   nav_collapse: 'छोटा करें',
+  nav_collections: 'वसूली',
+  nav_udhaar: 'उधार',
+  nav_expenses: 'खर्चे',
   
   // Section labels
   section_billing: 'बिलिंग',

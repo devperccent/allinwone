@@ -36,6 +36,9 @@ export const bn: Record<TranslationKey, string> = {
   nav_adminPanel: 'অ্যাডমিন প্যানেল',
   nav_signOut: 'সাইন আউট',
   nav_collapse: 'সঙ্কুচিত করুন',
+  nav_collections: 'আদায়',
+  nav_udhaar: 'বাকি',
+  nav_expenses: 'খরচ',
   
   // Section labels
   section_billing: 'বিলিং',
