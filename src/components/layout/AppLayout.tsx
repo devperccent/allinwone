@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, Suspense } from 'react';
 import { Outlet } from 'react-router-dom';
 import { AppSidebar } from './AppSidebar';
 import { AppHeader } from './AppHeader';
@@ -8,6 +8,14 @@ import { WalkthroughTutorial } from '@/components/onboarding/WalkthroughTutorial
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 import { useTheme } from '@/hooks/useTheme';
+
+function RouteLoader() {
+  return (
+    <div className="flex items-center justify-center pt-24">
+      <div className="h-5 w-5 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+    </div>
+  );
+}
 
 export function AppLayout() {
   const isMobile = useIsMobile();
@@ -33,7 +41,9 @@ export function AppLayout() {
       <div className="flex flex-col flex-1 overflow-hidden">
         <AppHeader searchOpen={searchOpen} onSearchOpenChange={setSearchOpen} onOpenShortcuts={() => setShortcutsOpen(true)} />
         <main className="flex-1 overflow-y-auto p-4 md:p-5">
-          <Outlet context={{ setWalkthroughOpen }} />
+          <Suspense fallback={<RouteLoader />}>
+            <Outlet context={{ setWalkthroughOpen }} />
+          </Suspense>
         </main>
       </div>
       <KeyboardShortcutsDialog open={shortcutsOpen} onOpenChange={setShortcutsOpen} />
