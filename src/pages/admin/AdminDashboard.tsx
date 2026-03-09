@@ -130,8 +130,8 @@ export default function AdminDashboard() {
         </Card>
 
         <Card>
-          <CardHeader>
-            <CardTitle>AI Model Usage</CardTitle>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium">AI Model Usage</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="h-64">
