@@ -1,6 +1,5 @@
-import { useState, useRef, useMemo } from 'react';
-import { BarcodeScanButton } from '@/components/scanner/BarcodeScanner';
-import { useProductBatches } from '@/hooks/useProductBatches';
+import { useState, useRef, useMemo, memo } from 'react';
+import { useProductBatches, ProductBatch } from '@/hooks/useProductBatches';
 import {
   Plus,
   Search,
@@ -59,9 +58,12 @@ import { GST_RATES } from '@/types';
 import { Switch } from '@/components/ui/switch';
 import { format } from 'date-fns';
 import { usePageShortcuts } from '@/hooks/usePageShortcuts';
+import { BarcodeScanButton } from '@/components/scanner/BarcodeScanner';
 
 export default function ProductsPage() {
   const { products, isLoading, createProduct, deleteProduct } = useProducts();
+  // Single bulk fetch of ALL batches — eliminates N+1 per-product queries
+  const { batches: allBatches } = useProductBatches();
   const [searchQuery, setSearchQuery] = useState('');
   const searchRef = useRef<HTMLInputElement>(null);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
@@ -82,10 +84,24 @@ export default function ProductsPage() {
     barcode: '',
   });
 
-  const filteredProducts = products.filter((product) =>
-    product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    product.sku.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    ((product as any).barcode || '').toLowerCase().includes(searchQuery.toLowerCase())
+  // Pre-compute batch map once for O(1) lookup per product
+  const batchesByProduct = useMemo(() => {
+    const map = new Map<string, ProductBatch[]>();
+    for (const b of allBatches) {
+      const arr = map.get(b.product_id);
+      if (arr) arr.push(b);
+      else map.set(b.product_id, [b]);
+    }
+    return map;
+  }, [allBatches]);
+
+  const filteredProducts = useMemo(() =>
+    products.filter((product) =>
+      product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      product.sku.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      ((product as any).barcode || '').toLowerCase().includes(searchQuery.toLowerCase())
+    ),
+    [products, searchQuery]
   );
 
   // Page shortcuts: / → focus search, A → add product
@@ -321,6 +337,7 @@ export default function ProductsPage() {
             <ProductCard
               key={product.id}
               product={product}
+              batches={batchesByProduct.get(product.id) || EMPTY_BATCHES}
               isLowStock={isLowStock(product)}
               onStockHistory={() => { setSelectedProduct(product); setStockSheetOpen(true); }}
               onDelete={() => deleteProduct.mutate(product.id)}
@@ -329,31 +346,36 @@ export default function ProductsPage() {
         )}
       </div>
 
-      {/* Stock History Sheet */}
-      <StockHistorySheet
-        product={selectedProduct}
-        open={stockSheetOpen}
-        onOpenChange={setStockSheetOpen}
-      />
+      {/* Stock History Sheet — only fetch detailed data when open */}
+      {stockSheetOpen && selectedProduct && (
+        <StockHistorySheet
+          product={selectedProduct}
+          open={stockSheetOpen}
+          onOpenChange={setStockSheetOpen}
+        />
+      )}
     </div>
   );
 }
 
-function ProductCard({
+const EMPTY_BATCHES: ProductBatch[] = [];
+
+// Memoized ProductCard — no longer calls useProductBatches individually
+const ProductCard = memo(function ProductCard({
   product,
+  batches,
   isLowStock: lowStock,
   onStockHistory,
   onDelete,
 }: {
   product: Product;
+  batches: ProductBatch[];
   isLowStock: boolean;
   onStockHistory: () => void;
   onDelete: () => void;
 }) {
-  const { batches } = useProductBatches(product.type === 'goods' ? product.id : undefined);
-
-  const nearestExpiry = batches.find(b => b.expiry_date && new Date(b.expiry_date) > new Date());
-  const expiredCount = batches.filter(b => b.expiry_date && new Date(b.expiry_date) <= new Date()).length;
+  const now = Date.now();
+  const nearestExpiry = batches.find(b => b.expiry_date && new Date(b.expiry_date).getTime() > now);
 
   return (
     <div
@@ -409,19 +431,19 @@ function ProductCard({
       )}
     </div>
   );
-}
+});
 
 function StockHistorySheet({
   product,
   open,
   onOpenChange,
 }: {
-  product: Product | null;
+  product: Product;
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }) {
-  const { logs, isLoading } = useInventoryLogs(product?.id);
-  const { batches, isLoading: batchesLoading } = useProductBatches(product?.id);
+  const { logs, isLoading } = useInventoryLogs(product.id);
+  const { batches, isLoading: batchesLoading } = useProductBatches(product.id);
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
@@ -432,7 +454,7 @@ function StockHistorySheet({
             Stock Movement
           </SheetTitle>
           <SheetDescription>
-            {product?.name} — Current stock: <span className="font-semibold">{product?.stock_quantity}</span>
+            {product.name} — Current stock: <span className="font-semibold">{product.stock_quantity}</span>
           </SheetDescription>
         </SheetHeader>
 
@@ -461,14 +483,14 @@ function StockHistorySheet({
                           <Badge className={cn(
                             'text-xs',
                             isExpired
-                              ? 'bg-destructive text-destructive-foreground'
+                              ? 'bg-destructive/10 text-destructive border-destructive/30'
                               : daysLeft !== null && daysLeft <= 30
-                                ? 'bg-warning/20 text-warning'
-                                : 'bg-muted text-muted-foreground'
-                          )}>
-                            {isExpired ? 'EXPIRED' : `${daysLeft}d left`}
+                              ? 'bg-warning/10 text-warning border-warning/30'
+                              : 'bg-muted text-muted-foreground'
+                          )} variant="outline">
+                            {isExpired ? 'Expired' : `${daysLeft}d left`}
                           </Badge>
-                          <p className="text-xs text-muted-foreground mt-0.5">
+                          <p className="text-[10px] text-muted-foreground mt-0.5">
                             {format(new Date(batch.expiry_date), 'dd MMM yyyy')}
                           </p>
                         </>
@@ -483,38 +505,32 @@ function StockHistorySheet({
           </div>
         )}
 
-        {/* Stock Logs */}
-        <div className="mt-6 space-y-3">
+        {/* Movement Logs */}
+        <div className="mt-6 space-y-2">
           <h4 className="text-sm font-semibold">Movement History</h4>
           {isLoading ? (
-            [...Array(4)].map((_, i) => (
-              <Skeleton key={i} className="h-14 w-full" />
-            ))
-          ) : logs.length === 0 ? (
-            <div className="text-center py-8 text-muted-foreground">
-              <Package className="w-10 h-10 mx-auto mb-2 opacity-50" />
-              <p>No stock movement recorded yet</p>
+            <div className="flex justify-center py-4">
+              <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
             </div>
+          ) : logs.length === 0 ? (
+            <p className="text-sm text-muted-foreground py-4 text-center">No stock movements recorded.</p>
           ) : (
             logs.map((log) => (
-              <div key={log.id} className="flex items-center gap-3 p-3 rounded-lg border border-border bg-card">
-                <div className={cn(
-                  'p-2 rounded-full',
-                  log.change_amount < 0 ? 'bg-destructive/10 text-destructive' : 'bg-success/10 text-success'
-                )}>
-                  {log.change_amount < 0 ? <ArrowDownRight className="w-4 h-4" /> : <ArrowUpRight className="w-4 h-4" />}
-                </div>
-                <div className="flex-1">
-                  <p className="text-sm font-medium">
-                    {log.reason === 'invoice_deduction' ? 'Invoice Deduction' : log.reason === 'purchase_inward' ? 'Purchase Inward' : log.reason}
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    {format(new Date(log.created_at), 'dd MMM yyyy, hh:mm a')}
-                  </p>
+              <div key={log.id} className="flex items-center justify-between p-2.5 rounded-lg border border-border bg-muted/30">
+                <div className="flex items-center gap-2 min-w-0">
+                  {log.change_amount > 0 ? (
+                    <ArrowUpRight className="w-4 h-4 text-emerald-500 shrink-0" />
+                  ) : (
+                    <ArrowDownRight className="w-4 h-4 text-destructive shrink-0" />
+                  )}
+                  <div className="min-w-0">
+                    <p className="text-sm truncate">{log.reason}</p>
+                    <p className="text-xs text-muted-foreground">{format(new Date(log.created_at), 'dd MMM yyyy, HH:mm')}</p>
+                  </div>
                 </div>
                 <span className={cn(
-                  'text-sm font-semibold tabular-nums',
-                  log.change_amount < 0 ? 'text-destructive' : 'text-success'
+                  'font-mono text-sm font-medium shrink-0',
+                  log.change_amount > 0 ? 'text-emerald-500' : 'text-destructive'
                 )}>
                   {log.change_amount > 0 ? '+' : ''}{log.change_amount}
                 </span>
