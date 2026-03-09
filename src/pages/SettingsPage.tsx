@@ -29,7 +29,7 @@ import { LanguageSelector } from '@/components/LanguageSelector';
 import { useLanguage } from '@/i18n/LanguageContext';
 import { useAccessibility } from '@/hooks/useAccessibility';
 import { Slider } from '@/components/ui/slider';
-import { BusinessModeSelector, getBusinessModeDefaults, type BusinessMode } from '@/components/settings/BusinessModeSelector';
+import type { BusinessMode } from '@/components/settings/BusinessModeSelector';
 import {
   getNotificationPreferences,
   saveNotificationPreferences,
