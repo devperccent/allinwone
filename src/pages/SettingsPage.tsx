@@ -311,8 +311,8 @@ export default function SettingsPage() {
               <div className="pt-4 border-t">
                 <h4 className="font-semibold mb-4">Payment Details</h4>
                 <div className="grid gap-4 sm:grid-cols-2">
-                  <div>
-                    <Label htmlFor="upi">UPI VPA</Label>
+                  <div className="sm:col-span-2">
+                    <Label htmlFor="upi">UPI VPA (Virtual Payment Address)</Label>
                     <Input
                       id="upi"
                       value={upiVpa}
@@ -321,8 +321,24 @@ export default function SettingsPage() {
                       className="mt-1.5"
                     />
                     <p className="text-xs text-muted-foreground mt-1">
-                      This will be used to generate payment QR codes
+                      Works with all UPI apps — GPay, PhonePe, Paytm, BHIM, etc. Your clients can scan the QR with any app.
                     </p>
+                    <div className="flex gap-2 mt-2">
+                      {['@okicici', '@okaxis', '@oksbi', '@ybl', '@paytm', '@upi'].map(suffix => (
+                        <button
+                          key={suffix}
+                          type="button"
+                          onClick={() => {
+                            if (!upiVpa.includes('@')) {
+                              setUpiVpa(upiVpa + suffix);
+                            }
+                          }}
+                          className="text-[10px] px-1.5 py-0.5 rounded border border-border text-muted-foreground hover:bg-muted/50 transition-colors"
+                        >
+                          {suffix}
+                        </button>
+                      ))}
+                    </div>
                   </div>
                   <div>
                     <Label htmlFor="bank_name">Bank Account Name</Label>
