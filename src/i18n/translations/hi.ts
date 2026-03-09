@@ -39,6 +39,7 @@ export const hi: Record<TranslationKey, string> = {
   nav_collections: 'वसूली',
   nav_udhaar: 'उधार',
   nav_expenses: 'खर्चे',
+  nav_projects: 'प्रोजेक्ट्स',
   
   // Section labels
   section_billing: 'बिलिंग',
