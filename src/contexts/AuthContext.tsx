@@ -21,24 +21,26 @@ let profileFetchPromise: Promise<Profile | null> | null = null;
 let profileFetchUserId: string | null = null;
 
 async function fetchProfileOnce(userId: string): Promise<Profile | null> {
-  // Deduplicate concurrent fetches for the same user
   if (profileFetchUserId === userId && profileFetchPromise) {
     return profileFetchPromise;
   }
   profileFetchUserId = userId;
-  profileFetchPromise = supabase
-    .from('profiles')
-    .select('*')
-    .eq('user_id', userId)
-    .single()
-    .then(({ data, error }) => {
-      profileFetchPromise = null;
+  profileFetchPromise = (async () => {
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('user_id', userId)
+        .single();
       if (error) {
         console.error('Error fetching profile:', error);
         return null;
       }
       return data as Profile;
-    });
+    } finally {
+      profileFetchPromise = null;
+    }
+  })();
   return profileFetchPromise;
 }
 
