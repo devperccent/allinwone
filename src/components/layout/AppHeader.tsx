@@ -54,14 +54,14 @@ export const AppHeader = memo(function AppHeader({ searchOpen, onSearchOpenChang
   const isDark = theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
 
   return (
-    <header className="flex items-center justify-between h-12 px-3 md:px-5 border-b border-border bg-card gap-2">
+    <header className="flex items-center justify-between h-12 px-3 md:px-5 border-b border-border bg-card gap-2" role="banner" aria-label="Application header">
       {/* Left: Mobile menu + Search */}
       <div className="flex items-center gap-2 flex-1 min-w-0">
         {isMobile && (
           <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
             <SheetTrigger asChild>
-              <Button variant="ghost" size="icon" className="shrink-0 h-8 w-8">
-                <Menu className="w-4 h-4" />
+              <Button variant="ghost" size="icon" className="shrink-0 h-8 w-8" aria-label="Open navigation menu">
+                <Menu className="w-4 h-4" aria-hidden="true" />
               </Button>
             </SheetTrigger>
             <SheetContent side="left" className="p-0 w-56">
@@ -72,10 +72,11 @@ export const AppHeader = memo(function AppHeader({ searchOpen, onSearchOpenChang
         <button
           onClick={() => onSearchOpenChange(true)}
           className="relative flex-1 max-w-xs hidden sm:flex items-center gap-2 h-8 rounded-md bg-muted/40 px-3 text-sm text-muted-foreground hover:bg-muted/60 transition-colors cursor-pointer"
+          aria-label="Open search. Press Control+K"
         >
-          <Search className="w-3.5 h-3.5 shrink-0" />
+          <Search className="w-3.5 h-3.5 shrink-0" aria-hidden="true" />
           <span className="text-xs">Search...</span>
-          <kbd className="ml-auto pointer-events-none hidden md:inline-flex h-4 select-none items-center gap-0.5 rounded border bg-muted px-1 font-mono text-[9px] font-medium text-muted-foreground">
+          <kbd className="ml-auto pointer-events-none hidden md:inline-flex h-4 select-none items-center gap-0.5 rounded border bg-muted px-1 font-mono text-[9px] font-medium text-muted-foreground" aria-hidden="true">
             <span>{modKey}</span>K
           </kbd>
         </button>
@@ -92,10 +93,10 @@ export const AppHeader = memo(function AppHeader({ searchOpen, onSearchOpenChang
       </div>
 
       {/* Right: Actions */}
-      <div className="flex items-center gap-0.5 shrink-0">
+      <div className="flex items-center gap-0.5 shrink-0" role="toolbar" aria-label="Quick actions">
         {isMobile && (
-          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => onSearchOpenChange(true)}>
-            <Search className="w-4 h-4" />
+          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => onSearchOpenChange(true)} aria-label="Open search">
+            <Search className="w-4 h-4" aria-hidden="true" />
           </Button>
         )}
 
@@ -107,8 +108,8 @@ export const AppHeader = memo(function AppHeader({ searchOpen, onSearchOpenChang
               size="sm"
               className="gap-1.5 h-8 text-xs"
             >
-              <Plus className="w-3.5 h-3.5" />
-              {!isMobile && 'New Invoice'}
+              <Plus className="w-3.5 h-3.5" aria-hidden="true" />
+              {!isMobile && <span>New Invoice</span>}
             </Button>
           </TooltipTrigger>
           <TooltipContent side="bottom">New Invoice (N)</TooltipContent>
@@ -121,8 +122,9 @@ export const AppHeader = memo(function AppHeader({ searchOpen, onSearchOpenChang
               size="icon"
               className="h-8 w-8"
               onClick={() => setTheme(isDark ? 'light' : 'dark')}
+              aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
             >
-              {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+              {isDark ? <Sun className="w-4 h-4" aria-hidden="true" /> : <Moon className="w-4 h-4" aria-hidden="true" />}
             </Button>
           </TooltipTrigger>
           <TooltipContent side="bottom">{isDark ? 'Light mode' : 'Dark mode'}</TooltipContent>
@@ -135,8 +137,8 @@ export const AppHeader = memo(function AppHeader({ searchOpen, onSearchOpenChang
         <div className="pl-1.5 ml-1 border-l border-border">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="relative h-8 w-8 rounded-full">
-                <div className="h-7 w-7 rounded-full bg-primary/15 flex items-center justify-center">
+              <Button variant="ghost" size="icon" className="relative h-8 w-8 rounded-full" aria-label={`Account menu for ${profile?.org_name || 'user'}`}>
+                <div className="h-7 w-7 rounded-full bg-primary/15 flex items-center justify-center" aria-hidden="true">
                   <span className="text-[10px] font-semibold text-primary">{initials}</span>
                 </div>
               </Button>

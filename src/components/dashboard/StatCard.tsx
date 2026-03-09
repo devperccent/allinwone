@@ -19,11 +19,15 @@ export function StatCard({
   iconColor = 'text-primary',
 }: StatCardProps) {
   return (
-    <div className="stat-card">
+    <div className="stat-card" role="region" aria-label={`${title}: ${value}`}>
       <div className="flex items-start justify-between">
         <div className="space-y-1">
-          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">{title}</p>
-          <p className="text-2xl font-bold tabular-nums">{value}</p>
+          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide" id={`stat-title-${title.toLowerCase().replace(/\s/g, '-')}`}>
+            {title}
+          </p>
+          <p className="text-2xl font-bold tabular-nums" aria-describedby={`stat-title-${title.toLowerCase().replace(/\s/g, '-')}`}>
+            {value}
+          </p>
           {change && (
             <p
               className={cn(
@@ -32,12 +36,13 @@ export function StatCard({
                 changeType === 'negative' && 'text-destructive',
                 changeType === 'neutral' && 'text-muted-foreground'
               )}
+              aria-label={`Status: ${change}`}
             >
               {change}
             </p>
           )}
         </div>
-        <div className={cn('p-2 rounded-lg bg-muted/50', iconColor)}>
+        <div className={cn('p-2 rounded-lg bg-muted/50', iconColor)} aria-hidden="true">
           <Icon className="w-5 h-5" />
         </div>
       </div>

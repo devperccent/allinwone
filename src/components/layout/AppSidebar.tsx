@@ -115,6 +115,8 @@ export function AppSidebar({ onNavigate, onOpenShortcuts }: AppSidebarProps) {
         to={item.href}
         onClick={onNavigate}
         onMouseEnter={() => prefetchRoute(item.href)}
+        aria-current={isActive ? 'page' : undefined}
+        aria-label={name}
         className={cn(
           'flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors',
           isActive
@@ -122,7 +124,7 @@ export function AppSidebar({ onNavigate, onOpenShortcuts }: AppSidebarProps) {
             : 'text-sidebar-foreground hover:bg-sidebar-accent/50'
         )}
       >
-        <item.icon className={cn('w-[18px] h-[18px] flex-shrink-0', isActive && 'text-primary')} />
+        <item.icon className={cn('w-[18px] h-[18px] flex-shrink-0', isActive && 'text-primary')} aria-hidden="true" />
         {!isCollapsed && <span className="flex-1">{name}</span>}
       </Link>
     );
@@ -154,6 +156,8 @@ export function AppSidebar({ onNavigate, onOpenShortcuts }: AppSidebarProps) {
         'flex flex-col h-full bg-sidebar border-r border-sidebar-border transition-all duration-300',
         isCollapsed ? 'w-[60px]' : 'w-56'
       )}
+      role="navigation"
+      aria-label="Main navigation"
     >
       {/* Logo */}
       <div className="flex items-center h-12 px-5 border-b border-sidebar-border">
@@ -167,7 +171,7 @@ export function AppSidebar({ onNavigate, onOpenShortcuts }: AppSidebarProps) {
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 px-2 py-2 space-y-0.5 overflow-y-auto">
+      <nav className="flex-1 px-2 py-2 space-y-0.5 overflow-y-auto" aria-label="Sidebar menu">
         {renderSectionLabel('section_billing')}
         {filteredMain.map(renderNavItem)}
 
@@ -242,12 +246,14 @@ export function AppSidebar({ onNavigate, onOpenShortcuts }: AppSidebarProps) {
             variant="ghost"
             size="sm"
             onClick={() => setCollapsed(!collapsed)}
+            aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+            aria-expanded={!isCollapsed}
             className={cn(
               'w-full justify-start gap-2.5 mt-1 text-sidebar-foreground/50 hover:text-sidebar-accent-foreground hover:bg-sidebar-accent/50',
               isCollapsed && 'justify-center'
             )}
           >
-            <ChevronLeft className={cn('w-4 h-4 transition-transform', isCollapsed && 'rotate-180')} />
+            <ChevronLeft className={cn('w-4 h-4 transition-transform', isCollapsed && 'rotate-180')} aria-hidden="true" />
             {!isCollapsed && <span className="text-xs">{t('nav_collapse')}</span>}
           </Button>
         )}

@@ -81,9 +81,9 @@ const NotificationItem = memo(forwardRef<
           onDelete(notification.id);
         }}
         className="opacity-0 group-hover/item:opacity-100 transition-opacity shrink-0 mt-1 p-1 rounded-md hover:bg-muted text-muted-foreground hover:text-destructive"
-        title="Delete"
+        aria-label={`Delete notification: ${notification.title}`}
       >
-        <X className="w-3.5 h-3.5" />
+        <X className="w-3.5 h-3.5" aria-hidden="true" />
       </button>
     </div>
   );
@@ -112,16 +112,16 @@ export function NotificationBell() {
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <Button variant="ghost" size="icon" className="relative h-8 w-8">
-          <Bell className="w-4 h-4" />
+        <Button variant="ghost" size="icon" className="relative h-8 w-8" aria-label={`Notifications${unreadCount > 0 ? `, ${unreadCount} unread` : ''}`}>
+          <Bell className="w-4 h-4" aria-hidden="true" />
           {unreadCount > 0 && (
-            <span className="absolute -top-0.5 -right-0.5 flex items-center justify-center min-w-[16px] h-[16px] rounded-full bg-destructive text-destructive-foreground text-[9px] font-bold px-1 animate-in zoom-in-50">
+            <span className="absolute -top-0.5 -right-0.5 flex items-center justify-center min-w-[16px] h-[16px] rounded-full bg-destructive text-destructive-foreground text-[9px] font-bold px-1 animate-in zoom-in-50" aria-hidden="true">
               {unreadCount > 99 ? '99+' : unreadCount}
             </span>
           )}
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-[360px] md:w-[420px] p-0" align="end" sideOffset={8}>
+      <PopoverContent className="w-[360px] md:w-[420px] p-0" align="end" sideOffset={8} role="dialog" aria-label="Notifications panel">
         {/* Header */}
         <div className="flex items-center justify-between px-4 py-3">
           <div className="flex items-center gap-2">
@@ -160,11 +160,14 @@ export function NotificationBell() {
         <Separator />
 
         {/* Filter tabs */}
-        <div className="flex gap-1 px-4 py-2">
+        <div className="flex gap-1 px-4 py-2" role="tablist" aria-label="Filter notifications">
           {filters.map((f) => (
             <button
               key={f.value}
               onClick={() => setFilter(f.value)}
+              role="tab"
+              aria-selected={filter === f.value}
+              aria-label={`Show ${f.label} notifications`}
               className={cn(
                 'px-3 py-1.5 rounded-md text-xs font-medium transition-colors whitespace-nowrap',
                 filter === f.value
@@ -174,7 +177,7 @@ export function NotificationBell() {
             >
               {f.label}
               {f.value === 'unread' && unreadCount > 0 && (
-                <span className="ml-1 opacity-80">({unreadCount})</span>
+                <span className="ml-1 opacity-80" aria-hidden="true">({unreadCount})</span>
               )}
             </button>
           ))}
@@ -183,7 +186,7 @@ export function NotificationBell() {
         <Separator />
 
         {/* List */}
-        <ScrollArea className="max-h-[420px]">
+        <ScrollArea className="max-h-[420px]" role="region" aria-label="Notification list" aria-live="polite">
           {filtered.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-14 text-muted-foreground">
               <div className="w-12 h-12 rounded-full bg-muted/60 flex items-center justify-center mb-3">
