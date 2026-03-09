@@ -22,6 +22,7 @@ import {
   Wallet,
   HandCoins,
   BookUser,
+  FolderKanban,
 } from 'lucide-react';
 import { useIsAdmin } from '@/hooks/useAdmin';
 import { useEnabledModules, type ModuleKey } from '@/hooks/useEnabledModules';
