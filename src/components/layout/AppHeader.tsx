@@ -108,8 +108,8 @@ export const AppHeader = memo(function AppHeader({ searchOpen, onSearchOpenChang
               size="sm"
               className="gap-1.5 h-8 text-xs"
             >
-              <Plus className="w-3.5 h-3.5" />
-              {!isMobile && 'New Invoice'}
+              <Plus className="w-3.5 h-3.5" aria-hidden="true" />
+              {!isMobile && <span>New Invoice</span>}
             </Button>
           </TooltipTrigger>
           <TooltipContent side="bottom">New Invoice (N)</TooltipContent>
