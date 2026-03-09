@@ -39,6 +39,8 @@ import { formatINR } from '@/hooks/useInvoiceCalculations';
 import { InlineClientCreate } from '@/components/invoice/InlineClientCreate';
 import { SortableLineItem } from '@/components/invoice/SortableLineItem';
 import { InvoiceTotals } from '@/components/invoice/InvoiceTotals';
+import { FestivalDiscounts } from '@/components/invoice/FestivalDiscounts';
+import { InvoiceTotals } from '@/components/invoice/InvoiceTotals';
 
 interface InvoiceFormProps {
   clients: Client[];
