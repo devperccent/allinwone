@@ -17,6 +17,9 @@ import { AnnouncementBanner } from '@/components/dashboard/AnnouncementBanner';
 import { formatINR } from '@/hooks/useInvoiceCalculations';
 import { useInvoices } from '@/hooks/useInvoices';
 import { useProducts } from '@/hooks/useProducts';
+import { useQuotations } from '@/hooks/useQuotations';
+import { useDeliveryChallans } from '@/hooks/useDeliveryChallans';
+import { usePurchaseOrders } from '@/hooks/usePurchaseOrders';
 import { useEnabledModules } from '@/hooks/useEnabledModules';
 import { Skeleton } from '@/components/ui/skeleton';
 
@@ -29,26 +32,31 @@ const ExpiringBatchesAlert = lazy(() => import('@/components/dashboard/ExpiringB
 const LowStockAutoPO = lazy(() => import('@/components/dashboard/LowStockAutoPO').then(m => ({ default: m.LowStockAutoPO })));
 const ActivityFeed = lazy(() => import('@/components/dashboard/ActivityFeed').then(m => ({ default: m.ActivityFeed })));
 
-// Lazy-load hooks for optional modules — only import when needed
-function useOptionalQuotations(enabled: boolean) {
-  const { useQuotations } = enabled ? require('@/hooks/useQuotations') : { useQuotations: null };
-  // Can't conditionally call hooks, so we use a wrapper pattern
-  return enabled ? [] : [];
-}
-
 export default function Dashboard() {
   const { invoices, totalRevenue, pendingAmount, isLoading: invoicesLoading } = useInvoices();
   const { lowStockProducts, isLoading: productsLoading } = useProducts();
+  const { quotations } = useQuotations();
+  const { challans } = useDeliveryChallans();
+  const { purchaseOrders } = usePurchaseOrders();
   const { isModuleEnabled } = useEnabledModules();
   const isLoading = invoicesLoading || productsLoading;
 
-  // Memoize stats
+  // Memoize status counts — avoids 3 separate filter passes per render
   const stats = useMemo(() => {
-    const paid = invoices.filter(i => i.status === 'paid').length;
-    const finalized = invoices.filter(i => i.status === 'finalized').length;
-    const drafts = invoices.filter(i => i.status === 'draft').length;
+    let paid = 0, finalized = 0, drafts = 0;
+    for (const inv of invoices) {
+      if (inv.status === 'paid') paid++;
+      else if (inv.status === 'finalized') finalized++;
+      else if (inv.status === 'draft') drafts++;
+    }
     return { paid, finalized, drafts };
   }, [invoices]);
+
+  // Memoize sliced arrays to prevent re-creating on every render
+  const recentInvoices = useMemo(() => invoices.slice(0, 5), [invoices]);
+  const recentQuotations = useMemo(() => quotations.slice(0, 5), [quotations]);
+  const recentChallans = useMemo(() => challans.slice(0, 5), [challans]);
+  const recentPOs = useMemo(() => purchaseOrders.slice(0, 5), [purchaseOrders]);
 
   const hasDocModules = isModuleEnabled('quotations') || isModuleEnabled('challans') || isModuleEnabled('purchase_orders');
 
@@ -141,13 +149,21 @@ export default function Dashboard() {
         </TabsList>
 
         <TabsContent value="overview" className="space-y-4">
-          <RecentInvoices invoices={invoices.slice(0, 5)} />
+          <RecentInvoices invoices={recentInvoices} />
         </TabsContent>
 
         {hasDocModules && (
           <TabsContent value="documents" className="space-y-4">
             <Suspense fallback={<Skeleton className="h-40" />}>
-              <DocumentsTabContent isModuleEnabled={isModuleEnabled} />
+              {isModuleEnabled('quotations') && (
+                <RecentQuotations quotations={recentQuotations} />
+              )}
+              {isModuleEnabled('purchase_orders') && (
+                <RecentPurchaseOrders purchaseOrders={recentPOs} />
+              )}
+              {isModuleEnabled('challans') && (
+                <RecentChallans challans={recentChallans} />
+              )}
             </Suspense>
           </TabsContent>
         )}
@@ -169,37 +185,5 @@ export default function Dashboard() {
         )}
       </Tabs>
     </div>
-  );
-}
-
-// Separate component so quotation/challan/PO hooks only load when Documents tab is active
-function DocumentsTabContent({ isModuleEnabled }: { isModuleEnabled: (key: any) => boolean }) {
-  // These hooks + components only mount when user clicks "Documents" tab
-  const { useQuotations } = require('@/hooks/useQuotations');
-  const { useDeliveryChallans } = require('@/hooks/useDeliveryChallans');
-  const { usePurchaseOrders } = require('@/hooks/usePurchaseOrders');
-
-  const { quotations } = useQuotations();
-  const { challans } = useDeliveryChallans();
-  const { purchaseOrders } = usePurchaseOrders();
-
-  return (
-    <>
-      {isModuleEnabled('quotations') && (
-        <Suspense fallback={<Skeleton className="h-32" />}>
-          <RecentQuotations quotations={quotations.slice(0, 5)} />
-        </Suspense>
-      )}
-      {isModuleEnabled('purchase_orders') && (
-        <Suspense fallback={<Skeleton className="h-32" />}>
-          <RecentPurchaseOrders purchaseOrders={purchaseOrders.slice(0, 5)} />
-        </Suspense>
-      )}
-      {isModuleEnabled('challans') && (
-        <Suspense fallback={<Skeleton className="h-32" />}>
-          <RecentChallans challans={challans.slice(0, 5)} />
-        </Suspense>
-      )}
-    </>
   );
 }
