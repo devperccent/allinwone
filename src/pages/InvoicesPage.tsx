@@ -61,6 +61,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { exportInvoicesToCSV } from '@/utils/csvExport';
 import { usePageShortcuts } from '@/hooks/usePageShortcuts';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { PaymentReminderButton } from '@/components/invoice/PaymentReminderButton';
 import type { Invoice, InvoiceStatus, PaymentMode } from '@/types';
 
 const statusConfig: Record<InvoiceStatus, { label: string; className: string }> = {
