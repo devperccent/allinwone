@@ -210,6 +210,16 @@ export default function QuotationsPage() {
                       )}
                       <DropdownMenuSeparator />
                       <DropdownMenuItem
+                        onClick={() => {
+                          const text = `Hi! Here's your quotation ${quotation.quotation_number} for ${formatINR(Number(quotation.grand_total))}. Please review and let us know.`;
+                          window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+                        }}
+                      >
+                        <MessageCircle className="w-4 h-4 mr-2" />
+                        Share via WhatsApp
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem
                         onClick={() => deleteQuotation.mutate(quotation.id)}
                         className="text-destructive focus:text-destructive"
                       >
