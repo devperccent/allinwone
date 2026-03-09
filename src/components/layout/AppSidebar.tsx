@@ -30,6 +30,8 @@ import { useState, useMemo, useCallback } from 'react';
 import { prefetchRoute } from '@/lib/routePrefetch';
 import { useAuth } from '@/contexts/AuthContext';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { useLanguage } from '@/i18n/LanguageContext';
+import type { TranslationKey } from '@/i18n/translations/en';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -41,32 +43,32 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 import { Separator } from '@/components/ui/separator';
 
 interface NavItem {
-  name: string;
+  nameKey: TranslationKey;
   href: string;
   icon: any;
   module?: ModuleKey;
 }
 
 const mainNavigation: NavItem[] = [
-  { name: 'Dashboard', href: '/', icon: LayoutDashboard },
-  { name: 'Quick Bill', href: '/quick-bill', icon: Zap, module: 'quick_bill' },
-  { name: 'Invoices', href: '/invoices', icon: FileText },
-  { name: 'Quotations', href: '/quotations', icon: FileCheck, module: 'quotations' },
+  { nameKey: 'nav_dashboard', href: '/', icon: LayoutDashboard },
+  { nameKey: 'nav_quickBill', href: '/quick-bill', icon: Zap, module: 'quick_bill' },
+  { nameKey: 'nav_invoices', href: '/invoices', icon: FileText },
+  { nameKey: 'nav_quotations', href: '/quotations', icon: FileCheck, module: 'quotations' },
 ];
 
 const documentNavigation: NavItem[] = [
-  { name: 'Challans', href: '/challans', icon: Truck, module: 'challans' },
-  { name: 'Purchase Orders', href: '/purchase-orders', icon: ClipboardList, module: 'purchase_orders' },
-  { name: 'Purchase Bills', href: '/purchase-bills', icon: Receipt, module: 'purchase_orders' },
-  { name: 'Recurring', href: '/recurring', icon: RefreshCw, module: 'recurring' },
+  { nameKey: 'nav_challans', href: '/challans', icon: Truck, module: 'challans' },
+  { nameKey: 'nav_purchaseOrders', href: '/purchase-orders', icon: ClipboardList, module: 'purchase_orders' },
+  { nameKey: 'nav_purchaseBills', href: '/purchase-bills', icon: Receipt, module: 'purchase_orders' },
+  { nameKey: 'nav_recurring', href: '/recurring', icon: RefreshCw, module: 'recurring' },
 ];
 
 const managementNavigation: NavItem[] = [
-  { name: 'Products', href: '/products', icon: Package },
-  { name: 'Clients', href: '/clients', icon: Users },
-  { name: 'Reports', href: '/reports', icon: TrendingUp, module: 'reports' },
-  { name: 'Data Manager', href: '/bulk', icon: Upload },
-  { name: 'Billing', href: '/billing', icon: CreditCard },
+  { nameKey: 'nav_products', href: '/products', icon: Package },
+  { nameKey: 'nav_clients', href: '/clients', icon: Users },
+  { nameKey: 'nav_reports', href: '/reports', icon: TrendingUp, module: 'reports' },
+  { nameKey: 'nav_dataManager', href: '/bulk', icon: Upload },
+  { nameKey: 'nav_billing', href: '/billing', icon: CreditCard },
 ];
 
 interface AppSidebarProps {
@@ -82,8 +84,8 @@ export function AppSidebar({ onNavigate, onOpenShortcuts }: AppSidebarProps) {
   const { profile, signOut } = useAuth();
   const { data: isAdmin } = useIsAdmin();
   const { isModuleEnabled } = useEnabledModules();
+  const { t } = useLanguage();
 
-  // Memoize filtered nav arrays
   const filteredMain = useMemo(() => mainNavigation.filter(i => !i.module || isModuleEnabled(i.module)), [isModuleEnabled]);
   const filteredDocs = useMemo(() => documentNavigation.filter(i => !i.module || isModuleEnabled(i.module)), [isModuleEnabled]);
   const filteredMgmt = useMemo(() => managementNavigation.filter(i => !i.module || isModuleEnabled(i.module)), [isModuleEnabled]);
@@ -105,10 +107,11 @@ export function AppSidebar({ onNavigate, onOpenShortcuts }: AppSidebarProps) {
   const renderNavItem = (item: NavItem) => {
     const isActive = location.pathname === item.href || 
       (item.href !== '/' && location.pathname.startsWith(item.href));
+    const name = t(item.nameKey);
     
     const linkContent = (
       <Link
-        key={item.name}
+        key={item.nameKey}
         to={item.href}
         onClick={onNavigate}
         onMouseEnter={() => prefetchRoute(item.href)}
@@ -120,27 +123,27 @@ export function AppSidebar({ onNavigate, onOpenShortcuts }: AppSidebarProps) {
         )}
       >
         <item.icon className={cn('w-[18px] h-[18px] flex-shrink-0', isActive && 'text-primary')} />
-        {!isCollapsed && <span className="flex-1">{item.name}</span>}
+        {!isCollapsed && <span className="flex-1">{name}</span>}
       </Link>
     );
 
     if (isCollapsed) {
       return (
-        <Tooltip key={item.name}>
+        <Tooltip key={item.nameKey}>
           <TooltipTrigger asChild>{linkContent}</TooltipTrigger>
-          <TooltipContent side="right">{item.name}</TooltipContent>
+          <TooltipContent side="right">{name}</TooltipContent>
         </Tooltip>
       );
     }
 
-    return <div key={item.name}>{linkContent}</div>;
+    return <div key={item.nameKey}>{linkContent}</div>;
   };
 
-  const renderSectionLabel = (label: string) => {
+  const renderSectionLabel = (labelKey: TranslationKey) => {
     if (isCollapsed) return <Separator className="my-2" />;
     return (
       <p className="px-3 pt-4 pb-1 text-[10px] font-semibold uppercase tracking-wider text-sidebar-foreground/40">
-        {label}
+        {t(labelKey)}
       </p>
     );
   };
@@ -165,13 +168,13 @@ export function AppSidebar({ onNavigate, onOpenShortcuts }: AppSidebarProps) {
 
       {/* Navigation */}
       <nav className="flex-1 px-2 py-2 space-y-0.5 overflow-y-auto">
-        {renderSectionLabel('Billing')}
+        {renderSectionLabel('section_billing')}
         {filteredMain.map(renderNavItem)}
 
-        {filteredDocs.length > 0 && renderSectionLabel('Documents')}
+        {filteredDocs.length > 0 && renderSectionLabel('section_documents')}
         {filteredDocs.map(renderNavItem)}
 
-        {renderSectionLabel('Manage')}
+        {renderSectionLabel('section_manage')}
         {filteredMgmt.map(renderNavItem)}
       </nav>
 
@@ -195,7 +198,7 @@ export function AppSidebar({ onNavigate, onOpenShortcuts }: AppSidebarProps) {
                 <span className="text-[11px] font-semibold text-primary">{initials}</span>
               </div>
               {!isCollapsed && (
-                <span className="flex-1 text-left text-xs truncate">{profile?.org_name || 'Loading...'}</span>
+                <span className="flex-1 text-left text-xs truncate">{profile?.org_name || t('loading')}</span>
               )}
             </button>
           </DropdownMenuTrigger>
@@ -208,27 +211,27 @@ export function AppSidebar({ onNavigate, onOpenShortcuts }: AppSidebarProps) {
             <DropdownMenuItem asChild>
               <Link to="/settings" onClick={onNavigate}>
                 <Settings className="w-4 h-4 mr-2" />
-                Settings
+                {t('nav_settings')}
               </Link>
             </DropdownMenuItem>
             <DropdownMenuItem asChild>
               <Link to="/help" onClick={onNavigate}>
                 <BookOpen className="w-4 h-4 mr-2" />
-                Help & Docs
+                {t('nav_helpDocs')}
               </Link>
             </DropdownMenuItem>
             {isAdmin && (
               <DropdownMenuItem asChild>
                 <Link to="/admin" onClick={onNavigate}>
                   <ShieldCheck className="w-4 h-4 mr-2" />
-                  Admin Panel
+                  {t('nav_adminPanel')}
                 </Link>
               </DropdownMenuItem>
             )}
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={handleSignOut} className="text-destructive focus:text-destructive">
               <LogOut className="w-4 h-4 mr-2" />
-              Sign out
+              {t('nav_signOut')}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
@@ -245,7 +248,7 @@ export function AppSidebar({ onNavigate, onOpenShortcuts }: AppSidebarProps) {
             )}
           >
             <ChevronLeft className={cn('w-4 h-4 transition-transform', isCollapsed && 'rotate-180')} />
-            {!isCollapsed && <span className="text-xs">Collapse</span>}
+            {!isCollapsed && <span className="text-xs">{t('nav_collapse')}</span>}
           </Button>
         )}
       </div>

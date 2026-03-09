@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useOutletContext } from 'react-router-dom';
-import { Building2, CreditCard, Bell, Loader2, RotateCcw, BellRing, LayoutGrid } from 'lucide-react';
+import { Building2, CreditCard, Bell, Loader2, RotateCcw, BellRing, LayoutGrid, Globe } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -25,6 +25,8 @@ import { SignatureUpload } from '@/components/SignatureUpload';
 import { resetWalkthrough } from '@/components/onboarding/WalkthroughTutorial';
 import { ALL_MODULES, type ModuleKey } from '@/hooks/useEnabledModules';
 import { isKeyboardHintsEnabled, setKeyboardHintsEnabled } from '@/components/onboarding/KeyboardShortcutsHint';
+import { LanguageSelector } from '@/components/LanguageSelector';
+import { useLanguage } from '@/i18n/LanguageContext';
 import {
   getNotificationPreferences,
   saveNotificationPreferences,
@@ -227,6 +229,16 @@ export default function SettingsPage() {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
+              {/* Language Selector */}
+              <div>
+                <Label className="flex items-center gap-2">
+                  <Globe className="w-4 h-4" />
+                  Language / भाषा / ভাষা
+                </Label>
+                <p className="text-xs text-muted-foreground mb-2">Choose your preferred language for the interface</p>
+                <LanguageSelector />
+              </div>
+
               {/* Logo Upload */}
               <div>
                 <Label>Business Logo</Label>
