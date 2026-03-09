@@ -104,12 +104,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return { error: error as Error | null };
   }, []);
 
-  const signOut = async () => {
+  const signOut = useCallback(async () => {
     await supabase.auth.signOut();
     setUser(null);
     setSession(null);
     setProfile(null);
-  };
+  }, []);
+
+  const value = useMemo(() => ({
+    user,
+    session,
+    profile,
+    loading,
+    signUp,
+    signIn,
+    signOut,
+    refreshProfile,
+  }), [user, session, profile, loading, signUp, signIn, signOut, refreshProfile]);
 
   return (
     <AuthContext.Provider
