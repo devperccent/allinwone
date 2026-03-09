@@ -111,11 +111,11 @@ export default function AdminUserDetail() {
           <ArrowLeft className="h-4 w-4" />
         </Button>
         <div className="flex-1 min-w-0">
-          <h1 className="text-xl sm:text-2xl font-bold truncate flex items-center gap-2">
+          <h1 className="text-lg font-bold truncate flex items-center gap-2">
             {profile.org_name}
             {isSuspended && <Ban className="h-5 w-5 text-destructive" />}
           </h1>
-          <p className="text-muted-foreground text-sm truncate">{profile.email}</p>
+          <p className="text-muted-foreground text-xs truncate">{profile.email}</p>
         </div>
         <div className="flex items-center gap-2 self-start sm:self-auto">
           <Badge variant={isSuspended ? 'destructive' : profile.onboarding_completed ? 'default' : 'secondary'}>
@@ -269,9 +269,9 @@ export default function AdminUserDetail() {
 
         <TabsContent value="modules">
           <Card>
-            <CardHeader>
-              <CardTitle>Active Modules</CardTitle>
-              <CardDescription>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium">Active Modules</CardTitle>
+              <CardDescription className="text-xs">
                 Control which features this user sees. Disabled modules hide the related sidebar links, dashboard widgets, and routes.
               </CardDescription>
             </CardHeader>
@@ -279,8 +279,8 @@ export default function AdminUserDetail() {
               {ALL_MODULES.map((mod) => (
                 <div key={mod.key} className="flex items-center justify-between">
                   <div>
-                    <p className="font-medium">{mod.label}</p>
-                    <p className="text-sm text-muted-foreground">{mod.description}</p>
+                    <p className="text-sm font-medium">{mod.label}</p>
+                    <p className="text-xs text-muted-foreground">{mod.description}</p>
                   </div>
                   <Switch
                     checked={modulesState.includes(mod.key)}
@@ -304,9 +304,9 @@ export default function AdminUserDetail() {
 
         <TabsContent value="ai">
           <Card>
-            <CardHeader>
-              <CardTitle>AI Query History</CardTitle>
-              <CardDescription>Recent AI assistant usage for this user</CardDescription>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium">AI Query History</CardTitle>
+              <CardDescription className="text-xs">Recent AI assistant usage for this user</CardDescription>
             </CardHeader>
             <CardContent className="overflow-x-auto">
               <Table>

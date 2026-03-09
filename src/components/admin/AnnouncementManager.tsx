@@ -45,9 +45,9 @@ export function AnnouncementManager() {
 
   return (
     <Card>
-      <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle className="flex items-center gap-2">
-          <Megaphone className="h-5 w-5" /> Announcements
+      <CardHeader className="flex flex-row items-center justify-between pb-2">
+        <CardTitle className="text-sm font-medium flex items-center gap-2">
+          <Megaphone className="h-4 w-4" /> Announcements
         </CardTitle>
         <Button size="sm" variant="outline" onClick={() => setShowForm(!showForm)}>
           <Plus className="h-4 w-4 mr-1" /> New

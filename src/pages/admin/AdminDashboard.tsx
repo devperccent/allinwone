@@ -55,8 +55,8 @@ export default function AdminDashboard() {
     <div className="space-y-5 animate-fade-in">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-bold">INW Admin Console</h1>
-          <p className="text-sm text-muted-foreground">Super Admin Dashboard • API v1.0.0</p>
+          <h1 className="text-lg font-bold">INW Admin Console</h1>
+          <p className="text-xs text-muted-foreground">Super Admin Dashboard • API v1.0.0</p>
         </div>
         <Button variant="outline" onClick={exportCSV} disabled={!users?.length}>
           <Download className="w-4 h-4 mr-2" />
@@ -111,8 +111,8 @@ export default function AdminDashboard() {
       {/* Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         <Card className="lg:col-span-2">
-          <CardHeader>
-            <CardTitle>User Signups (Last 6 Months)</CardTitle>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium">User Signups (Last 6 Months)</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="h-64">
@@ -130,8 +130,8 @@ export default function AdminDashboard() {
         </Card>
 
         <Card>
-          <CardHeader>
-            <CardTitle>AI Model Usage</CardTitle>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium">AI Model Usage</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="h-64">
@@ -165,8 +165,8 @@ export default function AdminDashboard() {
 
       {/* Users Table */}
       <Card>
-        <CardHeader>
-          <CardTitle>All Users ({users?.length ?? 0})</CardTitle>
+        <CardHeader className="pb-2">
+          <CardTitle className="text-sm font-medium">All Users ({users?.length ?? 0})</CardTitle>
         </CardHeader>
         <CardContent>
           <Table>
