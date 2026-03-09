@@ -47,7 +47,7 @@ export function BankReconciliation() {
       const data = await file.arrayBuffer();
       const workbook = XLSX.read(data);
       const sheet = workbook.Sheets[workbook.SheetNames[0]];
-      const rows = XLSX.utils.sheet_to_json<Record<string, unknown>>(sheet, { header: 1 });
+      const rawRows = XLSX.utils.sheet_to_json<unknown[]>(sheet, { header: 1 });
 
       // Parse transactions (assuming common bank statement format)
       const parsed: BankTransaction[] = [];
