@@ -81,20 +81,22 @@ export const AIChatbot = forwardRef<HTMLDivElement>((_, ref) => {
 
   // Check if on an auth route
   const isAuthRoute = AUTH_ROUTES.some(route => location.pathname.startsWith(route));
-
-  // Don't render on auth routes or if not logged in
-  if (!user || isAuthRoute) return null;
+  const shouldRender = user && !isAuthRoute;
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages, interimTranscript]);
+    if (shouldRender) {
+      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [messages, interimTranscript, shouldRender]);
 
   useEffect(() => {
-    if (open) inputRef.current?.focus();
-  }, [open]);
+    if (open && shouldRender) inputRef.current?.focus();
+  }, [open, shouldRender]);
 
   // Initialize speech recognition
   useEffect(() => {
+    if (!shouldRender) return;
+    
     const SpeechRecognitionAPI = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (SpeechRecognitionAPI) {
       const recognition = new SpeechRecognitionAPI();
@@ -143,7 +145,7 @@ export const AIChatbot = forwardRef<HTMLDivElement>((_, ref) => {
         recognitionRef.current.abort();
       }
     };
-  }, []);
+  }, [shouldRender]);
 
   const toggleListening = useCallback(() => {
     if (!recognitionRef.current) {
@@ -301,6 +303,9 @@ export const AIChatbot = forwardRef<HTMLDivElement>((_, ref) => {
 
   const supportsVoice = typeof window !== 'undefined' && 
     (window.SpeechRecognition || window.webkitSpeechRecognition);
+
+  // Don't render on auth routes or if not logged in
+  if (!shouldRender) return null;
 
   return (
     <div ref={ref}>
