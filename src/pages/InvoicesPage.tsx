@@ -760,6 +760,23 @@ export default function InvoicesPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      {/* Record Payment Dialog */}
+      {recordPaymentInvoice && (
+        <RecordPaymentDialog
+          open={recordPaymentDialogOpen}
+          onOpenChange={setRecordPaymentDialogOpen}
+          invoice={recordPaymentInvoice}
+        />
+      )}
+
+      {/* Credit Note Dialog */}
+      {creditNoteInvoice && (
+        <CreateCreditNoteDialog
+          open={creditNoteDialogOpen}
+          onOpenChange={setCreditNoteDialogOpen}
+          invoice={creditNoteInvoice}
+        />
+      )}
     </div>
   );
 }
