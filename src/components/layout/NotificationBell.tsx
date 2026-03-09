@@ -160,11 +160,14 @@ export function NotificationBell() {
         <Separator />
 
         {/* Filter tabs */}
-        <div className="flex gap-1 px-4 py-2">
+        <div className="flex gap-1 px-4 py-2" role="tablist" aria-label="Filter notifications">
           {filters.map((f) => (
             <button
               key={f.value}
               onClick={() => setFilter(f.value)}
+              role="tab"
+              aria-selected={filter === f.value}
+              aria-label={`Show ${f.label} notifications`}
               className={cn(
                 'px-3 py-1.5 rounded-md text-xs font-medium transition-colors whitespace-nowrap',
                 filter === f.value
@@ -174,7 +177,7 @@ export function NotificationBell() {
             >
               {f.label}
               {f.value === 'unread' && unreadCount > 0 && (
-                <span className="ml-1 opacity-80">({unreadCount})</span>
+                <span className="ml-1 opacity-80" aria-hidden="true">({unreadCount})</span>
               )}
             </button>
           ))}
