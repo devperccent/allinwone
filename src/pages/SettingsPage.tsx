@@ -75,6 +75,26 @@ export default function SettingsPage() {
   // Keyboard hints toggle
   const [keyboardHints, setKeyboardHints] = useState(isKeyboardHintsEnabled);
 
+  // Business mode
+  const [businessMode, setBusinessMode] = useState<BusinessMode>(
+    (authProfile?.business_mode as BusinessMode) || 'retail'
+  );
+
+  const handleSaveBusinessMode = async () => {
+    if (!authProfile) return;
+    const defaults = getBusinessModeDefaults(businessMode);
+    try {
+      await updateProfile({
+        id: authProfile.id,
+        business_mode: businessMode,
+      });
+      await refreshProfile();
+      toast({ title: 'Business mode updated', description: `Switched to ${businessMode} mode.` });
+    } catch (error: any) {
+      toast({ title: 'Error', description: error.message, variant: 'destructive' });
+    }
+  };
+
   const updateNotifPref = (key: keyof NotificationPreferences, value: boolean) => {
     const updated = { ...notifPrefs, [key]: value };
     setNotifPrefs(updated);
