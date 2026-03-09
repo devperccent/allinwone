@@ -21,6 +21,7 @@ import { LowStockAlert } from '@/components/dashboard/LowStockAlert';
 import { ExpiringBatchesAlert } from '@/components/dashboard/ExpiringBatchesAlert';
 import { LowStockAutoPO } from '@/components/dashboard/LowStockAutoPO';
 import { ActivityFeed } from '@/components/dashboard/ActivityFeed';
+import { AnnouncementBanner } from '@/components/dashboard/AnnouncementBanner';
 import { formatINR } from '@/hooks/useInvoiceCalculations';
 import { useInvoices } from '@/hooks/useInvoices';
 import { useProducts } from '@/hooks/useProducts';
