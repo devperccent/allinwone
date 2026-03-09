@@ -267,7 +267,7 @@ function ProjectDetail({ project, onBack }: { project: Project; onBack: () => vo
   const milestoneDone = milestones.filter(m => m.status === 'completed').reduce((s, m) => s + Number(m.amount), 0);
   const milestoneTotal = milestones.reduce((s, m) => s + Number(m.amount), 0);
 
-  const handleGenerateInvoice = async (items: { description: string; qty: number; rate: number; tax_rate: number; discount: number }[]) => {
+  const handleGenerateInvoice = async (items: { description: string; qty: number; rate: number; tax_rate: number; discount: number; product_id: string | null }[]) => {
     try {
       const subtotal = items.reduce((s, i) => s + i.qty * i.rate, 0);
       const totalTax = items.reduce((s, i) => s + (i.qty * i.rate * i.tax_rate / 100), 0);
