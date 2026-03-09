@@ -215,6 +215,7 @@ export default function InvoicesPage() {
   const [paidInvoice, setPaidInvoice] = useState<Invoice | null>(null);
   const [paymentMode, setPaymentMode] = useState<PaymentMode>('upi');
   const [paymentDate, setPaymentDate] = useState(new Date().toISOString().split('T')[0]);
+  const [paymentReference, setPaymentReference] = useState('');
 
   // Share link state
   const [shareDialogOpen, setShareDialogOpen] = useState(false);
