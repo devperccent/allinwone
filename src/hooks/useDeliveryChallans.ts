@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
@@ -47,6 +47,8 @@ interface CreateChallanData {
   items: Omit<ChallanItem, 'id' | 'challan_id'>[];
 }
 
+const EMPTY_ARRAY: DeliveryChallan[] = [];
+
 export function useDeliveryChallans() {
   const { profile } = useAuth();
   const { toast } = useToast();
@@ -55,7 +57,7 @@ export function useDeliveryChallans() {
   const challansQuery = useQuery({
     queryKey: ['delivery_challans', profile?.id],
     queryFn: async () => {
-      if (!profile?.id) return [];
+      if (!profile?.id) return EMPTY_ARRAY;
 
       const { data, error } = await supabase
         .from('delivery_challans')
@@ -73,7 +75,6 @@ export function useDeliveryChallans() {
     mutationFn: async (data: CreateChallanData) => {
       if (!profile?.id) throw new Error('No profile');
 
-      // Generate challan number
       const nextNum = (profile as any).next_challan_number || 1;
       const challanNumber = `DC-${String(nextNum).padStart(4, '0')}`;
 
@@ -97,13 +98,11 @@ export function useDeliveryChallans() {
 
       if (cError) throw cError;
 
-      // Increment challan number
       await supabase
         .from('profiles')
         .update({ next_challan_number: nextNum + 1 })
         .eq('id', profile.id);
 
-      // Create items
       if (data.items.length > 0) {
         const items = data.items.map((item, index) => ({
           challan_id: challan.id,
@@ -198,12 +197,14 @@ export function useDeliveryChallans() {
     return data as DeliveryChallan;
   }, []);
 
-  return {
-    challans: challansQuery.data || [],
+  const challans = challansQuery.data || EMPTY_ARRAY;
+
+  return useMemo(() => ({
+    challans,
     isLoading: challansQuery.isLoading,
     createChallan,
     updateChallan,
     deleteChallan,
     getChallanWithItems,
-  };
+  }), [challans, challansQuery.isLoading, createChallan, updateChallan, deleteChallan, getChallanWithItems]);
 }

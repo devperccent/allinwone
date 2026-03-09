@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMemo } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
@@ -38,6 +39,8 @@ interface CreateTDSData {
   notes?: string | null;
 }
 
+const EMPTY_ARRAY: TDSEntry[] = [];
+
 export function useTDSEntries() {
   const { profile } = useAuth();
   const { toast } = useToast();
@@ -46,7 +49,7 @@ export function useTDSEntries() {
   const entriesQuery = useQuery({
     queryKey: ['tds_entries', profile?.id],
     queryFn: async () => {
-      if (!profile?.id) return [];
+      if (!profile?.id) return EMPTY_ARRAY;
       const { data, error } = await supabase
         .from('tds_entries' as any)
         .select('*, client:clients(name), invoice:invoices(invoice_number)')
@@ -106,11 +109,13 @@ export function useTDSEntries() {
     onError: (e: Error) => toast({ title: 'Error', description: e.message, variant: 'destructive' }),
   });
 
-  return {
-    entries: entriesQuery.data || [],
+  const entries = entriesQuery.data || EMPTY_ARRAY;
+
+  return useMemo(() => ({
+    entries,
     isLoading: entriesQuery.isLoading,
     createEntry,
     updateEntry,
     deleteEntry,
-  };
+  }), [entries, entriesQuery.isLoading, createEntry, updateEntry, deleteEntry]);
 }
