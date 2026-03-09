@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
+import { useMemo } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -11,13 +12,15 @@ export interface InventoryLog {
   created_at: string;
 }
 
+const EMPTY_ARRAY: InventoryLog[] = [];
+
 export function useInventoryLogs(productId?: string) {
   const { profile } = useAuth();
 
   const logsQuery = useQuery({
     queryKey: ['inventory_logs', productId],
     queryFn: async () => {
-      if (!productId) return [];
+      if (!productId) return EMPTY_ARRAY;
 
       const { data, error } = await supabase
         .from('inventory_logs')
@@ -30,10 +33,11 @@ export function useInventoryLogs(productId?: string) {
       return data as InventoryLog[];
     },
     enabled: !!profile?.id && !!productId,
+    staleTime: 5 * 60 * 1000, // 5 min — inventory logs are append-only
   });
 
-  return {
-    logs: logsQuery.data || [],
+  return useMemo(() => ({
+    logs: logsQuery.data || EMPTY_ARRAY,
     isLoading: logsQuery.isLoading,
-  };
+  }), [logsQuery.data, logsQuery.isLoading]);
 }
