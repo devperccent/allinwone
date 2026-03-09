@@ -134,4 +134,7 @@ export const TEMPLATE_META: Record<InvoiceTemplate, { label: string; description
   modern: { label: 'Modern', description: 'Teal accents, rounded corners, alternating rows' },
   classic: { label: 'Classic', description: 'Navy formal style, bordered table, traditional layout' },
   minimal: { label: 'Minimal', description: 'Clean monochrome, thin lines, maximum whitespace' },
+  bold: { label: 'Bold', description: 'Red accents, large radius, energetic & striking' },
+  elegant: { label: 'Elegant', description: 'Warm stone tones, serif style, understated luxury' },
+  corporate: { label: 'Corporate', description: 'Sky blue, professional, clean corporate look' },
 };
