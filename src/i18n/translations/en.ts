@@ -37,6 +37,7 @@ export const en = {
   nav_collections: 'Collections',
   nav_udhaar: 'Udhaar',
   nav_expenses: 'Expenses',
+  nav_projects: 'Projects',
   
   // Section labels
   section_billing: 'Billing',
