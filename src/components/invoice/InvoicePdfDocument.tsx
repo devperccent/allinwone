@@ -414,7 +414,11 @@ export function InvoicePdfDocument({
           {/* AUTHORIZED SIGNATORY */}
           <View style={s.signatureSection}>
             <View style={s.signatureBox}>
-              <View style={s.signatureLine} />
+              {profile.signature_url ? (
+                <Image src={profile.signature_url} style={{ width: 120, height: 50, objectFit: 'contain', marginTop: 10, marginBottom: 6 }} />
+              ) : (
+                <View style={s.signatureLine} />
+              )}
               <Text style={s.signatureText}>Authorized Signatory</Text>
               <Text style={s.signatureName}>{profile.org_name}</Text>
             </View>
