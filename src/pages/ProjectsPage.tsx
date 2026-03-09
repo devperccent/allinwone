@@ -230,7 +230,7 @@ function GenerateInvoiceDialog({ project, milestones, entries, onGenerate }: {
           </div>
 
           <Button className="w-full" disabled={!hasItems} onClick={() => {
-            const items: { description: string; qty: number; rate: number; tax_rate: number; discount: number }[] = [];
+            const items: { description: string; qty: number; rate: number; tax_rate: number; discount: number; product_id: string | null }[] = [];
             for (const m of completedMilestones) {
               if (selectedMilestones.has(m.id)) {
                 items.push({ description: `${project.name} — ${m.title}`, qty: 1, rate: Number(m.amount), tax_rate: 18, discount: 0, product_id: null });
