@@ -230,6 +230,16 @@ export default function SettingsPage() {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
+              {/* Language Selector */}
+              <div>
+                <Label className="flex items-center gap-2">
+                  <Globe className="w-4 h-4" />
+                  Language / भाषा / ভাষা
+                </Label>
+                <p className="text-xs text-muted-foreground mb-2">Choose your preferred language for the interface</p>
+                <LanguageSelector />
+              </div>
+
               {/* Logo Upload */}
               <div>
                 <Label>Business Logo</Label>
