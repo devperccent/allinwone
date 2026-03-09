@@ -240,6 +240,14 @@ export default function InvoicesPage() {
   const [linkCopied, setLinkCopied] = useState(false);
   const [isGeneratingLink, setIsGeneratingLink] = useState(false);
 
+  // Record Payment dialog state
+  const [recordPaymentDialogOpen, setRecordPaymentDialogOpen] = useState(false);
+  const [recordPaymentInvoice, setRecordPaymentInvoice] = useState<Invoice | null>(null);
+
+  // Credit Note dialog state
+  const [creditNoteDialogOpen, setCreditNoteDialogOpen] = useState(false);
+  const [creditNoteInvoice, setCreditNoteInvoice] = useState<Invoice | null>(null);
+
   // Page shortcuts: / → focus search, N → new invoice
   usePageShortcuts(useMemo(() => [
     { key: '/', handler: () => searchRef.current?.focus() },
