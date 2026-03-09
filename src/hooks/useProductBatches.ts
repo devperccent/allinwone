@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMemo } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
@@ -15,6 +16,8 @@ export interface ProductBatch {
   updated_at: string;
 }
 
+const EMPTY_ARRAY: ProductBatch[] = [];
+
 export function useProductBatches(productId?: string) {
   const { profile } = useAuth();
   const { toast } = useToast();
@@ -23,7 +26,7 @@ export function useProductBatches(productId?: string) {
   const batchesQuery = useQuery({
     queryKey: ['product_batches', profile?.id, productId],
     queryFn: async () => {
-      if (!profile?.id) return [];
+      if (!profile?.id) return EMPTY_ARRAY;
       let query = supabase
         .from('product_batches' as any)
         .select('*')
@@ -44,7 +47,7 @@ export function useProductBatches(productId?: string) {
   const allBatchesQuery = useQuery({
     queryKey: ['product_batches_all', profile?.id],
     queryFn: async () => {
-      if (!profile?.id) return [];
+      if (!profile?.id) return EMPTY_ARRAY;
       const { data, error } = await supabase
         .from('product_batches' as any)
         .select('*')
@@ -56,19 +59,28 @@ export function useProductBatches(productId?: string) {
     enabled: !!profile?.id && !productId,
   });
 
-  const expiringBatches = (allBatchesQuery.data || batchesQuery.data || []).filter((b) => {
-    if (!b.expiry_date) return false;
-    const daysUntilExpiry = Math.ceil(
-      (new Date(b.expiry_date).getTime() - Date.now()) / (1000 * 60 * 60 * 24)
-    );
-    const alertDays = (profile as any)?.expiry_alert_days || 30;
-    return daysUntilExpiry <= alertDays && daysUntilExpiry > 0;
-  });
+  const batches = batchesQuery.data || EMPTY_ARRAY;
+  const allBatches = allBatchesQuery.data || batches;
+  const alertDays = (profile as any)?.expiry_alert_days || 30;
 
-  const expiredBatches = (allBatchesQuery.data || batchesQuery.data || []).filter((b) => {
-    if (!b.expiry_date) return false;
-    return new Date(b.expiry_date) <= new Date();
-  });
+  // Memoize expiring & expired computations — single pass
+  const { expiringBatches, expiredBatches } = useMemo(() => {
+    const now = Date.now();
+    const alertMs = alertDays * 86400000;
+    const expiring: ProductBatch[] = [];
+    const expired: ProductBatch[] = [];
+
+    for (const b of allBatches) {
+      if (!b.expiry_date) continue;
+      const expiryTime = new Date(b.expiry_date).getTime();
+      if (expiryTime <= now) {
+        expired.push(b);
+      } else if (expiryTime - now <= alertMs) {
+        expiring.push(b);
+      }
+    }
+    return { expiringBatches: expiring, expiredBatches: expired };
+  }, [allBatches, alertDays]);
 
   const createBatch = useMutation({
     mutationFn: async (batch: { product_id: string; batch_number: string; expiry_date?: string; quantity: number }) => {
@@ -94,11 +106,11 @@ export function useProductBatches(productId?: string) {
     },
   });
 
-  return {
-    batches: batchesQuery.data || [],
+  return useMemo(() => ({
+    batches,
     expiringBatches,
     expiredBatches,
     isLoading: batchesQuery.isLoading,
     createBatch,
-  };
+  }), [batches, expiringBatches, expiredBatches, batchesQuery.isLoading, createBatch]);
 }

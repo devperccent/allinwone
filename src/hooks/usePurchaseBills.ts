@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
@@ -51,6 +51,8 @@ interface CreateBillData {
   items: Omit<PurchaseBillItem, 'id' | 'bill_id'>[];
 }
 
+const EMPTY_ARRAY: PurchaseBill[] = [];
+
 export function usePurchaseBills() {
   const { profile } = useAuth();
   const { toast } = useToast();
@@ -59,7 +61,7 @@ export function usePurchaseBills() {
   const billsQuery = useQuery({
     queryKey: ['purchase_bills', profile?.id],
     queryFn: async () => {
-      if (!profile?.id) return [];
+      if (!profile?.id) return EMPTY_ARRAY;
       const { data, error } = await supabase
         .from('purchase_bills' as any)
         .select('*')
@@ -209,13 +211,15 @@ export function usePurchaseBills() {
     return data as unknown as PurchaseBill;
   }, []);
 
-  return {
-    purchaseBills: billsQuery.data || [],
+  const purchaseBills = billsQuery.data || EMPTY_ARRAY;
+
+  return useMemo(() => ({
+    purchaseBills,
     isLoading: billsQuery.isLoading,
     createBill,
     updateBill,
     finalizeBill,
     deleteBill,
     getBillWithItems,
-  };
+  }), [purchaseBills, billsQuery.isLoading, createBill, updateBill, finalizeBill, deleteBill, getBillWithItems]);
 }

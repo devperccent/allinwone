@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
@@ -57,6 +57,8 @@ interface CreateQuotationData {
   items: Omit<QuotationItem, 'id' | 'quotation_id'>[];
 }
 
+const EMPTY_ARRAY: Quotation[] = [];
+
 export function useQuotations() {
   const { profile } = useAuth();
   const { toast } = useToast();
@@ -65,7 +67,7 @@ export function useQuotations() {
   const quotationsQuery = useQuery({
     queryKey: ['quotations', profile?.id],
     queryFn: async () => {
-      if (!profile?.id) return [];
+      if (!profile?.id) return EMPTY_ARRAY;
 
       const { data, error } = await supabase
         .from('quotations')
@@ -83,12 +85,10 @@ export function useQuotations() {
     mutationFn: async (data: CreateQuotationData) => {
       if (!profile?.id) throw new Error('No profile');
 
-      // Generate quotation number
       const prefix = (profile as any).quotation_prefix || 'QT-';
       const nextNum = (profile as any).next_quotation_number || 1;
       const quotationNumber = `${prefix}${String(nextNum).padStart(4, '0')}`;
 
-      // Create quotation
       const { data: quotation, error: qError } = await supabase
         .from('quotations')
         .insert({
@@ -110,13 +110,11 @@ export function useQuotations() {
 
       if (qError) throw qError;
 
-      // Increment quotation number
       await supabase
         .from('profiles')
         .update({ next_quotation_number: nextNum + 1 })
         .eq('id', profile.id);
 
-      // Create items
       if (data.items.length > 0) {
         const items = data.items.map((item, index) => ({
           quotation_id: quotation.id,
@@ -200,7 +198,6 @@ export function useQuotations() {
 
   const convertToInvoice = useMutation({
     mutationFn: async (quotationId: string) => {
-      // Get quotation with items
       const { data: quotation, error: qError } = await supabase
         .from('quotations')
         .select(`*, items:quotation_items(*)`)
@@ -210,14 +207,12 @@ export function useQuotations() {
       if (qError) throw qError;
       if (!profile?.id) throw new Error('No profile');
 
-      // Generate invoice number
       const { data: invoiceNumber, error: numError } = await supabase.rpc(
         'generate_invoice_number',
         { p_profile_id: profile.id }
       );
       if (numError) throw numError;
 
-      // Create invoice
       const { data: invoice, error: invError } = await supabase
         .from('invoices')
         .insert({
@@ -237,7 +232,6 @@ export function useQuotations() {
 
       if (invError) throw invError;
 
-      // Copy items
       if (quotation.items && quotation.items.length > 0) {
         const invoiceItems = quotation.items.map((item: any) => ({
           invoice_id: invoice.id,
@@ -254,7 +248,6 @@ export function useQuotations() {
         await supabase.from('invoice_items').insert(invoiceItems);
       }
 
-      // Mark quotation as converted
       await supabase
         .from('quotations')
         .update({ status: 'converted', converted_invoice_id: invoice.id })
@@ -301,8 +294,10 @@ export function useQuotations() {
     return data as Quotation;
   }, []);
 
-  return {
-    quotations: quotationsQuery.data || [],
+  const quotations = quotationsQuery.data || EMPTY_ARRAY;
+
+  return useMemo(() => ({
+    quotations,
     isLoading: quotationsQuery.isLoading,
     createQuotation,
     updateQuotation,
@@ -310,5 +305,5 @@ export function useQuotations() {
     deleteQuotation,
     getQuotationWithItems,
     isConverting: convertToInvoice.isPending,
-  };
+  }), [quotations, quotationsQuery.isLoading, createQuotation, updateQuotation, convertToInvoice, deleteQuotation, getQuotationWithItems, convertToInvoice.isPending]);
 }

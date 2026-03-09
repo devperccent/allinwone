@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
@@ -54,6 +54,8 @@ interface CreateTemplateData {
   items: Omit<RecurringTemplateItem, 'id' | 'template_id'>[];
 }
 
+const EMPTY_ARRAY: RecurringTemplate[] = [];
+
 export function useRecurringTemplates() {
   const { profile } = useAuth();
   const { toast } = useToast();
@@ -62,7 +64,7 @@ export function useRecurringTemplates() {
   const templatesQuery = useQuery({
     queryKey: ['recurring_templates', profile?.id],
     queryFn: async () => {
-      if (!profile?.id) return [];
+      if (!profile?.id) return EMPTY_ARRAY;
 
       const { data, error } = await supabase
         .from('recurring_templates')
@@ -181,7 +183,6 @@ export function useRecurringTemplates() {
 
   const generateInvoice = useMutation({
     mutationFn: async (templateId: string) => {
-      // Get template with items
       const { data: template, error: tError } = await supabase
         .from('recurring_templates')
         .select(`*, items:recurring_template_items(*)`)
@@ -191,14 +192,12 @@ export function useRecurringTemplates() {
       if (tError) throw tError;
       if (!profile?.id) throw new Error('No profile');
 
-      // Generate invoice number
       const { data: invoiceNumber, error: numError } = await supabase.rpc(
         'generate_invoice_number',
         { p_profile_id: profile.id }
       );
       if (numError) throw numError;
 
-      // Create invoice
       const { data: invoice, error: invError } = await supabase
         .from('invoices')
         .insert({
@@ -218,7 +217,6 @@ export function useRecurringTemplates() {
 
       if (invError) throw invError;
 
-      // Copy items
       if (template.items && template.items.length > 0) {
         const invoiceItems = template.items.map((item: any) => ({
           invoice_id: invoice.id,
@@ -235,7 +233,6 @@ export function useRecurringTemplates() {
         await supabase.from('invoice_items').insert(invoiceItems);
       }
 
-      // Update next generate date
       let nextDate = new Date(template.next_generate_date);
       switch (template.frequency) {
         case 'weekly':
@@ -298,8 +295,10 @@ export function useRecurringTemplates() {
     return data as RecurringTemplate;
   }, []);
 
-  return {
-    templates: templatesQuery.data || [],
+  const templates = templatesQuery.data || EMPTY_ARRAY;
+
+  return useMemo(() => ({
+    templates,
     isLoading: templatesQuery.isLoading,
     createTemplate,
     updateTemplate,
@@ -307,5 +306,5 @@ export function useRecurringTemplates() {
     deleteTemplate,
     getTemplateWithItems,
     isGenerating: generateInvoice.isPending,
-  };
+  }), [templates, templatesQuery.isLoading, createTemplate, updateTemplate, generateInvoice, deleteTemplate, getTemplateWithItems, generateInvoice.isPending]);
 }

@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
@@ -49,6 +49,8 @@ interface CreatePOData {
   items: Omit<POItem, 'id' | 'po_id'>[];
 }
 
+const EMPTY_ARRAY: PurchaseOrder[] = [];
+
 export function usePurchaseOrders() {
   const { profile } = useAuth();
   const { toast } = useToast();
@@ -57,7 +59,7 @@ export function usePurchaseOrders() {
   const posQuery = useQuery({
     queryKey: ['purchase_orders', profile?.id],
     queryFn: async () => {
-      if (!profile?.id) return [];
+      if (!profile?.id) return EMPTY_ARRAY;
 
       const { data, error } = await supabase
         .from('purchase_orders')
@@ -75,7 +77,6 @@ export function usePurchaseOrders() {
     mutationFn: async (data: CreatePOData) => {
       if (!profile?.id) throw new Error('No profile');
 
-      // Generate PO number
       const nextNum = (profile as any).next_po_number || 1;
       const poNumber = `PO-${String(nextNum).padStart(4, '0')}`;
 
@@ -100,13 +101,11 @@ export function usePurchaseOrders() {
 
       if (pError) throw pError;
 
-      // Increment PO number
       await supabase
         .from('profiles')
         .update({ next_po_number: nextNum + 1 })
         .eq('id', profile.id);
 
-      // Create items
       if (data.items.length > 0) {
         const items = data.items.map((item, index) => ({
           po_id: po.id,
@@ -207,12 +206,14 @@ export function usePurchaseOrders() {
     return data as PurchaseOrder;
   }, []);
 
-  return {
-    purchaseOrders: posQuery.data || [],
+  const purchaseOrders = posQuery.data || EMPTY_ARRAY;
+
+  return useMemo(() => ({
+    purchaseOrders,
     isLoading: posQuery.isLoading,
     createPO,
     updatePO,
     deletePO,
     getPOWithItems,
-  };
+  }), [purchaseOrders, posQuery.isLoading, createPO, updatePO, deletePO, getPOWithItems]);
 }
