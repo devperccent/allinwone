@@ -184,6 +184,8 @@ export type Database = {
           billing_address: string | null
           created_at: string
           credit_balance: number
+          credit_days: number | null
+          credit_limit: number | null
           email: string | null
           gstin: string | null
           id: string
@@ -197,6 +199,8 @@ export type Database = {
           billing_address?: string | null
           created_at?: string
           credit_balance?: number
+          credit_days?: number | null
+          credit_limit?: number | null
           email?: string | null
           gstin?: string | null
           id?: string
@@ -210,6 +214,8 @@ export type Database = {
           billing_address?: string | null
           created_at?: string
           credit_balance?: number
+          credit_days?: number | null
+          credit_limit?: number | null
           email?: string | null
           gstin?: string | null
           id?: string
@@ -222,6 +228,70 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "clients_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      credit_notes: {
+        Row: {
+          amount: number
+          client_id: string | null
+          created_at: string
+          credit_note_number: string
+          date_issued: string
+          id: string
+          invoice_id: string | null
+          profile_id: string
+          reason: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          amount?: number
+          client_id?: string | null
+          created_at?: string
+          credit_note_number: string
+          date_issued?: string
+          id?: string
+          invoice_id?: string | null
+          profile_id: string
+          reason?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          client_id?: string | null
+          created_at?: string
+          credit_note_number?: string
+          date_issued?: string
+          id?: string
+          invoice_id?: string | null
+          profile_id?: string
+          reason?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "credit_notes_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "credit_notes_invoice_id_fkey"
+            columns: ["invoice_id"]
+            isOneToOne: false
+            referencedRelation: "invoices"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "credit_notes_profile_id_fkey"
             columns: ["profile_id"]
             isOneToOne: false
             referencedRelation: "profiles"
@@ -295,6 +365,53 @@ export type Database = {
           },
           {
             foreignKeyName: "delivery_challans_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      expenses: {
+        Row: {
+          amount: number
+          category: string
+          created_at: string
+          description: string | null
+          expense_date: string
+          id: string
+          payment_mode: string
+          profile_id: string
+          receipt_url: string | null
+          updated_at: string
+        }
+        Insert: {
+          amount?: number
+          category?: string
+          created_at?: string
+          description?: string | null
+          expense_date?: string
+          id?: string
+          payment_mode?: string
+          profile_id: string
+          receipt_url?: string | null
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          category?: string
+          created_at?: string
+          description?: string | null
+          expense_date?: string
+          id?: string
+          payment_mode?: string
+          profile_id?: string
+          receipt_url?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "expenses_profile_id_fkey"
             columns: ["profile_id"]
             isOneToOne: false
             referencedRelation: "profiles"
@@ -525,6 +642,125 @@ export type Database = {
           },
         ]
       }
+      payment_reminders: {
+        Row: {
+          channel: string
+          client_id: string | null
+          created_at: string
+          follow_up_note: string | null
+          id: string
+          invoice_id: string
+          profile_id: string
+          reminder_type: string
+          sent_at: string
+        }
+        Insert: {
+          channel?: string
+          client_id?: string | null
+          created_at?: string
+          follow_up_note?: string | null
+          id?: string
+          invoice_id: string
+          profile_id: string
+          reminder_type?: string
+          sent_at?: string
+        }
+        Update: {
+          channel?: string
+          client_id?: string | null
+          created_at?: string
+          follow_up_note?: string | null
+          id?: string
+          invoice_id?: string
+          profile_id?: string
+          reminder_type?: string
+          sent_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payment_reminders_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payment_reminders_invoice_id_fkey"
+            columns: ["invoice_id"]
+            isOneToOne: false
+            referencedRelation: "invoices"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payment_reminders_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      payments: {
+        Row: {
+          amount: number
+          client_id: string | null
+          created_at: string
+          id: string
+          invoice_id: string
+          notes: string | null
+          payment_date: string
+          payment_mode: string
+          profile_id: string
+          reference_number: string | null
+        }
+        Insert: {
+          amount?: number
+          client_id?: string | null
+          created_at?: string
+          id?: string
+          invoice_id: string
+          notes?: string | null
+          payment_date?: string
+          payment_mode?: string
+          profile_id: string
+          reference_number?: string | null
+        }
+        Update: {
+          amount?: number
+          client_id?: string | null
+          created_at?: string
+          id?: string
+          invoice_id?: string
+          notes?: string | null
+          payment_date?: string
+          payment_mode?: string
+          profile_id?: string
+          reference_number?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payments_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payments_invoice_id_fkey"
+            columns: ["invoice_id"]
+            isOneToOne: false
+            referencedRelation: "invoices"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payments_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       po_items: {
         Row: {
           amount: number
@@ -711,6 +947,7 @@ export type Database = {
           bank_account_name: string | null
           bank_account_number: string | null
           bank_ifsc: string | null
+          business_mode: string | null
           business_type: string | null
           created_at: string
           email: string | null
@@ -745,6 +982,7 @@ export type Database = {
           bank_account_name?: string | null
           bank_account_number?: string | null
           bank_ifsc?: string | null
+          business_mode?: string | null
           business_type?: string | null
           created_at?: string
           email?: string | null
@@ -779,6 +1017,7 @@ export type Database = {
           bank_account_name?: string | null
           bank_account_number?: string | null
           bank_ifsc?: string | null
+          business_mode?: string | null
           business_type?: string | null
           created_at?: string
           email?: string | null

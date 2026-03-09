@@ -19,6 +19,9 @@ import {
   Receipt,
   Upload,
   CreditCard,
+  Wallet,
+  HandCoins,
+  BookUser,
 } from 'lucide-react';
 import { useIsAdmin } from '@/hooks/useAdmin';
 import { useEnabledModules, type ModuleKey } from '@/hooks/useEnabledModules';
@@ -53,6 +56,7 @@ const mainNavigation: NavItem[] = [
   { nameKey: 'nav_dashboard', href: '/', icon: LayoutDashboard },
   { nameKey: 'nav_quickBill', href: '/quick-bill', icon: Zap, module: 'quick_bill' },
   { nameKey: 'nav_invoices', href: '/invoices', icon: FileText },
+  { nameKey: 'nav_collections', href: '/collections', icon: HandCoins },
   { nameKey: 'nav_quotations', href: '/quotations', icon: FileCheck, module: 'quotations' },
 ];
 
@@ -66,6 +70,8 @@ const documentNavigation: NavItem[] = [
 const managementNavigation: NavItem[] = [
   { nameKey: 'nav_products', href: '/products', icon: Package },
   { nameKey: 'nav_clients', href: '/clients', icon: Users },
+  { nameKey: 'nav_udhaar', href: '/udhaar', icon: BookUser },
+  { nameKey: 'nav_expenses', href: '/expenses', icon: Wallet },
   { nameKey: 'nav_reports', href: '/reports', icon: TrendingUp, module: 'reports' },
   { nameKey: 'nav_dataManager', href: '/bulk', icon: Upload },
   { nameKey: 'nav_billing', href: '/billing', icon: CreditCard },
