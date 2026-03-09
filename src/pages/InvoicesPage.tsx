@@ -80,6 +80,8 @@ function InvoiceActions({
   onDelete,
   onShare,
   onRemind,
+  onRecordPayment,
+  onCreditNote,
   isGenerating,
   isFinalizing,
   isMarkingPaid,
@@ -93,6 +95,8 @@ function InvoiceActions({
   onDelete: (id: string) => void;
   onShare: (invoice: Invoice) => void;
   onRemind: (invoice: Invoice) => void;
+  onRecordPayment: (invoice: Invoice) => void;
+  onCreditNote: (invoice: Invoice) => void;
   isGenerating: boolean;
   isFinalizing: boolean;
   isMarkingPaid: boolean;
