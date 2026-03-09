@@ -377,7 +377,7 @@ export default function InvoicesPage() {
             <FileSpreadsheet className="w-3.5 h-3.5" />
             <span className="hidden sm:inline">Export</span>
           </Button>
-          <Button asChild size="sm" className="gap-1.5 h-8 text-xs">
+          <Button asChild size="sm" className="gap-1.5 h-8 text-xs" onMouseEnter={() => prefetchRoute('/invoices/new')}>
             <Link to="/invoices/new">
               <Plus className="w-3.5 h-3.5" />
               New Invoice

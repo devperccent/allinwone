@@ -57,7 +57,7 @@ export default function PurchaseBillsPage() {
     <div className="space-y-4 animate-fade-in">
       <div className="flex items-center justify-between gap-3">
         <h1 className="text-xl font-bold">Purchase Bills</h1>
-        <Button asChild size="sm" className="gap-1.5 h-8 text-xs">
+        <Button asChild size="sm" className="gap-1.5 h-8 text-xs" onMouseEnter={() => prefetchRoute('/purchase-bills/new')}>
           <Link to="/purchase-bills/new"><Plus className="w-3.5 h-3.5" />New Bill</Link>
         </Button>
       </div>
