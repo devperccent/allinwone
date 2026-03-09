@@ -39,6 +39,8 @@ export interface AdminUser {
   ai_tier: string;
   ai_queries_today: number;
   enabled_modules: string[];
+  is_suspended: boolean;
+  suspended_reason: string | null;
 }
 
 export function useAdminUsers() {
