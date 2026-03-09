@@ -53,6 +53,7 @@ export default function ClientsPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const searchRef = useRef<HTMLInputElement>(null);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [showCreditOnly, setShowCreditOnly] = useState(false);
   
   // Form state
   const [formData, setFormData] = useState({
