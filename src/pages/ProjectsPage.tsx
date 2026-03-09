@@ -422,14 +422,20 @@ export default function ProjectsPage() {
   const [open, setOpen] = useState(false);
   const [tab, setTab] = useState('projects');
 
+  const active = useMemo(() => projects.filter(p => p.status === 'active'), [projects]);
+  const onHold = useMemo(() => projects.filter(p => p.status === 'on-hold'), [projects]);
+  const completed = useMemo(() => projects.filter(p => p.status === 'completed'), [projects]);
+  const cancelled = useMemo(() => projects.filter(p => p.status === 'cancelled'), [projects]);
+
+  const completedSummary = useMemo(() => {
+    const totalBudget = completed.reduce((s, p) => s + (Number(p.budget) || 0), 0);
+    const totalHours = completed.reduce((s, p) => s + Number(p.total_hours), 0);
+    return { count: completed.length, totalBudget, totalHours };
+  }, [completed]);
+
   if (isLoading) return <div className="space-y-4"><Skeleton className="h-8 w-48" /><div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">{[...Array(3)].map((_, i) => <Skeleton key={i} className="h-32" />)}</div></div>;
 
   if (selected) return <ProjectDetail project={selected} onBack={() => setSelected(null)} />;
-
-  const active = projects.filter(p => p.status === 'active');
-  const onHold = projects.filter(p => p.status === 'on-hold');
-  const completed = projects.filter(p => p.status === 'completed');
-  const cancelled = projects.filter(p => p.status === 'cancelled');
 
   const statusBadge = (status: string) => {
     const map: Record<string, 'default' | 'secondary' | 'outline' | 'destructive'> = {
@@ -464,13 +470,6 @@ export default function ProjectsPage() {
       </div>
     </div>
   );
-
-  // Summary for completed projects
-  const completedSummary = useMemo(() => {
-    const totalBudget = completed.reduce((s, p) => s + (Number(p.budget) || 0), 0);
-    const totalHours = completed.reduce((s, p) => s + Number(p.total_hours), 0);
-    return { count: completed.length, totalBudget, totalHours };
-  }, [completed]);
 
   return (
     <div className="space-y-4 animate-fade-in">
