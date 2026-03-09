@@ -35,6 +35,7 @@ import {
   saveNotificationPreferences,
   type NotificationPreferences,
 } from '@/hooks/useNotifications';
+import { useDigestPreferences } from '@/hooks/useDigestPreferences';
 
 interface LayoutContext {
   setWalkthroughOpen: (open: boolean) => void;
