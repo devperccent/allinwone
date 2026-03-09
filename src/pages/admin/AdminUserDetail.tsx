@@ -102,6 +102,7 @@ export default function AdminUserDetail() {
 
   const { profile, invoices, clients, products, aiUsage } = data;
   const totalRevenue = invoices.filter((i: any) => i.status === 'paid').reduce((s: number, i: any) => s + Number(i.grand_total), 0);
+  const isSuspended = (profile as any).is_suspended;
 
   return (
     <div className="space-y-6 p-4 sm:p-6">
@@ -110,15 +111,56 @@ export default function AdminUserDetail() {
           <ArrowLeft className="h-4 w-4" />
         </Button>
         <div className="flex-1 min-w-0">
-          <h1 className="text-xl sm:text-2xl font-bold truncate">{profile.org_name}</h1>
+          <h1 className="text-xl sm:text-2xl font-bold truncate flex items-center gap-2">
+            {profile.org_name}
+            {isSuspended && <Ban className="h-5 w-5 text-destructive" />}
+          </h1>
           <p className="text-muted-foreground text-sm truncate">{profile.email}</p>
         </div>
         <div className="flex items-center gap-2 self-start sm:self-auto">
-          <Badge variant={profile.onboarding_completed ? 'default' : 'secondary'}>
-            {profile.onboarding_completed ? 'Active' : 'Pending Setup'}
+          <Badge variant={isSuspended ? 'destructive' : profile.onboarding_completed ? 'default' : 'secondary'}>
+            {isSuspended ? 'Suspended' : profile.onboarding_completed ? 'Active' : 'Pending Setup'}
           </Badge>
         </div>
       </div>
+
+      {/* Suspend/Restore section */}
+      <Card className={isSuspended ? 'border-destructive' : ''}>
+        <CardHeader className="pb-2">
+          <CardTitle className="text-sm flex items-center gap-2">
+            {isSuspended ? <Ban className="h-4 w-4 text-destructive" /> : <UserCheck className="h-4 w-4" />}
+            Account Status
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          {isSuspended ? (
+            <>
+              <p className="text-sm text-muted-foreground">
+                <strong>Suspended:</strong> {(profile as any).suspended_reason || 'No reason provided'}
+              </p>
+              <Button variant="outline" onClick={() => handleSuspend(false)} disabled={suspendUser.isPending}>
+                {suspendUser.isPending && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
+                <UserCheck className="w-4 h-4 mr-2" />
+                Restore Account
+              </Button>
+            </>
+          ) : (
+            <div className="flex flex-col sm:flex-row gap-2">
+              <Input
+                placeholder="Reason for suspension (optional)"
+                value={suspendReason}
+                onChange={e => setSuspendReason(e.target.value)}
+                className="flex-1"
+              />
+              <Button variant="destructive" onClick={() => handleSuspend(true)} disabled={suspendUser.isPending}>
+                {suspendUser.isPending && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
+                <Ban className="w-4 h-4 mr-2" />
+                Suspend User
+              </Button>
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
       {/* Profile Details */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
