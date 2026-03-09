@@ -372,6 +372,50 @@ export type Database = {
           },
         ]
       }
+      email_digest_preferences: {
+        Row: {
+          created_at: string
+          daily_digest: boolean
+          daily_time: string
+          digest_email: string | null
+          id: string
+          monthly_digest: boolean
+          profile_id: string
+          updated_at: string
+          weekly_digest: boolean
+        }
+        Insert: {
+          created_at?: string
+          daily_digest?: boolean
+          daily_time?: string
+          digest_email?: string | null
+          id?: string
+          monthly_digest?: boolean
+          profile_id: string
+          updated_at?: string
+          weekly_digest?: boolean
+        }
+        Update: {
+          created_at?: string
+          daily_digest?: boolean
+          daily_time?: string
+          digest_email?: string | null
+          id?: string
+          monthly_digest?: boolean
+          profile_id?: string
+          updated_at?: string
+          weekly_digest?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "email_digest_preferences_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       expenses: {
         Row: {
           amount: number
