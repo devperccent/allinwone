@@ -319,11 +319,42 @@ const TOOLS = [
               "/dashboard", "/invoices", "/invoices/new", "/clients", "/products",
               "/quotations", "/quotations/new", "/challans", "/challans/new",
               "/purchase-orders", "/purchase-orders/new", "/purchase-bills", "/purchase-bills/new",
-              "/recurring", "/reports", "/settings", "/quick-bill",
+              "/recurring", "/reports", "/settings", "/quick-bill", "/billing",
             ],
           },
         },
         required: ["path"],
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "create_quick_invoice",
+      description: "Create a draft invoice with client and items. Use this when user provides client name and item details directly. Returns the created invoice ID for navigation.",
+      parameters: {
+        type: "object",
+        properties: {
+          client_name: { type: "string", description: "Client name - will create new if doesn't exist" },
+          client_phone: { type: "string", description: "Client phone (optional)" },
+          client_email: { type: "string", description: "Client email (optional)" },
+          items: {
+            type: "array",
+            description: "Invoice line items",
+            items: {
+              type: "object",
+              properties: {
+                description: { type: "string", description: "Item description" },
+                qty: { type: "number", description: "Quantity" },
+                rate: { type: "number", description: "Rate per unit" },
+                tax_rate: { type: "number", description: "GST rate %, default 18" },
+              },
+              required: ["description", "qty", "rate"],
+            },
+          },
+          notes: { type: "string", description: "Invoice notes (optional)" },
+        },
+        required: ["client_name", "items"],
       },
     },
   },
