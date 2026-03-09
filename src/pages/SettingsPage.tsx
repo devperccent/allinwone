@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useOutletContext } from 'react-router-dom';
-import { Building2, CreditCard, Bell, Loader2, RotateCcw, BellRing, LayoutGrid, Globe } from 'lucide-react';
+import { Building2, CreditCard, Bell, Loader2, RotateCcw, BellRing, LayoutGrid, Globe, Accessibility } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
