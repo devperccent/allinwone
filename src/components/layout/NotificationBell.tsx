@@ -186,7 +186,7 @@ export function NotificationBell() {
         <Separator />
 
         {/* List */}
-        <ScrollArea className="max-h-[420px]">
+        <ScrollArea className="max-h-[420px]" role="region" aria-label="Notification list" aria-live="polite">
           {filtered.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-14 text-muted-foreground">
               <div className="w-12 h-12 rounded-full bg-muted/60 flex items-center justify-center mb-3">
