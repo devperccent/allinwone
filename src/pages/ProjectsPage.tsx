@@ -416,17 +416,61 @@ function ProjectDetail({ project, onBack }: { project: Project; onBack: () => vo
 
 // ─── Projects List ───
 export default function ProjectsPage() {
-  const { projects, isLoading, createProject } = useProjects();
+  const { projects, isLoading, createProject, deleteProject } = useProjects();
   const { clients } = useClients();
   const [selected, setSelected] = useState<Project | null>(null);
   const [open, setOpen] = useState(false);
+  const [tab, setTab] = useState('projects');
 
   if (isLoading) return <div className="space-y-4"><Skeleton className="h-8 w-48" /><div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">{[...Array(3)].map((_, i) => <Skeleton key={i} className="h-32" />)}</div></div>;
 
   if (selected) return <ProjectDetail project={selected} onBack={() => setSelected(null)} />;
 
   const active = projects.filter(p => p.status === 'active');
+  const onHold = projects.filter(p => p.status === 'on-hold');
   const completed = projects.filter(p => p.status === 'completed');
+  const cancelled = projects.filter(p => p.status === 'cancelled');
+
+  const statusBadge = (status: string) => {
+    const map: Record<string, 'default' | 'secondary' | 'outline' | 'destructive'> = {
+      active: 'default', completed: 'secondary', 'on-hold': 'outline', cancelled: 'destructive',
+    };
+    return <Badge variant={map[status] || 'default'} className="text-[10px] h-5">{status}</Badge>;
+  };
+
+  const ProjectCard = ({ p }: { p: Project }) => (
+    <Card key={p.id} className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => setSelected(p)}>
+      <CardContent className="p-4">
+        <div className="flex items-start justify-between mb-2">
+          <div><p className="font-medium text-sm">{p.name}</p>{p.client && <p className="text-xs text-muted-foreground">{(p.client as any).name}</p>}</div>
+          <div className="flex items-center gap-1.5">
+            {statusBadge(p.status)}
+            <ChevronRight className="w-4 h-4 text-muted-foreground" />
+          </div>
+        </div>
+        <div className="flex gap-3 text-xs text-muted-foreground">
+          {Number(p.hourly_rate) > 0 && <span className="flex items-center gap-1"><IndianRupee className="w-3 h-3" />{p.hourly_rate}/hr</span>}
+          <span className="flex items-center gap-1"><Clock className="w-3 h-3" />{Number(p.total_hours).toFixed(1)}h</span>
+        </div>
+      </CardContent>
+    </Card>
+  );
+
+  const renderSection = (title: string, items: Project[]) => items.length > 0 && (
+    <div className="space-y-2">
+      <h2 className="text-sm font-medium text-muted-foreground">{title} ({items.length})</h2>
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        {items.map(p => <ProjectCard key={p.id} p={p} />)}
+      </div>
+    </div>
+  );
+
+  // Summary for completed projects
+  const completedSummary = useMemo(() => {
+    const totalBudget = completed.reduce((s, p) => s + (Number(p.budget) || 0), 0);
+    const totalHours = completed.reduce((s, p) => s + Number(p.total_hours), 0);
+    return { count: completed.length, totalBudget, totalHours };
+  }, [completed]);
 
   return (
     <div className="space-y-4 animate-fade-in">
@@ -443,45 +487,53 @@ export default function ProjectsPage() {
         </Dialog>
       </div>
 
-      {projects.length === 0 ? (
-        <Card><CardContent className="py-16 text-center"><FolderKanban className="w-12 h-12 mx-auto mb-3 text-muted-foreground/30" /><p className="text-muted-foreground">No projects yet. Create your first project to start tracking.</p></CardContent></Card>
-      ) : (
-        <>
-          {active.length > 0 && (
-            <div className="space-y-2">
-              <h2 className="text-sm font-medium text-muted-foreground">Active ({active.length})</h2>
-              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                {active.map(p => (
-                  <Card key={p.id} className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => setSelected(p)}>
-                    <CardContent className="p-4">
-                      <div className="flex items-start justify-between mb-2">
-                        <div><p className="font-medium text-sm">{p.name}</p>{p.client && <p className="text-xs text-muted-foreground">{p.client.name}</p>}</div>
-                        <ChevronRight className="w-4 h-4 text-muted-foreground" />
-                      </div>
-                      <div className="flex gap-3 text-xs text-muted-foreground">
-                        {Number(p.hourly_rate) > 0 && <span className="flex items-center gap-1"><IndianRupee className="w-3 h-3" />{p.hourly_rate}/hr</span>}
-                        <span className="flex items-center gap-1"><Clock className="w-3 h-3" />{Number(p.total_hours).toFixed(1)}h</span>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
+      <Tabs value={tab} onValueChange={setTab}>
+        <TabsList>
+          <TabsTrigger value="projects" className="gap-1.5"><FolderKanban className="w-3.5 h-3.5" />Projects</TabsTrigger>
+          <TabsTrigger value="timesheet" className="gap-1.5"><CalendarDays className="w-3.5 h-3.5" />Timesheet</TabsTrigger>
+          <TabsTrigger value="summary" className="gap-1.5"><BarChart3 className="w-3.5 h-3.5" />Summary</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="projects">
+          {projects.length === 0 ? (
+            <Card><CardContent className="py-16 text-center"><FolderKanban className="w-12 h-12 mx-auto mb-3 text-muted-foreground/30" /><p className="text-muted-foreground">No projects yet. Create your first project to start tracking.</p></CardContent></Card>
+          ) : (
+            <div className="space-y-4">
+              {renderSection('Active', active)}
+              {renderSection('On Hold', onHold)}
+              {renderSection('Completed', completed)}
+              {renderSection('Cancelled', cancelled)}
             </div>
           )}
-          {completed.length > 0 && (
-            <div className="space-y-2">
-              <h2 className="text-sm font-medium text-muted-foreground">Completed ({completed.length})</h2>
-              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                {completed.map(p => (
-                  <Card key={p.id} className="cursor-pointer opacity-70 hover:opacity-100 transition-opacity" onClick={() => setSelected(p)}>
-                    <CardContent className="p-4"><p className="font-medium text-sm">{p.name}</p>{p.client && <p className="text-xs text-muted-foreground">{p.client.name}</p>}</CardContent>
-                  </Card>
-                ))}
-              </div>
+        </TabsContent>
+
+        <TabsContent value="timesheet">
+          <WeeklyTimesheet projects={projects} />
+        </TabsContent>
+
+        <TabsContent value="summary">
+          <div className="space-y-4">
+            <div className="grid gap-3 sm:grid-cols-4">
+              <Card><CardContent className="p-4"><p className="text-xs text-muted-foreground">Active</p><p className="text-2xl font-bold">{active.length}</p></CardContent></Card>
+              <Card><CardContent className="p-4"><p className="text-xs text-muted-foreground">On Hold</p><p className="text-2xl font-bold">{onHold.length}</p></CardContent></Card>
+              <Card><CardContent className="p-4"><p className="text-xs text-muted-foreground">Completed</p><p className="text-2xl font-bold">{completed.length}</p></CardContent></Card>
+              <Card><CardContent className="p-4"><p className="text-xs text-muted-foreground">Cancelled</p><p className="text-2xl font-bold">{cancelled.length}</p></CardContent></Card>
             </div>
-          )}
-        </>
-      )}
+            {completedSummary.count > 0 && (
+              <Card>
+                <CardContent className="p-4 space-y-2">
+                  <h3 className="font-semibold text-sm">Completed Projects Summary</h3>
+                  <div className="grid grid-cols-3 gap-4 text-center">
+                    <div><p className="text-xs text-muted-foreground">Projects</p><p className="text-lg font-bold">{completedSummary.count}</p></div>
+                    <div><p className="text-xs text-muted-foreground">Total Hours</p><p className="text-lg font-bold">{completedSummary.totalHours.toFixed(1)}h</p></div>
+                    <div><p className="text-xs text-muted-foreground">Total Budget</p><p className="text-lg font-bold">{formatINR(completedSummary.totalBudget)}</p></div>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+          </div>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
