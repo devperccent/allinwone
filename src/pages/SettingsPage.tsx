@@ -47,6 +47,8 @@ export default function SettingsPage() {
   const { updateProfile, isUpdating } = useProfile();
   const { setWalkthroughOpen } = useOutletContext<LayoutContext>();
   const { settings: a11ySettings, updateSettings: updateA11y, resetSettings: resetA11y } = useAccessibility();
+  const { prefs: digestPrefs, loading: digestLoading, saving: digestSaving, savePrefs: saveDigestPrefs } = useDigestPreferences();
+  const [localDigest, setLocalDigest] = useState(digestPrefs);
 
   // Business form state
   const [orgName, setOrgName] = useState('');
