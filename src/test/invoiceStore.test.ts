@@ -101,7 +101,7 @@ describe('invoiceStore', () => {
       next_invoice_number: 1, onboarding_completed: true,
       business_type: null, pan_number: null, bank_account_name: null,
       bank_account_number: null, bank_ifsc: null, signature_url: null, enabled_modules: [],
-      created_at: '', updated_at: '',
+      business_mode: null, created_at: '', updated_at: '',
     });
     expect(useInvoiceStore.getState().profile?.org_name).toBe('Test');
   });
