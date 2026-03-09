@@ -590,6 +590,27 @@ export default function SettingsPage() {
           </Card>
         </TabsContent>
 
+        {/* Business Mode Tab */}
+        <TabsContent value="mode">
+          <Card>
+            <CardHeader>
+              <CardTitle>Business Mode</CardTitle>
+              <CardDescription>
+                Optimize the interface for your type of business
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <BusinessModeSelector value={businessMode} onChange={setBusinessMode} />
+              <div className="flex justify-end">
+                <Button onClick={handleSaveBusinessMode} disabled={isUpdating}>
+                  {isUpdating && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
+                  Save Mode
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
         {/* Accessibility Tab */}
         <TabsContent value="accessibility">
           <div className="space-y-6">
