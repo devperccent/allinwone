@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, lazy, Suspense } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Loader2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
@@ -6,12 +6,8 @@ import { useToast } from '@/hooks/use-toast';
 import { useInvoiceCalculations, formatINR } from '@/hooks/useInvoiceCalculations';
 import type { Client, InvoiceItemFormData, Invoice, InvoiceItem } from '@/types';
 import type { InvoiceTemplate } from '@/components/invoice/invoiceTemplates';
-import { InvoicePdfPreview } from '@/components/invoice/InvoicePdfPreview';
 import { InvoiceEditorHeader } from '@/components/invoice/InvoiceEditorHeader';
 import { InvoiceForm } from '@/components/invoice/InvoiceForm';
-import { EmailDialog } from '@/components/invoice/EmailDialog';
-import { FinalizeDialog } from '@/components/invoice/FinalizeDialog';
-import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/components/ui/resizable';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useAuth } from '@/contexts/AuthContext';
 import { useClients } from '@/hooks/useClients';
@@ -23,6 +19,14 @@ import { arrayMove } from '@dnd-kit/sortable';
 import { DragEndEvent } from '@dnd-kit/core';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { createEmptyItem, computeItemAmount } from '@/utils/invoiceUtils';
+
+// Lazy-load heavy components not needed for initial form render
+const InvoicePdfPreview = lazy(() => import('@/components/invoice/InvoicePdfPreview').then(m => ({ default: m.InvoicePdfPreview })));
+const ResizablePanelGroup = lazy(() => import('@/components/ui/resizable').then(m => ({ default: m.ResizablePanelGroup })));
+const ResizablePanel = lazy(() => import('@/components/ui/resizable').then(m => ({ default: m.ResizablePanel })));
+const ResizableHandle = lazy(() => import('@/components/ui/resizable').then(m => ({ default: m.ResizableHandle })));
+const EmailDialog = lazy(() => import('@/components/invoice/EmailDialog').then(m => ({ default: m.EmailDialog })));
+const FinalizeDialog = lazy(() => import('@/components/invoice/FinalizeDialog').then(m => ({ default: m.FinalizeDialog })));
 
 export default function InvoiceEditor() {
   const navigate = useNavigate();
@@ -48,10 +52,10 @@ export default function InvoiceEditor() {
     isCreating,
     isUpdating,
     isFinalizing,
+    getInvoiceWithItems,
   } = useInvoices();
   const { generatePdf, isGenerating: isDownloading } = usePdfDownload();
   const { sendInvoiceEmail, isSending } = useSendInvoiceEmail();
-  const { getInvoiceWithItems } = useInvoices();
 
   // Form state
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);
@@ -324,7 +328,8 @@ export default function InvoiceEditor() {
     window.open(`https://wa.me/${phone}?text=${encodeURIComponent(text)}`, '_blank');
   };
 
-  const isLoading = clientsLoading || productsLoading || invoicesLoading;
+  // Only block on clients/products loading — invoices list isn't needed for new invoices
+  const isLoading = clientsLoading || productsLoading || (!!id && invoicesLoading);
 
   if (isLoading) {
     return (
@@ -401,34 +406,7 @@ export default function InvoiceEditor() {
             </TabsContent>
             <TabsContent value="preview" className="flex-1 overflow-y-auto mt-0">
               <div className="rounded-xl border border-border bg-muted/30 p-4 h-full">
-                <InvoicePdfPreview
-                  invoiceNumber={invoiceNumber || 'DRAFT'}
-                  dateIssued={dateIssued}
-                  dateDue={dateDue}
-                  client={selectedClient}
-                  items={items}
-                  calculations={calculations}
-                  profileStateCode={profileStateCode}
-                  notes={notes}
-                  profile={profile}
-                  status={currentInvoice?.status || 'draft'}
-                  showPaymentInfo={showPaymentInfo}
-                  template={template}
-                />
-              </div>
-            </TabsContent>
-          </Tabs>
-        ) : showPreview ? (
-          <ResizablePanelGroup direction="horizontal" className="h-full rounded-lg">
-            <ResizablePanel defaultSize={60} minSize={35}>
-              <div className="h-full overflow-y-auto pr-4">
-                <InvoiceForm {...formProps} />
-              </div>
-            </ResizablePanel>
-            <ResizableHandle withHandle />
-            <ResizablePanel defaultSize={40} minSize={25}>
-              <div className="h-full overflow-y-auto pl-4">
-                <div className="rounded-xl border border-border bg-muted/30 p-3 h-full overflow-hidden">
+                <Suspense fallback={<div className="flex items-center justify-center h-64"><Loader2 className="w-6 h-6 animate-spin text-primary" /></div>}>
                   <InvoicePdfPreview
                     invoiceNumber={invoiceNumber || 'DRAFT'}
                     dateIssued={dateIssued}
@@ -443,10 +421,41 @@ export default function InvoiceEditor() {
                     showPaymentInfo={showPaymentInfo}
                     template={template}
                   />
-                </div>
+                </Suspense>
               </div>
-            </ResizablePanel>
-          </ResizablePanelGroup>
+            </TabsContent>
+          </Tabs>
+        ) : showPreview ? (
+          <Suspense fallback={<div className="flex items-center justify-center h-full"><Loader2 className="w-6 h-6 animate-spin text-primary" /></div>}>
+            <ResizablePanelGroup direction="horizontal" className="h-full rounded-lg">
+              <ResizablePanel defaultSize={60} minSize={35}>
+                <div className="h-full overflow-y-auto pr-4">
+                  <InvoiceForm {...formProps} />
+                </div>
+              </ResizablePanel>
+              <ResizableHandle withHandle />
+              <ResizablePanel defaultSize={40} minSize={25}>
+                <div className="h-full overflow-y-auto pl-4">
+                  <div className="rounded-xl border border-border bg-muted/30 p-3 h-full overflow-hidden">
+                    <InvoicePdfPreview
+                      invoiceNumber={invoiceNumber || 'DRAFT'}
+                      dateIssued={dateIssued}
+                      dateDue={dateDue}
+                      client={selectedClient}
+                      items={items}
+                      calculations={calculations}
+                      profileStateCode={profileStateCode}
+                      notes={notes}
+                      profile={profile}
+                      status={currentInvoice?.status || 'draft'}
+                      showPaymentInfo={showPaymentInfo}
+                      template={template}
+                    />
+                  </div>
+                </div>
+              </ResizablePanel>
+            </ResizablePanelGroup>
+          </Suspense>
         ) : (
           <div className="h-full overflow-y-auto max-w-4xl mx-auto">
             <InvoiceForm {...formProps} paymentToggleId="paymentToggleMobile" />
@@ -454,22 +463,28 @@ export default function InvoiceEditor() {
         )}
       </div>
 
-      <EmailDialog
-        open={emailDialogOpen}
-        onOpenChange={setEmailDialogOpen}
-        emailRecipient={emailRecipient}
-        onEmailRecipientChange={setEmailRecipient}
-        onSend={handleSendEmail}
-        isSending={isSending}
-      />
+      <Suspense fallback={null}>
+        {emailDialogOpen && (
+          <EmailDialog
+            open={emailDialogOpen}
+            onOpenChange={setEmailDialogOpen}
+            emailRecipient={emailRecipient}
+            onEmailRecipientChange={setEmailRecipient}
+            onSend={handleSendEmail}
+            isSending={isSending}
+          />
+        )}
 
-      <FinalizeDialog
-        open={finalizeDialogOpen}
-        onOpenChange={setFinalizeDialogOpen}
-        onConfirm={handleFinalizeConfirm}
-        isFinalizing={isFinalizing}
-        stockImpactItems={stockImpactItems}
-      />
+        {finalizeDialogOpen && (
+          <FinalizeDialog
+            open={finalizeDialogOpen}
+            onOpenChange={setFinalizeDialogOpen}
+            onConfirm={handleFinalizeConfirm}
+            isFinalizing={isFinalizing}
+            stockImpactItems={stockImpactItems}
+          />
+        )}
+      </Suspense>
     </div>
   );
 }
