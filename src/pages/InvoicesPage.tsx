@@ -529,6 +529,8 @@ export default function InvoicesPage() {
                         onDelete={(id) => deleteInvoice.mutate(id)}
                         onShare={handleShare}
                         onRemind={handleRemind}
+                        onRecordPayment={(inv) => { setRecordPaymentInvoice(inv); setRecordPaymentDialogOpen(true); }}
+                        onCreditNote={(inv) => { setCreditNoteInvoice(inv); setCreditNoteDialogOpen(true); }}
                         isGenerating={isGenerating}
                         isFinalizing={finalizeInvoiceMutation.isPending}
                         isMarkingPaid={markAsPaid.isPending}
