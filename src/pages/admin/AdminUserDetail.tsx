@@ -115,7 +115,7 @@ export default function AdminUserDetail() {
             {profile.org_name}
             {isSuspended && <Ban className="h-5 w-5 text-destructive" />}
           </h1>
-          <p className="text-muted-foreground text-sm truncate">{profile.email}</p>
+          <p className="text-muted-foreground text-xs truncate">{profile.email}</p>
         </div>
         <div className="flex items-center gap-2 self-start sm:self-auto">
           <Badge variant={isSuspended ? 'destructive' : profile.onboarding_completed ? 'default' : 'secondary'}>
