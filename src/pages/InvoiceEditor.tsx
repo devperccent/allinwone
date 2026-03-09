@@ -328,7 +328,8 @@ export default function InvoiceEditor() {
     window.open(`https://wa.me/${phone}?text=${encodeURIComponent(text)}`, '_blank');
   };
 
-  const isLoading = clientsLoading || productsLoading || invoicesLoading;
+  // Only block on clients/products loading — invoices list isn't needed for new invoices
+  const isLoading = clientsLoading || productsLoading || (!!id && invoicesLoading);
 
   if (isLoading) {
     return (
