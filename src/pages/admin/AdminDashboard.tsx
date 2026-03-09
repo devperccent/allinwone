@@ -55,8 +55,8 @@ export default function AdminDashboard() {
     <div className="space-y-5 animate-fade-in">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-bold">INW Admin Console</h1>
-          <p className="text-sm text-muted-foreground">Super Admin Dashboard • API v1.0.0</p>
+          <h1 className="text-lg font-bold">INW Admin Console</h1>
+          <p className="text-xs text-muted-foreground">Super Admin Dashboard • API v1.0.0</p>
         </div>
         <Button variant="outline" onClick={exportCSV} disabled={!users?.length}>
           <Download className="w-4 h-4 mr-2" />
