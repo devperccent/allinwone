@@ -219,6 +219,10 @@ export default function SettingsPage() {
               <LayoutGrid className="w-4 h-4" />
               <span className="hidden sm:inline">Modules</span>
             </TabsTrigger>
+            <TabsTrigger value="accessibility" className="gap-2">
+              <Accessibility className="w-4 h-4" />
+              <span className="hidden sm:inline">Accessibility</span>
+            </TabsTrigger>
           </TabsList>
         </div>
 

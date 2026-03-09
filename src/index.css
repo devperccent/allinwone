@@ -247,6 +247,74 @@
   }
 }
 
+/* ===== Accessibility: High Contrast Mode ===== */
+.high-contrast {
+  --foreground: 0 0% 0% !important;
+  --card-foreground: 0 0% 0% !important;
+  --popover-foreground: 0 0% 0% !important;
+  --muted-foreground: 0 0% 20% !important;
+  --border: 0 0% 50% !important;
+  --input: 0 0% 50% !important;
+}
+
+.high-contrast.dark {
+  --foreground: 0 0% 100% !important;
+  --card-foreground: 0 0% 100% !important;
+  --popover-foreground: 0 0% 100% !important;
+  --muted-foreground: 0 0% 85% !important;
+  --border: 0 0% 60% !important;
+  --input: 0 0% 60% !important;
+}
+
+/* ===== Accessibility: Reduced Motion ===== */
+.reduce-motion *,
+.reduce-motion *::before,
+.reduce-motion *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
+}
+
+/* ===== Accessibility: Large Targets ===== */
+.large-targets button,
+.large-targets a,
+.large-targets [role="button"],
+.large-targets input,
+.large-targets select,
+.large-targets textarea,
+.large-targets [role="menuitem"],
+.large-targets [role="tab"] {
+  min-height: 48px !important;
+  min-width: 48px !important;
+}
+
+.large-targets .sidebar-nav-item,
+.large-targets nav a {
+  padding-top: 0.75rem !important;
+  padding-bottom: 0.75rem !important;
+  font-size: 1rem !important;
+}
+
+/* Skip-to-content for keyboard users */
+.skip-to-content {
+  position: absolute;
+  top: -100%;
+  left: 0;
+  z-index: 9999;
+  padding: 1rem 1.5rem;
+  background: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+  font-weight: 700;
+  font-size: 1rem;
+  border-radius: 0 0 0.5rem 0;
+  transition: top 0.15s;
+}
+
+.skip-to-content:focus {
+  top: 0;
+}
+
 @layer utilities {
   /* Animation Classes */
   .animate-fade-in {
