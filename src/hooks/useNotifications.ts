@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useEffect, useCallback } from 'react';
+import { useEffect, useCallback, useMemo } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast as sonnerToast } from 'sonner';
@@ -18,7 +18,6 @@ export interface Notification {
 
 export type NotificationFilter = 'all' | 'unread' | 'info' | 'warning' | 'success' | 'error';
 
-// Notification preferences stored in localStorage
 export interface NotificationPreferences {
   lowStockAlerts: boolean;
   invoiceEvents: boolean;
@@ -54,6 +53,8 @@ const typeToastStyles: Record<string, { icon: string }> = {
   error: { icon: '❌' },
 };
 
+const EMPTY_ARRAY: Notification[] = [];
+
 export function useNotifications() {
   const { profile } = useAuth();
   const queryClient = useQueryClient();
@@ -61,7 +62,7 @@ export function useNotifications() {
   const notificationsQuery = useQuery({
     queryKey: ['notifications', profile?.id],
     queryFn: async () => {
-      if (!profile?.id) return [];
+      if (!profile?.id) return EMPTY_ARRAY;
       const { data, error } = await supabase
         .from('notifications')
         .select('*')
@@ -74,7 +75,7 @@ export function useNotifications() {
     enabled: !!profile?.id,
   });
 
-  // Realtime subscription with toast popup
+  // Realtime subscription
   useEffect(() => {
     if (!profile?.id) return;
 
@@ -91,7 +92,6 @@ export function useNotifications() {
         (payload) => {
           queryClient.invalidateQueries({ queryKey: ['notifications', profile.id] });
 
-          // Show toast popup if enabled
           const prefs = getNotificationPreferences();
           if (prefs.toastPopups && payload.new) {
             const n = payload.new as Notification;
@@ -166,8 +166,12 @@ export function useNotifications() {
     },
   });
 
-  const notifications = notificationsQuery.data || [];
-  const unreadCount = notifications.filter((n) => !n.is_read).length;
+  const notifications = notificationsQuery.data || EMPTY_ARRAY;
+
+  const unreadCount = useMemo(() =>
+    notifications.filter((n) => !n.is_read).length,
+    [notifications]
+  );
 
   const getFiltered = useCallback(
     (filter: NotificationFilter) => {
@@ -178,7 +182,7 @@ export function useNotifications() {
     [notifications]
   );
 
-  return {
+  return useMemo(() => ({
     notifications,
     unreadCount,
     isLoading: notificationsQuery.isLoading,
@@ -187,5 +191,5 @@ export function useNotifications() {
     deleteNotification,
     clearAll,
     getFiltered,
-  };
+  }), [notifications, unreadCount, notificationsQuery.isLoading, markAsRead, markAllAsRead, deleteNotification, clearAll, getFiltered]);
 }

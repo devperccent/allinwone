@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 import { computeItemAmount } from '@/utils/invoiceUtils';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
@@ -19,6 +19,8 @@ interface CreateInvoiceData {
   items: InvoiceItemFormData[];
 }
 
+const EMPTY_ARRAY: any[] = [];
+
 export function useInvoices() {
   const { profile } = useAuth();
   const { toast } = useToast();
@@ -27,7 +29,7 @@ export function useInvoices() {
   const invoicesQuery = useQuery({
     queryKey: ['invoices', profile?.id],
     queryFn: async () => {
-      if (!profile?.id) return [];
+      if (!profile?.id) return EMPTY_ARRAY;
       
       const { data, error } = await supabase
         .from('invoices')
@@ -44,17 +46,28 @@ export function useInvoices() {
     enabled: !!profile?.id,
   });
 
+  const invoices = invoicesQuery.data || EMPTY_ARRAY;
+
+  // Memoize computed stats
+  const { totalRevenue, pendingAmount } = useMemo(() => {
+    let revenue = 0;
+    let pending = 0;
+    for (const inv of invoices) {
+      const amount = Number(inv.grand_total);
+      if (inv.status === 'paid') revenue += amount;
+      else if (inv.status === 'finalized') pending += amount;
+    }
+    return { totalRevenue: revenue, pendingAmount: pending };
+  }, [invoices]);
+
   const createInvoice = useMutation({
     mutationFn: async (invoiceData: CreateInvoiceData) => {
       if (!profile?.id) throw new Error('No profile');
       
-      // Generate invoice number
       const { data: invoiceNumber, error: numError } = await supabase
         .rpc('generate_invoice_number', { p_profile_id: profile.id });
-      
       if (numError) throw numError;
       
-      // Create invoice
       const { data: invoice, error: invError } = await supabase
         .from('invoices')
         .insert({
@@ -76,7 +89,6 @@ export function useInvoices() {
       
       if (invError) throw invError;
       
-      // Create invoice items
       const items = invoiceData.items
         .filter(item => item.description && item.rate > 0)
         .map((item, index) => ({
@@ -95,7 +107,6 @@ export function useInvoices() {
         const { error: itemsError } = await supabase
           .from('invoice_items')
           .insert(items);
-        
         if (itemsError) throw itemsError;
       }
       
@@ -113,7 +124,6 @@ export function useInvoices() {
 
   const updateInvoice = useMutation({
     mutationFn: async ({ id, formItems, ...updates }: Omit<Partial<Invoice>, 'items'> & { id: string; formItems?: InvoiceItemFormData[] }) => {
-      // Update invoice
       const { data, error } = await supabase
         .from('invoices')
         .update(updates)
@@ -123,12 +133,9 @@ export function useInvoices() {
       
       if (error) throw error;
       
-      // Update items if provided
       if (formItems) {
-        // Delete existing items
         await supabase.from('invoice_items').delete().eq('invoice_id', id);
         
-        // Insert new items
         const newItems = formItems
           .filter(item => item.description && item.rate > 0)
           .map((item, index) => ({
@@ -147,7 +154,6 @@ export function useInvoices() {
           const { error: itemsError } = await supabase
             .from('invoice_items')
             .insert(newItems);
-          
           if (itemsError) throw itemsError;
         }
       }
@@ -167,7 +173,6 @@ export function useInvoices() {
     mutationFn: async (invoiceId: string) => {
       const { data, error } = await supabase
         .rpc('finalize_invoice', { p_invoice_id: invoiceId });
-      
       if (error) throw error;
       return data;
     },
@@ -239,22 +244,12 @@ export function useInvoices() {
     return invoice;
   }, []);
 
-  // Stats
-  const totalRevenue = invoicesQuery.data
-    ?.filter(inv => inv.status === 'paid')
-    .reduce((sum, inv) => sum + Number(inv.grand_total), 0) || 0;
-
-  const pendingAmount = invoicesQuery.data
-    ?.filter(inv => inv.status === 'finalized')
-    .reduce((sum, inv) => sum + Number(inv.grand_total), 0) || 0;
-
   const generateId = () => 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
     const r = Math.random() * 16 | 0;
     return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
   });
 
-  // Helper functions to call mutations properly
-  const createInvoiceAsync = async (data: { data: Omit<CreateInvoiceData, 'items'>; items: Omit<InvoiceItemFormData, 'id'>[] }) => {
+  const createInvoiceAsync = useCallback(async (data: { data: Omit<CreateInvoiceData, 'items'>; items: Omit<InvoiceItemFormData, 'id'>[] }) => {
     const itemsWithId = data.items.map(item => ({ 
       ...item, 
       id: generateId(),
@@ -264,9 +259,9 @@ export function useInvoices() {
       ...data.data,
       items: itemsWithId,
     });
-  };
+  }, [createInvoice]);
 
-  const updateInvoiceAsync = async (data: { id: string; data: Partial<Invoice>; items?: Omit<InvoiceItemFormData, 'id'>[] }) => {
+  const updateInvoiceAsync = useCallback(async (data: { id: string; data: Partial<Invoice>; items?: Omit<InvoiceItemFormData, 'id'>[] }) => {
     const itemsWithId = data.items?.map(item => ({ 
       ...item, 
       id: generateId(),
@@ -279,14 +274,14 @@ export function useInvoices() {
       ...restData,
       formItems: itemsWithId,
     });
-  };
+  }, [updateInvoice]);
 
-  const finalizeInvoiceAsync = async (invoiceId: string) => {
+  const finalizeInvoiceAsync = useCallback(async (invoiceId: string) => {
     return finalizeInvoice.mutateAsync(invoiceId);
-  };
+  }, [finalizeInvoice]);
 
-  return {
-    invoices: invoicesQuery.data || [],
+  return useMemo(() => ({
+    invoices,
     totalRevenue,
     pendingAmount,
     isLoading: invoicesQuery.isLoading,
@@ -301,5 +296,5 @@ export function useInvoices() {
     markAsPaid,
     deleteInvoice,
     getInvoiceWithItems,
-  };
+  }), [invoices, totalRevenue, pendingAmount, invoicesQuery.isLoading, invoicesQuery.error, createInvoiceAsync, updateInvoiceAsync, finalizeInvoiceAsync, finalizeInvoice, createInvoice.isPending, updateInvoice.isPending, finalizeInvoice.isPending, markAsPaid, deleteInvoice, getInvoiceWithItems]);
 }

@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMemo } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import type { Product, ProductType } from '@/types';
@@ -16,6 +17,8 @@ interface CreateProductData {
   low_stock_limit: number;
 }
 
+const EMPTY_ARRAY: any[] = [];
+
 export function useProducts() {
   const { profile } = useAuth();
   const { toast } = useToast();
@@ -24,7 +27,7 @@ export function useProducts() {
   const productsQuery = useQuery({
     queryKey: ['products', profile?.id],
     queryFn: async () => {
-      if (!profile?.id) return [];
+      if (!profile?.id) return EMPTY_ARRAY;
       
       const { data, error } = await supabase
         .from('products')
@@ -38,16 +41,20 @@ export function useProducts() {
     enabled: !!profile?.id,
   });
 
+  const products = productsQuery.data || EMPTY_ARRAY;
+
+  const lowStockProducts = useMemo(() =>
+    products.filter((p) => p.type === 'goods' && p.stock_quantity <= p.low_stock_limit),
+    [products]
+  );
+
   const createProduct = useMutation({
     mutationFn: async (product: CreateProductData) => {
       if (!profile?.id) throw new Error('No profile');
       
       const { data, error } = await supabase
         .from('products')
-        .insert({
-          ...product,
-          profile_id: profile.id,
-        })
+        .insert({ ...product, profile_id: profile.id })
         .select()
         .single();
       
@@ -98,17 +105,13 @@ export function useProducts() {
     },
   });
 
-  const lowStockProducts = productsQuery.data?.filter(
-    (p) => p.type === 'goods' && p.stock_quantity <= p.low_stock_limit
-  ) || [];
-
-  return {
-    products: productsQuery.data || [],
+  return useMemo(() => ({
+    products,
     lowStockProducts,
     isLoading: productsQuery.isLoading,
     error: productsQuery.error,
     createProduct,
     updateProduct,
     deleteProduct,
-  };
+  }), [products, lowStockProducts, productsQuery.isLoading, productsQuery.error, createProduct, updateProduct, deleteProduct]);
 }

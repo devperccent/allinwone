@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMemo } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import type { Client } from '@/types';
@@ -13,6 +14,8 @@ interface CreateClientData {
   state_code: string;
 }
 
+const EMPTY_ARRAY: any[] = [];
+
 export function useClients() {
   const { profile } = useAuth();
   const { toast } = useToast();
@@ -21,7 +24,7 @@ export function useClients() {
   const clientsQuery = useQuery({
     queryKey: ['clients', profile?.id],
     queryFn: async () => {
-      if (!profile?.id) return [];
+      if (!profile?.id) return EMPTY_ARRAY;
       
       const { data, error } = await supabase
         .from('clients')
@@ -35,16 +38,20 @@ export function useClients() {
     enabled: !!profile?.id,
   });
 
+  const clients = clientsQuery.data || EMPTY_ARRAY;
+
+  const totalCreditBalance = useMemo(() =>
+    clients.reduce((sum, c) => sum + Number(c.credit_balance), 0),
+    [clients]
+  );
+
   const createClient = useMutation({
     mutationFn: async (client: CreateClientData) => {
       if (!profile?.id) throw new Error('No profile');
       
       const { data, error } = await supabase
         .from('clients')
-        .insert({
-          ...client,
-          profile_id: profile.id,
-        })
+        .insert({ ...client, profile_id: profile.id })
         .select()
         .single();
       
@@ -95,15 +102,13 @@ export function useClients() {
     },
   });
 
-  const totalCreditBalance = clientsQuery.data?.reduce((sum, c) => sum + Number(c.credit_balance), 0) || 0;
-
-  return {
-    clients: clientsQuery.data || [],
+  return useMemo(() => ({
+    clients,
     totalCreditBalance,
     isLoading: clientsQuery.isLoading,
     error: clientsQuery.error,
     createClient,
     updateClient,
     deleteClient,
-  };
+  }), [clients, totalCreditBalance, clientsQuery.isLoading, clientsQuery.error, createClient, updateClient, deleteClient]);
 }
