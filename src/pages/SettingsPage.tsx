@@ -27,6 +27,8 @@ import { ALL_MODULES, type ModuleKey } from '@/hooks/useEnabledModules';
 import { isKeyboardHintsEnabled, setKeyboardHintsEnabled } from '@/components/onboarding/KeyboardShortcutsHint';
 import { LanguageSelector } from '@/components/LanguageSelector';
 import { useLanguage } from '@/i18n/LanguageContext';
+import { useAccessibility } from '@/hooks/useAccessibility';
+import { Slider } from '@/components/ui/slider';
 import {
   getNotificationPreferences,
   saveNotificationPreferences,
