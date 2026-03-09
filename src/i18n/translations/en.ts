@@ -34,6 +34,9 @@ export const en = {
   nav_adminPanel: 'Admin Panel',
   nav_signOut: 'Sign out',
   nav_collapse: 'Collapse',
+  nav_collections: 'Collections',
+  nav_udhaar: 'Udhaar',
+  nav_expenses: 'Expenses',
   
   // Section labels
   section_billing: 'Billing',

@@ -129,6 +129,9 @@ const App = () => (
                 <Route path="/help" element={<HelpPage />} />
                 <Route path="/bulk" element={<BulkImportExportPage />} />
                 <Route path="/billing" element={<BillingPage />} />
+                <Route path="/expenses" element={<ExpensesPage />} />
+                <Route path="/collections" element={<CollectionsPage />} />
+                <Route path="/udhaar" element={<UdhaarPage />} />
                 <Route path="/admin" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
                 <Route path="/admin/users/:profileId" element={<AdminRoute><AdminUserDetail /></AdminRoute>} />
               </Route>
