@@ -21,6 +21,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useProfile } from '@/hooks/useProfile';
 import { usePageShortcuts } from '@/hooks/usePageShortcuts';
 import { LogoUpload } from '@/components/LogoUpload';
+import { SignatureUpload } from '@/components/SignatureUpload';
 import { resetWalkthrough } from '@/components/onboarding/WalkthroughTutorial';
 import { ALL_MODULES, type ModuleKey } from '@/hooks/useEnabledModules';
 import { isKeyboardHintsEnabled, setKeyboardHintsEnabled } from '@/components/onboarding/KeyboardShortcutsHint';
