@@ -36,6 +36,9 @@ export interface AdminUser {
   client_count: number;
   product_count: number;
   total_revenue: number;
+  ai_tier: string;
+  ai_queries_today: number;
+  enabled_modules: string[];
 }
 
 export function useAdminUsers() {
@@ -87,6 +90,9 @@ export function useAdminUsers() {
           client_count: userClients.length,
           product_count: userProducts.length,
           total_revenue: totalRevenue,
+          ai_tier: p.ai_tier || 'standard',
+          ai_queries_today: p.ai_queries_today || 0,
+          enabled_modules: p.enabled_modules || [],
         } as AdminUser;
       });
     },
@@ -97,8 +103,9 @@ export function useAdminStats() {
   return useQuery({
     queryKey: ['admin_stats'],
     queryFn: async () => {
-      const { data: profiles } = await supabase.from('profiles').select('id, created_at, onboarding_completed');
+      const { data: profiles } = await supabase.from('profiles').select('id, created_at, onboarding_completed, ai_tier, ai_queries_today');
       const { data: invoices } = await supabase.from('invoices').select('id, grand_total, status, created_at');
+      const { data: aiUsage } = await supabase.from('ai_usage_logs').select('model_used, created_at');
 
       const totalUsers = profiles?.length || 0;
       const onboardedUsers = profiles?.filter((p: any) => p.onboarding_completed).length || 0;
@@ -109,6 +116,14 @@ export function useAdminStats() {
       const pendingRevenue = invoices
         ?.filter((i: any) => i.status === 'finalized')
         .reduce((sum: number, i: any) => sum + Number(i.grand_total), 0) || 0;
+
+      // AI usage stats
+      const aiQueriesToday = aiUsage?.filter((u: any) => {
+        const today = new Date().toISOString().split('T')[0];
+        return u.created_at.startsWith(today);
+      }).length || 0;
+
+      const premiumUsers = profiles?.filter((p: any) => p.ai_tier === 'premium').length || 0;
 
       // Signups by month (last 6 months)
       const now = new Date();
@@ -124,6 +139,13 @@ export function useAdminStats() {
         signupsByMonth.push({ month: monthStr, count });
       }
 
+      // AI usage by model
+      const aiByModel = {
+        premium: aiUsage?.filter((u: any) => u.model_used?.includes('pro')).length || 0,
+        standard: aiUsage?.filter((u: any) => u.model_used?.includes('flash') && !u.model_used?.includes('lite')).length || 0,
+        budget: aiUsage?.filter((u: any) => u.model_used?.includes('lite')).length || 0,
+      };
+
       return {
         totalUsers,
         onboardedUsers,
@@ -131,6 +153,10 @@ export function useAdminStats() {
         totalRevenue,
         pendingRevenue,
         signupsByMonth,
+        aiQueriesToday,
+        premiumUsers,
+        aiByModel,
+        totalAiQueries: aiUsage?.length || 0,
       };
     },
   });
@@ -146,14 +172,79 @@ export function useAdminUserDetail(profileId: string | undefined) {
         { data: invoices },
         { data: clients },
         { data: products },
+        { data: aiUsage },
       ] = await Promise.all([
         supabase.from('profiles').select('*').eq('id', profileId).single(),
         supabase.from('invoices').select('*').eq('profile_id', profileId).order('created_at', { ascending: false }),
         supabase.from('clients').select('*').eq('profile_id', profileId),
         supabase.from('products').select('*').eq('profile_id', profileId),
+        supabase.from('ai_usage_logs').select('*').eq('profile_id', profileId).order('created_at', { ascending: false }).limit(50),
       ]);
-      return { profile, invoices: invoices || [], clients: clients || [], products: products || [] };
+      return { 
+        profile, 
+        invoices: invoices || [], 
+        clients: clients || [], 
+        products: products || [],
+        aiUsage: aiUsage || [],
+      };
     },
     enabled: !!profileId,
+  });
+}
+
+export function useUpdateUserTier() {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: async ({ profileId, tier }: { profileId: string; tier: string }) => {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ ai_tier: tier } as any)
+        .eq('id', profileId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin_users'] });
+      queryClient.invalidateQueries({ queryKey: ['admin_user_detail'] });
+    },
+  });
+}
+
+export function useUpdateUserModules() {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: async ({ profileId, modules }: { profileId: string; modules: string[] }) => {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ enabled_modules: modules } as any)
+        .eq('id', profileId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin_users'] });
+      queryClient.invalidateQueries({ queryKey: ['admin_user_detail'] });
+    },
+  });
+}
+
+export function useResetUserAiQuota() {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: async (profileId: string) => {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ 
+          ai_queries_today: 0,
+          ai_last_query_date: new Date().toISOString().split('T')[0],
+        } as any)
+        .eq('id', profileId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin_users'] });
+      queryClient.invalidateQueries({ queryKey: ['admin_user_detail'] });
+    },
   });
 }
