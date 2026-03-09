@@ -231,6 +231,45 @@ export default function OnboardingPage() {
                     })}
                   </div>
                 </div>
+                {/* Business Mode Selection */}
+                <div>
+                  <Label>How do you operate? <span className="text-destructive">*</span></Label>
+                  <p className="text-xs text-muted-foreground mb-2">This cannot be changed later — it optimizes your entire workflow</p>
+                  <div className="grid gap-2">
+                    {BUSINESS_MODES.map((mode) => {
+                      const ModeIcon = mode.icon;
+                      return (
+                        <button
+                          key={mode.value}
+                          type="button"
+                          onClick={() => {
+                            setBusinessMode(mode.value);
+                            // Auto-set prefix based on mode
+                            if (mode.value === 'retail') setInvoicePrefix('BILL-');
+                            else setInvoicePrefix('INV-');
+                          }}
+                          className={cn(
+                            'flex items-center gap-3 p-3 rounded-lg border text-left transition-all',
+                            businessMode === mode.value
+                              ? 'border-primary bg-primary/5 ring-2 ring-primary/20'
+                              : 'border-border bg-card hover:border-primary/40'
+                          )}
+                        >
+                          <div className={cn(
+                            'w-8 h-8 rounded-lg flex items-center justify-center shrink-0',
+                            businessMode === mode.value ? 'bg-primary text-primary-foreground' : 'bg-muted'
+                          )}>
+                            <ModeIcon className="w-4 h-4" />
+                          </div>
+                          <div>
+                            <p className="text-sm font-semibold">{mode.label}</p>
+                            <p className="text-xs text-muted-foreground">{mode.description}</p>
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
                     <Label htmlFor="email">Email</Label>
