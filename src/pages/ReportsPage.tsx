@@ -192,22 +192,22 @@ export default function ReportsPage() {
         </TabsContent>
 
         {/* ═══ P&L TAB ═══ */}
-        <TabsContent value="pnl"><ProfitLossReport /></TabsContent>
+        <TabsContent value="pnl"><Suspense fallback={<Skeleton className="h-64 w-full" />}><ProfitLossReport /></Suspense></TabsContent>
 
         {/* ═══ GST TAB ═══ */}
-        <TabsContent value="gst"><GSTReport invoices={invoices} /></TabsContent>
+        <TabsContent value="gst"><Suspense fallback={<Skeleton className="h-64 w-full" />}><GSTReport invoices={invoices} /></Suspense></TabsContent>
 
         {/* ═══ GSTR-3B TAB ═══ */}
-        <TabsContent value="gstr3b"><GSTR3BExport /></TabsContent>
+        <TabsContent value="gstr3b"><Suspense fallback={<Skeleton className="h-64 w-full" />}><GSTR3BExport /></Suspense></TabsContent>
 
         {/* ═══ TDS TAB ═══ */}
-        <TabsContent value="tds"><TDSManagement /></TabsContent>
+        <TabsContent value="tds"><Suspense fallback={<Skeleton className="h-64 w-full" />}><TDSManagement /></Suspense></TabsContent>
 
         {/* ═══ CASH FLOW TAB ═══ */}
-        <TabsContent value="cashflow"><CashFlowForecast /></TabsContent>
+        <TabsContent value="cashflow"><Suspense fallback={<Skeleton className="h-64 w-full" />}><CashFlowForecast /></Suspense></TabsContent>
 
         {/* ═══ LEDGER TAB ═══ */}
-        <TabsContent value="ledger"><PartyLedger /></TabsContent>
+        <TabsContent value="ledger"><Suspense fallback={<Skeleton className="h-64 w-full" />}><PartyLedger /></Suspense></TabsContent>
 
         {/* ═══ OUTSTANDING TAB ═══ */}
         <TabsContent value="outstanding" className="space-y-6">
