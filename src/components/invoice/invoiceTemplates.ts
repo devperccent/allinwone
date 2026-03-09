@@ -1,4 +1,4 @@
-export type InvoiceTemplate = 'modern' | 'classic' | 'minimal';
+export type InvoiceTemplate = 'modern' | 'classic' | 'minimal' | 'bold' | 'elegant' | 'corporate';
 
 export interface TemplatePalette {
   accent: string;
