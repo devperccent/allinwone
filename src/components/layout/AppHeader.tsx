@@ -60,8 +60,8 @@ export const AppHeader = memo(function AppHeader({ searchOpen, onSearchOpenChang
         {isMobile && (
           <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
             <SheetTrigger asChild>
-              <Button variant="ghost" size="icon" className="shrink-0 h-8 w-8">
-                <Menu className="w-4 h-4" />
+              <Button variant="ghost" size="icon" className="shrink-0 h-8 w-8" aria-label="Open navigation menu">
+                <Menu className="w-4 h-4" aria-hidden="true" />
               </Button>
             </SheetTrigger>
             <SheetContent side="left" className="p-0 w-56">
