@@ -246,12 +246,14 @@ export function AppSidebar({ onNavigate, onOpenShortcuts }: AppSidebarProps) {
             variant="ghost"
             size="sm"
             onClick={() => setCollapsed(!collapsed)}
+            aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+            aria-expanded={!isCollapsed}
             className={cn(
               'w-full justify-start gap-2.5 mt-1 text-sidebar-foreground/50 hover:text-sidebar-accent-foreground hover:bg-sidebar-accent/50',
               isCollapsed && 'justify-center'
             )}
           >
-            <ChevronLeft className={cn('w-4 h-4 transition-transform', isCollapsed && 'rotate-180')} />
+            <ChevronLeft className={cn('w-4 h-4 transition-transform', isCollapsed && 'rotate-180')} aria-hidden="true" />
             {!isCollapsed && <span className="text-xs">{t('nav_collapse')}</span>}
           </Button>
         )}
