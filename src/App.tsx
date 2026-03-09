@@ -46,6 +46,7 @@ const BillingPage = lazy(() => import("./pages/BillingPage"));
 const ExpensesPage = lazy(() => import("./pages/ExpensesPage"));
 const CollectionsPage = lazy(() => import("./pages/CollectionsPage"));
 const UdhaarPage = lazy(() => import("./pages/UdhaarPage"));
+const ProjectsPage = lazy(() => import("./pages/ProjectsPage"));
 const AIChatbot = lazy(() => import("./components/chat/AIChatbot").then(m => ({ default: m.AIChatbot })));
 
 const queryClient = new QueryClient({
@@ -132,6 +133,7 @@ const App = () => (
                 <Route path="/expenses" element={<ExpensesPage />} />
                 <Route path="/collections" element={<CollectionsPage />} />
                 <Route path="/udhaar" element={<UdhaarPage />} />
+                <Route path="/projects" element={<ProjectsPage />} />
                 <Route path="/admin" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
                 <Route path="/admin/users/:profileId" element={<AdminRoute><AdminUserDetail /></AdminRoute>} />
               </Route>

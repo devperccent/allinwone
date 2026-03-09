@@ -1,5 +1,5 @@
 import { useMemo, lazy, Suspense } from 'react';
-import { BarChart3, FileText, TrendingUp, Calendar, Download, Receipt, Wallet, LineChart, Users, FileJson, Link2 } from 'lucide-react';
+import { BarChart3, FileText, TrendingUp, Calendar, Download, Receipt, Wallet, LineChart, Users, FileJson, Link2, CreditCard } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -16,6 +16,7 @@ const TDSManagement = lazy(() => import('@/components/reports/TDSManagement').th
 const CashFlowForecast = lazy(() => import('@/components/reports/CashFlowForecast').then(m => ({ default: m.CashFlowForecast })));
 const PartyLedger = lazy(() => import('@/components/reports/PartyLedger').then(m => ({ default: m.PartyLedger })));
 const BankReconciliation = lazy(() => import('@/components/reconciliation/BankReconciliation').then(m => ({ default: m.BankReconciliation })));
+const PaymentAnalytics = lazy(() => import('@/components/reports/PaymentAnalytics').then(m => ({ default: m.PaymentAnalytics })));
 
 // Lazy-load recharts (heavy library)
 const RechartsChart = lazy(() => import('recharts').then(m => ({
@@ -132,6 +133,9 @@ export default function ReportsPage() {
           </TabsTrigger>
           <TabsTrigger value="reconciliation" className="gap-1.5 text-xs sm:text-sm">
             <Link2 className="w-3.5 h-3.5" /><span className="hidden sm:inline">Bank Recon</span>
+          </TabsTrigger>
+          <TabsTrigger value="payments" className="gap-1.5 text-xs sm:text-sm">
+            <CreditCard className="w-3.5 h-3.5" /><span className="hidden sm:inline">Payments</span>
           </TabsTrigger>
         </TabsList>
 
@@ -279,6 +283,12 @@ export default function ReportsPage() {
         <TabsContent value="reconciliation">
           <Suspense fallback={<Skeleton className="h-64" />}>
             <BankReconciliation />
+          </Suspense>
+        </TabsContent>
+        {/* ═══ PAYMENT ANALYTICS TAB ═══ */}
+        <TabsContent value="payments">
+          <Suspense fallback={<Skeleton className="h-64" />}>
+            <PaymentAnalytics />
           </Suspense>
         </TabsContent>
       </Tabs>

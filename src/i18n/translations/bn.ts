@@ -39,6 +39,7 @@ export const bn: Record<TranslationKey, string> = {
   nav_collections: 'আদায়',
   nav_udhaar: 'বাকি',
   nav_expenses: 'খরচ',
+  nav_projects: 'প্রকল্প',
   
   // Section labels
   section_billing: 'বিলিং',

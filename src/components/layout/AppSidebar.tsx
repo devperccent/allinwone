@@ -22,6 +22,7 @@ import {
   Wallet,
   HandCoins,
   BookUser,
+  FolderKanban,
 } from 'lucide-react';
 import { useIsAdmin } from '@/hooks/useAdmin';
 import { useEnabledModules, type ModuleKey } from '@/hooks/useEnabledModules';
@@ -70,6 +71,7 @@ const documentNavigation: NavItem[] = [
 const managementNavigation: NavItem[] = [
   { nameKey: 'nav_products', href: '/products', icon: Package },
   { nameKey: 'nav_clients', href: '/clients', icon: Users },
+  { nameKey: 'nav_projects', href: '/projects', icon: FolderKanban },
   { nameKey: 'nav_udhaar', href: '/udhaar', icon: BookUser },
   { nameKey: 'nav_expenses', href: '/expenses', icon: Wallet },
   { nameKey: 'nav_reports', href: '/reports', icon: TrendingUp, module: 'reports' },
