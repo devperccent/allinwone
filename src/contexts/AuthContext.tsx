@@ -37,12 +37,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return data as Profile;
   };
 
-  const refreshProfile = async () => {
+  const refreshProfile = useCallback(async () => {
     if (user) {
       const profileData = await fetchProfile(user.id);
       setProfile(profileData);
     }
-  };
+  }, [user]);
 
   useEffect(() => {
     // Set up auth state listener FIRST
