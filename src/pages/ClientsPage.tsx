@@ -312,6 +312,22 @@ export default function ClientsPage() {
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
                       <DropdownMenuItem><Pencil className="w-4 h-4 mr-2" />Edit</DropdownMenuItem>
+                      {Number(client.credit_balance) > 0 && client.phone && (
+                        <>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem
+                            onClick={() => {
+                              const text = `Hi ${client.name}, this is a friendly reminder that you have an outstanding balance of ${formatINR(Number(client.credit_balance))}. Please settle at your earliest convenience. Thank you! 🙏`;
+                              const phone = client.phone!.replace(/[^0-9]/g, '');
+                              const fullPhone = phone.startsWith('91') ? phone : `91${phone}`;
+                              window.open(`https://wa.me/${fullPhone}?text=${encodeURIComponent(text)}`, '_blank');
+                            }}
+                          >
+                            <MessageCircle className="w-4 h-4 mr-2" />
+                            WhatsApp Reminder
+                          </DropdownMenuItem>
+                        </>
+                      )}
                       <DropdownMenuSeparator />
                       <DropdownMenuItem 
                         onClick={() => deleteClient.mutate(client.id)}
