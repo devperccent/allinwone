@@ -1,5 +1,5 @@
 import { useMemo, lazy, Suspense } from 'react';
-import { BarChart3, FileText, TrendingUp, Calendar, Download, Receipt, Wallet, LineChart, Users, FileJson } from 'lucide-react';
+import { BarChart3, FileText, TrendingUp, Calendar, Download, Receipt, Wallet, LineChart, Users, FileJson, Link2 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
