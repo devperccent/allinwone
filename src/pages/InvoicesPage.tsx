@@ -296,7 +296,7 @@ export default function InvoicesPage() {
   const handleMarkPaid = () => {
     if (!paidInvoice) return;
     markAsPaid.mutate(
-      { invoiceId: paidInvoice.id, paymentMode, paymentDate },
+      { invoiceId: paidInvoice.id, paymentMode, paymentDate, paymentReference: paymentReference || undefined },
       {
         onSuccess: () => {
           setPaidDialogOpen(false);
