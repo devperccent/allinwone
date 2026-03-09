@@ -153,7 +153,7 @@ export function AppSidebar({ onNavigate, onOpenShortcuts }: AppSidebarProps) {
       )}
     >
       {/* Logo */}
-      <div className="flex items-center h-12 px-3 border-b border-sidebar-border">
+      <div className="flex items-center h-12 px-5 border-b border-sidebar-border">
         <Link to="/" className="flex items-center">
           {isCollapsed ? (
             <img src={inwLogo} alt="Inw" className="w-6 h-6 object-contain" />
