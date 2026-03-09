@@ -80,7 +80,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => subscription.unsubscribe();
   }, []);
 
-  const signUp = async (email: string, password: string, orgName: string) => {
+  const signUp = useCallback(async (email: string, password: string, orgName: string) => {
     const { error } = await supabase.auth.signUp({
       email,
       password,
@@ -93,7 +93,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     });
     
     return { error: error as Error | null };
-  };
+  }, []);
 
   const signIn = async (email: string, password: string) => {
     const { error } = await supabase.auth.signInWithPassword({
