@@ -1,3 +1,4 @@
+import { useMemo, useCallback } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 
 export const ALL_MODULES = [
@@ -11,6 +12,8 @@ export const ALL_MODULES = [
 
 export type ModuleKey = typeof ALL_MODULES[number]['key'];
 
+const ALL_MODULE_KEYS = ALL_MODULES.map(m => m.key);
+
 const MODULE_ROUTES: Record<ModuleKey, string[]> = {
   quick_bill: ['/quick-bill'],
   quotations: ['/quotations'],
@@ -23,21 +26,31 @@ const MODULE_ROUTES: Record<ModuleKey, string[]> = {
 export function useEnabledModules() {
   const { profile } = useAuth();
 
-  const enabledModules: ModuleKey[] = (profile as any)?.enabled_modules ?? 
-    ALL_MODULES.map(m => m.key);
+  const enabledModules: ModuleKey[] = useMemo(() =>
+    (profile as any)?.enabled_modules ?? ALL_MODULE_KEYS,
+    [(profile as any)?.enabled_modules]
+  );
 
-  const isModuleEnabled = (key: ModuleKey): boolean => {
-    return enabledModules.includes(key);
-  };
+  // Stable Set for O(1) lookups
+  const enabledSet = useMemo(() => new Set(enabledModules), [enabledModules]);
 
-  const isRouteEnabled = (path: string): boolean => {
+  const isModuleEnabled = useCallback((key: ModuleKey): boolean =>
+    enabledSet.has(key),
+    [enabledSet]
+  );
+
+  const isRouteEnabled = useCallback((path: string): boolean => {
     for (const [moduleKey, routes] of Object.entries(MODULE_ROUTES)) {
       if (routes.some(r => path.startsWith(r))) {
-        return isModuleEnabled(moduleKey as ModuleKey);
+        return enabledSet.has(moduleKey as ModuleKey);
       }
     }
-    return true; // Core routes always enabled
-  };
+    return true;
+  }, [enabledSet]);
 
-  return { enabledModules, isModuleEnabled, isRouteEnabled };
+  return useMemo(() => ({
+    enabledModules,
+    isModuleEnabled,
+    isRouteEnabled,
+  }), [enabledModules, isModuleEnabled, isRouteEnabled]);
 }

@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMemo } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -18,6 +19,7 @@ export function useIsAdmin() {
       return !!data;
     },
     enabled: !!user?.id,
+    staleTime: 30 * 60 * 1000, // Admin status rarely changes — cache 30min
   });
 }
 
@@ -47,7 +49,6 @@ export function useAdminUsers() {
   return useQuery({
     queryKey: ['admin_users'],
     queryFn: async () => {
-      // Fetch all data in parallel
       const [
         { data: profiles, error },
         { data: invoices },
@@ -61,14 +62,27 @@ export function useAdminUsers() {
       ]);
       if (error) throw error;
 
-      return profiles.map((p: any) => {
-        const userInvoices = invoices?.filter((i: any) => i.profile_id === p.id) || [];
-        const userClients = clients?.filter((c: any) => c.profile_id === p.id) || [];
-        const userProducts = products?.filter((pr: any) => pr.profile_id === p.id) || [];
-        const totalRevenue = userInvoices
-          .filter((i: any) => i.status === 'paid')
-          .reduce((sum: number, i: any) => sum + Number(i.grand_total), 0);
+      // Build lookup maps for O(n) instead of O(n*m) filtering
+      const invoicesByProfile = new Map<string, { count: number; revenue: number }>();
+      for (const i of invoices || []) {
+        const existing = invoicesByProfile.get(i.profile_id) || { count: 0, revenue: 0 };
+        existing.count++;
+        if (i.status === 'paid') existing.revenue += Number(i.grand_total);
+        invoicesByProfile.set(i.profile_id, existing);
+      }
 
+      const clientCountByProfile = new Map<string, number>();
+      for (const c of clients || []) {
+        clientCountByProfile.set(c.profile_id, (clientCountByProfile.get(c.profile_id) || 0) + 1);
+      }
+
+      const productCountByProfile = new Map<string, number>();
+      for (const p of products || []) {
+        productCountByProfile.set(p.profile_id, (productCountByProfile.get(p.profile_id) || 0) + 1);
+      }
+
+      return profiles.map((p: any) => {
+        const invStats = invoicesByProfile.get(p.id) || { count: 0, revenue: 0 };
         return {
           id: p.id,
           user_id: p.user_id,
@@ -80,10 +94,10 @@ export function useAdminUsers() {
           onboarding_completed: p.onboarding_completed,
           created_at: p.created_at,
           state_code: p.state_code,
-          invoice_count: userInvoices.length,
-          client_count: userClients.length,
-          product_count: userProducts.length,
-          total_revenue: totalRevenue,
+          invoice_count: invStats.count,
+          client_count: clientCountByProfile.get(p.id) || 0,
+          product_count: productCountByProfile.get(p.id) || 0,
+          total_revenue: invStats.revenue,
           ai_tier: p.ai_tier || 'standard',
           ai_queries_today: p.ai_queries_today || 0,
           enabled_modules: p.enabled_modules || [],
@@ -99,27 +113,41 @@ export function useAdminStats() {
   return useQuery({
     queryKey: ['admin_stats'],
     queryFn: async () => {
-      const { data: profiles } = await supabase.from('profiles').select('id, created_at, onboarding_completed, ai_tier, ai_queries_today');
-      const { data: invoices } = await supabase.from('invoices').select('id, grand_total, status, created_at');
-      const { data: aiUsage } = await supabase.from('ai_usage_logs').select('model_used, created_at');
+      // All 3 queries in parallel
+      const [
+        { data: profiles },
+        { data: invoices },
+        { data: aiUsage },
+      ] = await Promise.all([
+        supabase.from('profiles').select('id, created_at, onboarding_completed, ai_tier, ai_queries_today'),
+        supabase.from('invoices').select('id, grand_total, status, created_at'),
+        supabase.from('ai_usage_logs').select('model_used, created_at'),
+      ]);
 
       const totalUsers = profiles?.length || 0;
       const onboardedUsers = profiles?.filter((p: any) => p.onboarding_completed).length || 0;
-      const totalInvoices = invoices?.length || 0;
-      const totalRevenue = invoices
-        ?.filter((i: any) => i.status === 'paid')
-        .reduce((sum: number, i: any) => sum + Number(i.grand_total), 0) || 0;
-      const pendingRevenue = invoices
-        ?.filter((i: any) => i.status === 'finalized')
-        .reduce((sum: number, i: any) => sum + Number(i.grand_total), 0) || 0;
-
-      // AI usage stats
-      const aiQueriesToday = aiUsage?.filter((u: any) => {
-        const today = new Date().toISOString().split('T')[0];
-        return u.created_at.startsWith(today);
-      }).length || 0;
-
       const premiumUsers = profiles?.filter((p: any) => p.ai_tier === 'premium').length || 0;
+
+      let totalRevenue = 0;
+      let pendingRevenue = 0;
+      for (const i of invoices || []) {
+        const amount = Number(i.grand_total);
+        if (i.status === 'paid') totalRevenue += amount;
+        else if (i.status === 'finalized') pendingRevenue += amount;
+      }
+
+      const today = new Date().toISOString().split('T')[0];
+      let aiQueriesToday = 0;
+      let aiPremium = 0;
+      let aiStandard = 0;
+      let aiBudget = 0;
+      for (const u of aiUsage || []) {
+        if (u.created_at.startsWith(today)) aiQueriesToday++;
+        const model = u.model_used || '';
+        if (model.includes('pro')) aiPremium++;
+        else if (model.includes('lite')) aiBudget++;
+        else if (model.includes('flash')) aiStandard++;
+      }
 
       // Signups by month (last 6 months)
       const now = new Date();
@@ -135,23 +163,16 @@ export function useAdminStats() {
         signupsByMonth.push({ month: monthStr, count });
       }
 
-      // AI usage by model
-      const aiByModel = {
-        premium: aiUsage?.filter((u: any) => u.model_used?.includes('pro')).length || 0,
-        standard: aiUsage?.filter((u: any) => u.model_used?.includes('flash') && !u.model_used?.includes('lite')).length || 0,
-        budget: aiUsage?.filter((u: any) => u.model_used?.includes('lite')).length || 0,
-      };
-
       return {
         totalUsers,
         onboardedUsers,
-        totalInvoices,
+        totalInvoices: invoices?.length || 0,
         totalRevenue,
         pendingRevenue,
         signupsByMonth,
         aiQueriesToday,
         premiumUsers,
-        aiByModel,
+        aiByModel: { premium: aiPremium, standard: aiStandard, budget: aiBudget },
         totalAiQueries: aiUsage?.length || 0,
       };
     },
