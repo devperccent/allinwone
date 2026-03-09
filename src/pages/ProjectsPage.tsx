@@ -257,6 +257,7 @@ function ProjectDetail({ project, onBack }: { project: Project; onBack: () => vo
   const { milestones, createMilestone, updateMilestone } = useMilestones(project.id);
   const { entries, logTime, deleteEntry } = useTimeEntries(project.id);
   const { createInvoice } = useInvoices();
+  const { updateProject } = useProjects();
   const navigate = useNavigate();
   const { toast } = useToast();
   const timer = useTimer();
@@ -268,6 +269,21 @@ function ProjectDetail({ project, onBack }: { project: Project; onBack: () => vo
   const earnedFromTime = billableHours * Number(project.hourly_rate);
   const milestoneDone = milestones.filter(m => m.status === 'completed').reduce((s, m) => s + Number(m.amount), 0);
   const milestoneTotal = milestones.reduce((s, m) => s + Number(m.amount), 0);
+
+  const statusColors: Record<string, string> = {
+    active: 'default',
+    completed: 'secondary',
+    'on-hold': 'outline',
+    cancelled: 'destructive',
+  };
+
+  const handleStatusChange = (newStatus: string) => {
+    updateProject.mutate({
+      id: project.id,
+      status: newStatus,
+      ...(newStatus === 'completed' ? { end_date: new Date().toISOString().split('T')[0] } : {}),
+    });
+  };
 
   const handleGenerateInvoice = async (items: { description: string; qty: number; rate: number; tax_rate: number; discount: number; product_id: string | null }[]) => {
     try {
@@ -298,7 +314,30 @@ function ProjectDetail({ project, onBack }: { project: Project; onBack: () => vo
         <Button variant="ghost" size="sm" onClick={onBack}>← Back</Button>
         <h2 className="text-lg font-bold flex-1">{project.name}</h2>
         <GenerateInvoiceDialog project={project} milestones={milestones} entries={entries} onGenerate={handleGenerateInvoice} />
-        <Badge variant={project.status === 'active' ? 'default' : 'secondary'}>{project.status}</Badge>
+        
+        {/* Status dropdown */}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline" size="sm" className="gap-1.5 h-8 text-xs">
+              <Badge variant={statusColors[project.status] as any || 'default'} className="text-[10px]">{project.status}</Badge>
+              <MoreHorizontal className="w-3.5 h-3.5" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem onClick={() => handleStatusChange('active')} className="gap-2">
+              <Play className="w-3.5 h-3.5 text-primary" /> Mark Active
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => handleStatusChange('completed')} className="gap-2">
+              <CheckCircle2 className="w-3.5 h-3.5 text-green-600" /> Mark Completed
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => handleStatusChange('on-hold')} className="gap-2">
+              <PauseCircle className="w-3.5 h-3.5 text-amber-500" /> Put On Hold
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => handleStatusChange('cancelled')} className="gap-2 text-destructive">
+              <XCircle className="w-3.5 h-3.5" /> Cancel Project
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
 
       {/* Summary cards */}
