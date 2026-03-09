@@ -1,5 +1,6 @@
 import { useState, useRef, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { prefetchRoute } from '@/lib/routePrefetch';
 import {
   Plus,
   Search,
