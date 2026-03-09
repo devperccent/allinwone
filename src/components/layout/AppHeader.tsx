@@ -1,6 +1,7 @@
 import { lazy, Suspense, memo } from 'react';
 import { Search, Plus, Moon, Sun, Menu, Settings, LogOut, BookOpen, ShieldCheck, Keyboard } from 'lucide-react';
 import { modKey } from '@/lib/platform';
+import { prefetchRoute } from '@/lib/routePrefetch';
 import { Button } from '@/components/ui/button';
 import { NotificationBell } from './NotificationBell';
 import { OfflineIndicator } from './OfflineIndicator';
