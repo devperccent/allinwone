@@ -169,7 +169,7 @@ export function AppSidebar({ onNavigate, onOpenShortcuts }: AppSidebarProps) {
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 px-2 py-2 space-y-0.5 overflow-y-auto">
+      <nav className="flex-1 px-2 py-2 space-y-0.5 overflow-y-auto" aria-label="Sidebar menu">
         {renderSectionLabel('section_billing')}
         {filteredMain.map(renderNavItem)}
 
