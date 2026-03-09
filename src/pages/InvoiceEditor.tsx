@@ -52,10 +52,10 @@ export default function InvoiceEditor() {
     isCreating,
     isUpdating,
     isFinalizing,
+    getInvoiceWithItems,
   } = useInvoices();
   const { generatePdf, isGenerating: isDownloading } = usePdfDownload();
   const { sendInvoiceEmail, isSending } = useSendInvoiceEmail();
-  const { getInvoiceWithItems } = useInvoices();
 
   // Form state
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);
