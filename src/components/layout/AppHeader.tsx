@@ -137,8 +137,8 @@ export const AppHeader = memo(function AppHeader({ searchOpen, onSearchOpenChang
         <div className="pl-1.5 ml-1 border-l border-border">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="relative h-8 w-8 rounded-full">
-                <div className="h-7 w-7 rounded-full bg-primary/15 flex items-center justify-center">
+              <Button variant="ghost" size="icon" className="relative h-8 w-8 rounded-full" aria-label={`Account menu for ${profile?.org_name || 'user'}`}>
+                <div className="h-7 w-7 rounded-full bg-primary/15 flex items-center justify-center" aria-hidden="true">
                   <span className="text-[10px] font-semibold text-primary">{initials}</span>
                 </div>
               </Button>
