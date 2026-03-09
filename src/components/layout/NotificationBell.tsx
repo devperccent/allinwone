@@ -121,7 +121,7 @@ export function NotificationBell() {
           )}
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-[360px] md:w-[420px] p-0" align="end" sideOffset={8}>
+      <PopoverContent className="w-[360px] md:w-[420px] p-0" align="end" sideOffset={8} role="dialog" aria-label="Notifications panel">
         {/* Header */}
         <div className="flex items-center justify-between px-4 py-3">
           <div className="flex items-center gap-2">
