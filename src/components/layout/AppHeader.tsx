@@ -1,6 +1,7 @@
 import { lazy, Suspense, memo } from 'react';
 import { Search, Plus, Moon, Sun, Menu, Settings, LogOut, BookOpen, ShieldCheck, Keyboard } from 'lucide-react';
 import { modKey } from '@/lib/platform';
+import { prefetchRoute } from '@/lib/routePrefetch';
 import { Button } from '@/components/ui/button';
 import { NotificationBell } from './NotificationBell';
 import { OfflineIndicator } from './OfflineIndicator';
@@ -102,6 +103,7 @@ export const AppHeader = memo(function AppHeader({ searchOpen, onSearchOpenChang
           <TooltipTrigger asChild>
             <Button
               onClick={() => navigate('/invoices/new')}
+              onMouseEnter={() => prefetchRoute('/invoices/new')}
               size="sm"
               className="gap-1.5 h-8 text-xs"
             >

@@ -1,5 +1,6 @@
 import { useState, useRef, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { prefetchRoute } from '@/lib/routePrefetch';
 import {
   Plus,
   Search,
@@ -83,7 +84,7 @@ export default function PurchaseOrdersPage() {
     <div className="space-y-4 animate-fade-in">
       <div className="flex items-center justify-between gap-3">
         <h1 className="text-xl font-bold">Purchase Orders</h1>
-        <Button asChild size="sm" className="gap-1.5 h-8 text-xs">
+        <Button asChild size="sm" className="gap-1.5 h-8 text-xs" onMouseEnter={() => prefetchRoute('/purchase-orders/new')}>
           <Link to="/purchase-orders/new">
             <Plus className="w-3.5 h-3.5" />
             New PO

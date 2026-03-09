@@ -1,5 +1,6 @@
 import { useState, useRef, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { prefetchRoute } from '@/lib/routePrefetch';
 import {
   Plus,
   Search,
@@ -86,7 +87,7 @@ export default function QuotationsPage() {
       {/* Header */}
       <div className="flex items-center justify-between gap-3">
         <h1 className="text-xl font-bold">Quotations</h1>
-        <Button asChild size="sm" className="gap-1.5 h-8 text-xs">
+        <Button asChild size="sm" className="gap-1.5 h-8 text-xs" onMouseEnter={() => prefetchRoute('/quotations/new')}>
           <Link to="/quotations/new">
             <Plus className="w-3.5 h-3.5" />
             New Quotation
