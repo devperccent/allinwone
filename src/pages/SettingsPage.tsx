@@ -26,6 +26,8 @@ import { SignatureUpload } from '@/components/SignatureUpload';
 import { resetWalkthrough } from '@/components/onboarding/WalkthroughTutorial';
 import { ALL_MODULES, type ModuleKey } from '@/hooks/useEnabledModules';
 import { isKeyboardHintsEnabled, setKeyboardHintsEnabled } from '@/components/onboarding/KeyboardShortcutsHint';
+import { LanguageSelector } from '@/components/LanguageSelector';
+import { useLanguage } from '@/i18n/LanguageContext';
 import {
   getNotificationPreferences,
   saveNotificationPreferences,
