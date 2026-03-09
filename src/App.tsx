@@ -69,6 +69,7 @@ function PageLoader() {
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <AuthProvider>
+      <LanguageProvider>
       <TooltipProvider>
         <Toaster />
         <Sonner />
