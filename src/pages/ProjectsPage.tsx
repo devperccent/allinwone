@@ -233,11 +233,11 @@ function GenerateInvoiceDialog({ project, milestones, entries, onGenerate }: {
             const items: { description: string; qty: number; rate: number; tax_rate: number; discount: number }[] = [];
             for (const m of completedMilestones) {
               if (selectedMilestones.has(m.id)) {
-                items.push({ description: `${project.name} — ${m.title}`, qty: 1, rate: Number(m.amount), tax_rate: 18, discount: 0 });
+                items.push({ description: `${project.name} — ${m.title}`, qty: 1, rate: Number(m.amount), tax_rate: 18, discount: 0, product_id: null });
               }
             }
             if (includeTime && unbilledHours > 0) {
-              items.push({ description: `${project.name} — Time-based work (${unbilledHours.toFixed(1)} hrs)`, qty: unbilledHours, rate: Number(project.hourly_rate), tax_rate: 18, discount: 0 });
+              items.push({ description: `${project.name} — Time-based work (${unbilledHours.toFixed(1)} hrs)`, qty: unbilledHours, rate: Number(project.hourly_rate), tax_rate: 18, discount: 0, product_id: null });
             }
             onGenerate(items);
             setOpen(false);
