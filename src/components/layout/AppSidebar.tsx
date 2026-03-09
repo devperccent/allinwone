@@ -171,6 +171,11 @@ export function AppSidebar({ onNavigate, onOpenShortcuts }: AppSidebarProps) {
         {filterNav(managementNavigation).map(renderNavItem)}
       </nav>
 
+      {/* Keyboard hints */}
+      {onOpenShortcuts && (
+        <SidebarKeyboardHint onOpenShortcuts={onOpenShortcuts} collapsed={isCollapsed} />
+      )}
+
       {/* User section */}
       <div className="p-2 border-t border-sidebar-border">
         <DropdownMenu>
