@@ -16,7 +16,9 @@ import SignupPage from "./pages/SignupPage";
 import ForgotPasswordPage from "./pages/ForgotPasswordPage";
 import ResetPasswordPage from "./pages/ResetPasswordPage";
 import NotFound from "./pages/NotFound";
-import Dashboard from "./pages/Dashboard";
+
+// Lazy-loaded pages (including Dashboard)
+const Dashboard = lazy(() => import("./pages/Dashboard"));
 
 // Lazy-loaded pages
 const InvoicesPage = lazy(() => import("./pages/InvoicesPage"));
