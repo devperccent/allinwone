@@ -274,6 +274,13 @@ export default function ReportsPage() {
             </Card>
           )}
         </TabsContent>
+
+        {/* ═══ BANK RECONCILIATION TAB ═══ */}
+        <TabsContent value="reconciliation">
+          <Suspense fallback={<Skeleton className="h-64" />}>
+            <BankReconciliation />
+          </Suspense>
+        </TabsContent>
       </Tabs>
     </div>
   );
