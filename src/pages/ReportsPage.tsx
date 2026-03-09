@@ -285,6 +285,12 @@ export default function ReportsPage() {
             <BankReconciliation />
           </Suspense>
         </TabsContent>
+        {/* ═══ PAYMENT ANALYTICS TAB ═══ */}
+        <TabsContent value="payments">
+          <Suspense fallback={<Skeleton className="h-64" />}>
+            <PaymentAnalytics />
+          </Suspense>
+        </TabsContent>
       </Tabs>
     </div>
   );
