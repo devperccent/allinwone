@@ -46,6 +46,7 @@ const BillingPage = lazy(() => import("./pages/BillingPage"));
 const ExpensesPage = lazy(() => import("./pages/ExpensesPage"));
 const CollectionsPage = lazy(() => import("./pages/CollectionsPage"));
 const UdhaarPage = lazy(() => import("./pages/UdhaarPage"));
+const ProjectsPage = lazy(() => import("./pages/ProjectsPage"));
 const AIChatbot = lazy(() => import("./components/chat/AIChatbot").then(m => ({ default: m.AIChatbot })));
 
 const queryClient = new QueryClient({
