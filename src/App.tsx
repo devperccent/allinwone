@@ -10,17 +10,15 @@ import { ModuleRoute } from "@/components/auth/ModuleRoute";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { AdminRoute } from "@/components/auth/AdminRoute";
 
-// Eagerly loaded (small, critical path)
-import LoginPage from "./pages/LoginPage";
-import SignupPage from "./pages/SignupPage";
-import ForgotPasswordPage from "./pages/ForgotPasswordPage";
-import ResetPasswordPage from "./pages/ResetPasswordPage";
-import NotFound from "./pages/NotFound";
+// Auth pages — lazy loaded (most users land authenticated)
+const LoginPage = lazy(() => import("./pages/LoginPage"));
+const SignupPage = lazy(() => import("./pages/SignupPage"));
+const ForgotPasswordPage = lazy(() => import("./pages/ForgotPasswordPage"));
+const ResetPasswordPage = lazy(() => import("./pages/ResetPasswordPage"));
+const NotFound = lazy(() => import("./pages/NotFound"));
 
-// Lazy-loaded pages (including Dashboard)
+// All app pages — lazy loaded
 const Dashboard = lazy(() => import("./pages/Dashboard"));
-
-// Lazy-loaded pages
 const InvoicesPage = lazy(() => import("./pages/InvoicesPage"));
 const InvoiceEditor = lazy(() => import("./pages/InvoiceEditor"));
 const ProductsPage = lazy(() => import("./pages/ProductsPage"));
@@ -49,10 +47,10 @@ const AIChatbot = lazy(() => import("./components/chat/AIChatbot").then(m => ({ 
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 10 * 60 * 1000,     // 10 min before considered stale
-      gcTime: 30 * 60 * 1000,         // 30 min garbage collection
+      staleTime: 10 * 60 * 1000,
+      gcTime: 30 * 60 * 1000,
       refetchOnWindowFocus: false,
-      refetchOnMount: false,           // Don't refetch when component mounts if data exists
+      refetchOnMount: false,
       retry: 1,
     },
   },

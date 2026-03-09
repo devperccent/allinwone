@@ -1,13 +1,15 @@
-import { useState, Suspense } from 'react';
+import { useState, Suspense, lazy, memo } from 'react';
 import { Outlet } from 'react-router-dom';
 import { AppSidebar } from './AppSidebar';
 import { AppHeader } from './AppHeader';
-import { KeyboardShortcutsDialog } from './KeyboardShortcutsDialog';
-import { KeyboardShortcutsHint } from '@/components/onboarding/KeyboardShortcutsHint';
-import { WalkthroughTutorial } from '@/components/onboarding/WalkthroughTutorial';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 import { useTheme } from '@/hooks/useTheme';
+
+// Lazy-load dialogs that aren't needed on initial render
+const KeyboardShortcutsDialog = lazy(() => import('./KeyboardShortcutsDialog').then(m => ({ default: m.KeyboardShortcutsDialog })));
+const KeyboardShortcutsHint = lazy(() => import('@/components/onboarding/KeyboardShortcutsHint').then(m => ({ default: m.KeyboardShortcutsHint })));
+const WalkthroughTutorial = lazy(() => import('@/components/onboarding/WalkthroughTutorial').then(m => ({ default: m.WalkthroughTutorial })));
 
 function RouteLoader() {
   return (
@@ -16,6 +18,8 @@ function RouteLoader() {
     </div>
   );
 }
+
+const MemoizedSidebar = memo(AppSidebar);
 
 export function AppLayout() {
   const isMobile = useIsMobile();
@@ -37,7 +41,7 @@ export function AppLayout() {
 
   return (
     <div className="flex h-screen overflow-hidden bg-background">
-      {!isMobile && <AppSidebar onOpenShortcuts={() => setShortcutsOpen(true)} />}
+      {!isMobile && <MemoizedSidebar onOpenShortcuts={() => setShortcutsOpen(true)} />}
       <div className="flex flex-col flex-1 overflow-hidden">
         <AppHeader searchOpen={searchOpen} onSearchOpenChange={setSearchOpen} onOpenShortcuts={() => setShortcutsOpen(true)} />
         <main className="flex-1 overflow-y-auto p-4 md:p-5">
@@ -46,13 +50,17 @@ export function AppLayout() {
           </Suspense>
         </main>
       </div>
-      <KeyboardShortcutsDialog open={shortcutsOpen} onOpenChange={setShortcutsOpen} />
-      <KeyboardShortcutsHint onOpenShortcuts={() => setShortcutsOpen(true)} />
-      <WalkthroughTutorial
-        onComplete={() => {}}
-        externalOpen={walkthroughOpen}
-        onOpenChange={setWalkthroughOpen}
-      />
+      <Suspense fallback={null}>
+        {shortcutsOpen && <KeyboardShortcutsDialog open={shortcutsOpen} onOpenChange={setShortcutsOpen} />}
+        <KeyboardShortcutsHint onOpenShortcuts={() => setShortcutsOpen(true)} />
+        {walkthroughOpen && (
+          <WalkthroughTutorial
+            onComplete={() => {}}
+            externalOpen={walkthroughOpen}
+            onOpenChange={setWalkthroughOpen}
+          />
+        )}
+      </Suspense>
     </div>
   );
 }

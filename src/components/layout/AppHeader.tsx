@@ -1,3 +1,4 @@
+import { lazy, Suspense, memo } from 'react';
 import { Search, Plus, Moon, Sun, Menu, Settings, LogOut, BookOpen, ShieldCheck, Keyboard } from 'lucide-react';
 import { modKey } from '@/lib/platform';
 import { Button } from '@/components/ui/button';
@@ -11,7 +12,6 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import { useState } from 'react';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { AppSidebar } from './AppSidebar';
-import { GlobalSearch } from './GlobalSearch';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -21,13 +21,16 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
+// Lazy-load GlobalSearch — only needed when user opens it
+const GlobalSearch = lazy(() => import('./GlobalSearch').then(m => ({ default: m.GlobalSearch })));
+
 interface AppHeaderProps {
   searchOpen: boolean;
   onSearchOpenChange: (open: boolean) => void;
   onOpenShortcuts?: () => void;
 }
 
-export function AppHeader({ searchOpen, onSearchOpenChange, onOpenShortcuts }: AppHeaderProps) {
+export const AppHeader = memo(function AppHeader({ searchOpen, onSearchOpenChange, onOpenShortcuts }: AppHeaderProps) {
   const navigate = useNavigate();
   const { profile, signOut } = useAuth();
   const { theme, setTheme } = useTheme();
@@ -172,7 +175,12 @@ export function AppHeader({ searchOpen, onSearchOpenChange, onOpenShortcuts }: A
         </div>
       </div>
 
-      <GlobalSearch open={searchOpen} onOpenChange={onSearchOpenChange} />
+      {/* Only mount GlobalSearch when opened */}
+      {searchOpen && (
+        <Suspense fallback={null}>
+          <GlobalSearch open={searchOpen} onOpenChange={onSearchOpenChange} />
+        </Suspense>
+      )}
     </header>
   );
-}
+});
