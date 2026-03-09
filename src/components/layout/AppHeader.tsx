@@ -61,7 +61,7 @@ export function AppHeader({ searchOpen, onSearchOpenChange, onOpenShortcuts }: A
               </Button>
             </SheetTrigger>
             <SheetContent side="left" className="p-0 w-56">
-              <AppSidebar onNavigate={() => setSidebarOpen(false)} />
+              <AppSidebar onNavigate={() => setSidebarOpen(false)} onOpenShortcuts={onOpenShortcuts} />
             </SheetContent>
           </Sheet>
         )}

@@ -1,4 +1,5 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { SidebarKeyboardHint } from '@/components/onboarding/KeyboardShortcutsHint';
 import {
   LayoutDashboard,
   FileText,
@@ -69,9 +70,10 @@ const managementNavigation: NavItem[] = [
 
 interface AppSidebarProps {
   onNavigate?: () => void;
+  onOpenShortcuts?: () => void;
 }
 
-export function AppSidebar({ onNavigate }: AppSidebarProps) {
+export function AppSidebar({ onNavigate, onOpenShortcuts }: AppSidebarProps) {
   const location = useLocation();
   const navigate = useNavigate();
   const isMobile = useIsMobile();
@@ -168,6 +170,11 @@ export function AppSidebar({ onNavigate }: AppSidebarProps) {
         {renderSectionLabel('Manage')}
         {filterNav(managementNavigation).map(renderNavItem)}
       </nav>
+
+      {/* Keyboard hints */}
+      {onOpenShortcuts && (
+        <SidebarKeyboardHint onOpenShortcuts={onOpenShortcuts} collapsed={isCollapsed} />
+      )}
 
       {/* User section */}
       <div className="p-2 border-t border-sidebar-border">
