@@ -131,19 +131,17 @@ export default function AdminDashboard() {
             <CardTitle className="text-sm font-medium">AI Model Usage</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="h-64">
+            <div className="h-48 sm:h-52">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie
                     data={aiModelData}
                     cx="50%"
                     cy="50%"
-                    innerRadius={50}
-                    outerRadius={80}
+                    innerRadius={40}
+                    outerRadius={65}
                     paddingAngle={2}
                     dataKey="value"
-                    label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
-                    labelLine={false}
                   >
                     {aiModelData.map((_, index) => (
                       <Cell key={`cell-${index}`} fill={AI_MODEL_COLORS[index % AI_MODEL_COLORS.length]} />
@@ -152,6 +150,20 @@ export default function AdminDashboard() {
                   <Tooltip />
                 </PieChart>
               </ResponsiveContainer>
+            </div>
+            {/* Legend */}
+            <div className="flex flex-wrap gap-x-4 gap-y-1.5 mt-3">
+              {aiModelData.map((entry, index) => {
+                const total = aiModelData.reduce((s, e) => s + e.value, 0);
+                const pct = total > 0 ? ((entry.value / total) * 100).toFixed(0) : '0';
+                return (
+                  <div key={entry.name} className="flex items-center gap-1.5 text-xs">
+                    <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: AI_MODEL_COLORS[index % AI_MODEL_COLORS.length] }} />
+                    <span className="text-muted-foreground truncate">{entry.name}</span>
+                    <span className="font-medium">{pct}%</span>
+                  </div>
+                );
+              })}
             </div>
           </CardContent>
         </Card>
