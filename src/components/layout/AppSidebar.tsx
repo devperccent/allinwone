@@ -1,4 +1,5 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { SidebarKeyboardHint } from '@/components/onboarding/KeyboardShortcutsHint';
 import {
   LayoutDashboard,
   FileText,
