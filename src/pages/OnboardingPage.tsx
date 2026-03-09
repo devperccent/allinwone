@@ -104,6 +104,8 @@ export default function OnboardingPage() {
   const handleFinish = async () => {
     if (!profile) return;
 
+    const modeDefaults = getBusinessModeDefaults(businessMode);
+
     try {
       await updateProfile({
         id: profile.id,
@@ -119,10 +121,29 @@ export default function OnboardingPage() {
         bank_account_number: bankAccountNumber || null,
         bank_ifsc: bankIfsc || null,
         business_type: businessType || null,
+        business_mode: businessMode,
+        enabled_modules: modeDefaults.enabled_modules,
         invoice_prefix: invoicePrefix,
         next_invoice_number: nextNumber,
         onboarding_completed: true,
       });
+
+      await refreshProfile();
+
+      toast({
+        title: 'Welcome aboard! 🎉',
+        description: 'Your business profile is all set up.',
+      });
+
+      navigate(modeDefaults.focus_page);
+    } catch (error: any) {
+      toast({
+        title: 'Error',
+        description: error.message,
+        variant: 'destructive',
+      });
+    }
+  };
 
       await refreshProfile();
 
