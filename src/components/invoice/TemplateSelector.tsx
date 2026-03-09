@@ -7,7 +7,7 @@ interface TemplateSelectorProps {
   onChange: (template: InvoiceTemplate) => void;
 }
 
-const templates: InvoiceTemplate[] = ['modern', 'classic', 'minimal'];
+const templates: InvoiceTemplate[] = ['modern', 'classic', 'minimal', 'bold', 'elegant', 'corporate'];
 
 function MiniPreview({ template, selected }: { template: InvoiceTemplate; selected: boolean }) {
   const p = TEMPLATE_PALETTES[template];
