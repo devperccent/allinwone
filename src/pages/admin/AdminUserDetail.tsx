@@ -34,9 +34,11 @@ export default function AdminUserDetail() {
   const updateTier = useUpdateUserTier();
   const updateModules = useUpdateUserModules();
   const resetQuota = useResetUserAiQuota();
+  const suspendUser = useSuspendUser();
   
   const [modulesState, setModulesState] = useState<string[]>([]);
   const [selectedTier, setSelectedTier] = useState<string>('standard');
+  const [suspendReason, setSuspendReason] = useState('');
 
   useEffect(() => {
     if (data?.profile) {
