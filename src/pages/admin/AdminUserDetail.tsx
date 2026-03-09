@@ -269,9 +269,9 @@ export default function AdminUserDetail() {
 
         <TabsContent value="modules">
           <Card>
-            <CardHeader>
-              <CardTitle>Active Modules</CardTitle>
-              <CardDescription>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium">Active Modules</CardTitle>
+              <CardDescription className="text-xs">
                 Control which features this user sees. Disabled modules hide the related sidebar links, dashboard widgets, and routes.
               </CardDescription>
             </CardHeader>
