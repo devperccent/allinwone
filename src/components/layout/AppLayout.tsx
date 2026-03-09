@@ -52,7 +52,7 @@ export function AppLayout() {
       {!isMobile && <MemoizedSidebar onOpenShortcuts={() => setShortcutsOpen(true)} />}
       <div className="flex flex-col flex-1 overflow-hidden">
         <AppHeader searchOpen={searchOpen} onSearchOpenChange={setSearchOpen} onOpenShortcuts={() => setShortcutsOpen(true)} />
-        <main className="flex-1 overflow-y-auto p-4 md:p-5">
+        <main id="main-content" className="flex-1 overflow-y-auto p-4 md:p-5" tabIndex={-1}>
           <Suspense fallback={<RouteLoader />}>
             <Outlet context={{ setWalkthroughOpen }} />
           </Suspense>
