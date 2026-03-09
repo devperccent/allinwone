@@ -565,6 +565,134 @@ export default function SettingsPage() {
           </Card>
         </TabsContent>
 
+        {/* Accessibility Tab */}
+        <TabsContent value="accessibility">
+          <div className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Accessibility className="w-5 h-5" />
+                  Display & Readability
+                </CardTitle>
+                <CardDescription>
+                  Make the interface easier to read and use. These settings are saved on this device.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                {/* Font Size */}
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="font-medium">Text Size</p>
+                      <p className="text-sm text-muted-foreground">
+                        Adjust the size of all text in the app
+                      </p>
+                    </div>
+                    <span className="text-sm font-mono font-semibold bg-muted px-2.5 py-1 rounded">
+                      {a11ySettings.fontSize}px
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <span className="text-xs text-muted-foreground" style={{ fontSize: '12px' }}>A</span>
+                    <Slider
+                      value={[a11ySettings.fontSize]}
+                      onValueChange={([v]) => updateA11y({ fontSize: v })}
+                      min={14}
+                      max={24}
+                      step={1}
+                      className="flex-1"
+                    />
+                    <span className="text-lg font-bold text-muted-foreground" style={{ fontSize: '22px' }}>A</span>
+                  </div>
+                  <div className="p-3 bg-muted/30 rounded-lg border border-border/50">
+                    <p className="text-muted-foreground">
+                      Preview: This is how your text will look at {a11ySettings.fontSize}px. 
+                      बिल ₹1,500 का है। বিল ₹1,500।
+                    </p>
+                  </div>
+                </div>
+
+                {/* High Contrast */}
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="font-medium">High Contrast</p>
+                    <p className="text-sm text-muted-foreground">
+                      Increase text and border contrast for better visibility
+                    </p>
+                  </div>
+                  <Switch
+                    checked={a11ySettings.highContrast}
+                    onCheckedChange={(v) => updateA11y({ highContrast: v })}
+                  />
+                </div>
+
+                {/* Reduced Motion */}
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="font-medium">Reduce Animations</p>
+                    <p className="text-sm text-muted-foreground">
+                      Minimise or remove all animations and transitions
+                    </p>
+                  </div>
+                  <Switch
+                    checked={a11ySettings.reducedMotion}
+                    onCheckedChange={(v) => updateA11y({ reducedMotion: v })}
+                  />
+                </div>
+
+                {/* Large Targets */}
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="font-medium">Large Touch Targets</p>
+                    <p className="text-sm text-muted-foreground">
+                      Make buttons and links bigger — easier to tap for elderly users
+                    </p>
+                  </div>
+                  <Switch
+                    checked={a11ySettings.largeTargets}
+                    onCheckedChange={(v) => updateA11y({ largeTargets: v })}
+                  />
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Keyboard Navigation</CardTitle>
+                <CardDescription>
+                  This app fully supports keyboard navigation. Here are some tips:
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid gap-3 sm:grid-cols-2">
+                  {[
+                    { keys: 'Tab / Shift+Tab', desc: 'Move between elements' },
+                    { keys: 'Enter / Space', desc: 'Activate buttons & links' },
+                    { keys: 'Esc', desc: 'Close dialogs & menus' },
+                    { keys: 'Ctrl+K / ⌘K', desc: 'Open search' },
+                    { keys: 'N', desc: 'Create new invoice' },
+                    { keys: '?', desc: 'View all shortcuts' },
+                  ].map(({ keys, desc }) => (
+                    <div key={keys} className="flex items-center gap-3 p-2.5 rounded-lg bg-muted/30 border border-border/50">
+                      <kbd className="inline-flex items-center px-2 py-1 rounded bg-muted text-xs font-mono font-semibold whitespace-nowrap">
+                        {keys}
+                      </kbd>
+                      <span className="text-sm text-muted-foreground">{desc}</span>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+
+            <div className="flex justify-end">
+              <Button variant="outline" onClick={resetA11y}>
+                <RotateCcw className="w-4 h-4 mr-2" />
+                Reset to Defaults
+              </Button>
+            </div>
+          </div>
+        </TabsContent>
+
         {/* Restart Tour Card - below tabs */}
       </Tabs>
 
