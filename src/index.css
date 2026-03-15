@@ -5,33 +5,35 @@
 @tailwind utilities;
 
 /* Window Controls Overlay — frameless PWA title bar */
-.app-titlebar {
-  /* Extend into the title bar area when WCO is active */
-  padding-left: env(titlebar-area-x, 0.75rem);
-  padding-right: calc(100% - env(titlebar-area-x, 0px) - env(titlebar-area-width, 100%) + 0.75rem);
-  padding-top: env(safe-area-inset-top, 0);
-  -webkit-app-region: drag;
-  app-region: drag;
-}
 
-/* Make interactive elements within titlebar clickable */
-.app-titlebar button,
-.app-titlebar a,
-.app-titlebar input,
-.app-titlebar [role="combobox"],
-.app-titlebar [data-radix-collection-item] {
-  -webkit-app-region: no-drag;
-  app-region: no-drag;
-}
-
-/* When WCO is active, remove top border radius for seamless look */
+/* When WCO is active, extend header into title bar */
 @media (display-mode: window-controls-overlay) {
   html, body, #root {
     border-top-left-radius: 0;
     border-top-right-radius: 0;
   }
+
   .app-titlebar {
-    padding-top: 0;
+    /* Position content within the available titlebar area */
+    padding-left: calc(env(titlebar-area-x, 0px) + 0.75rem);
+    padding-right: calc(100% - env(titlebar-area-x, 0px) - env(titlebar-area-width, 100%) + 0.75rem);
+    padding-top: env(titlebar-area-y, 0px);
+    min-height: calc(env(titlebar-area-height, 48px));
+    /* Make the header draggable like a native title bar */
+    -webkit-app-region: drag;
+    app-region: drag;
+  }
+
+  /* Make interactive elements within titlebar clickable (not draggable) */
+  .app-titlebar button,
+  .app-titlebar a,
+  .app-titlebar input,
+  .app-titlebar [role="combobox"],
+  .app-titlebar [data-radix-collection-item],
+  .app-titlebar [data-slot="dropdown-menu"],
+  .app-titlebar kbd {
+    -webkit-app-region: no-drag;
+    app-region: no-drag;
   }
 }
 
