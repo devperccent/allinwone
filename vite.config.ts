@@ -23,7 +23,7 @@ export default defineConfig(({ mode }) => ({
         name: "Inw - Invoicing & Inventory",
         short_name: "Inw",
         description: "GST invoicing, inventory management, and business reports for Indian SMBs",
-        theme_color: "#0a1c23",
+        theme_color: "#ffffff",
         background_color: "#f7f9fa",
         display: "standalone",
         display_override: ["window-controls-overlay", "standalone"],
