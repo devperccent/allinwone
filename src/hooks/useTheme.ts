@@ -14,12 +14,18 @@ export function useTheme() {
     const root = document.documentElement;
 
     const applyTheme = (t: Theme) => {
-      if (t === 'system') {
-        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-        root.classList.toggle('dark', prefersDark);
-      } else {
-        root.classList.toggle('dark', t === 'dark');
-      }
+      const isDark = t === 'system'
+        ? window.matchMedia('(prefers-color-scheme: dark)').matches
+        : t === 'dark';
+      
+      root.classList.toggle('dark', isDark);
+      
+      // Update theme-color meta tag for PWA title bar
+      const metaLight = document.querySelector('meta[name="theme-color"][media="(prefers-color-scheme: light)"]');
+      const metaDark = document.querySelector('meta[name="theme-color"][media="(prefers-color-scheme: dark)"]');
+      const themeColor = isDark ? '#0d1f26' : '#ffffff';
+      if (metaLight) metaLight.setAttribute('content', themeColor);
+      if (metaDark) metaDark.setAttribute('content', themeColor);
     };
 
     applyTheme(theme);
