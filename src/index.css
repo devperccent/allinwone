@@ -4,6 +4,44 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Window Controls Overlay — frameless PWA title bar */
+.app-titlebar {
+  /* Extend into the title bar area when WCO is active */
+  padding-left: env(titlebar-area-x, 0.75rem);
+  padding-right: calc(100% - env(titlebar-area-x, 0px) - env(titlebar-area-width, 100%) + 0.75rem);
+  padding-top: env(safe-area-inset-top, 0);
+  -webkit-app-region: drag;
+  app-region: drag;
+}
+
+/* Make interactive elements within titlebar clickable */
+.app-titlebar button,
+.app-titlebar a,
+.app-titlebar input,
+.app-titlebar [role="combobox"],
+.app-titlebar [data-radix-collection-item] {
+  -webkit-app-region: no-drag;
+  app-region: no-drag;
+}
+
+/* When WCO is active, remove top border radius for seamless look */
+@media (display-mode: window-controls-overlay) {
+  html, body, #root {
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+  }
+  .app-titlebar {
+    padding-top: 0;
+  }
+}
+
+/* Standalone PWA — ensure no extra spacing */
+@media (display-mode: standalone) {
+  body {
+    padding-top: env(safe-area-inset-top, 0);
+  }
+}
+
 /* Inw Design System - Professional Invoicing SaaS
    Theme: Indigo (#4F46E5) with clean, data-dense aesthetic
    Font: Plus Jakarta Sans
